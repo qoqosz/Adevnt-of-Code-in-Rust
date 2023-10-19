@@ -1,3 +1,5 @@
 /target
 session.cookie
 /data
+rust-analyzer
+.vscode/

@@ -15,7 +15,7 @@ path = "src/bin/download.rs"
 
 [[bin]]
 name = "cur"
-path = "src/aoc2015/day7.rs"
+path = "src/aoc2015/day8.rs"
 
 
 [[bin]]
