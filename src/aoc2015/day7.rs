@@ -1,11 +1,11 @@
 use aoc::load_input;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::iter::Peekable;
 use std::mem::discriminant;
 use std::str::Chars;
 
 // Token
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     Illegal,
     EndOfFile,
@@ -135,7 +135,7 @@ impl<'a> Iterator for Lexer<'a> {
 // Parser
 /// A node in the Abstract Syntax Tree (AST)
 pub trait Node {
-    fn accept(&self, visitor: &Interpreter) -> Result<u16, String>;
+    fn accept(&self, visitor: &mut Interpreter) -> Result<Token, String>;
 }
 
 /// Integer node
@@ -152,7 +152,7 @@ impl From<u16> for NumberNode {
 }
 
 impl Node for NumberNode {
-    fn accept(&self, visitor: &Interpreter) -> Result<u16, String> {
+    fn accept(&self, visitor: &mut Interpreter) -> Result<Token, String> {
         visitor.visit_num(self)
     }
 }
@@ -170,7 +170,7 @@ impl From<String> for SymbolNode {
 }
 
 impl Node for SymbolNode {
-    fn accept(&self, visitor: &Interpreter) -> Result<u16, String> {
+    fn accept(&self, visitor: &mut Interpreter) -> Result<Token, String> {
         visitor.visit_sym(self)
     }
 }
@@ -181,7 +181,7 @@ pub struct UnaryOpNode {
 }
 
 impl Node for UnaryOpNode {
-    fn accept(&self, visitor: &Interpreter) -> Result<u16, String> {
+    fn accept(&self, visitor: &mut Interpreter) -> Result<Token, String> {
         visitor.visit_unop(self)
     }
 }
@@ -193,8 +193,20 @@ pub struct BinaryOpNode {
 }
 
 impl Node for BinaryOpNode {
-    fn accept(&self, visitor: &Interpreter) -> Result<u16, String> {
+    fn accept(&self, visitor: &mut Interpreter) -> Result<Token, String> {
         visitor.visit_binop(self)
+    }
+}
+
+pub struct AssignmentNode {
+    pub token: Token,
+    pub lhs: Box<dyn Node>,
+    pub rhs: Box<dyn Node>,
+}
+
+impl Node for AssignmentNode {
+    fn accept(&self, visitor: &mut Interpreter) -> Result<Token, String> {
+        visitor.visit_assign(self)
     }
 }
 
@@ -217,6 +229,7 @@ impl<'a> Parser<'a> {
             self.current_token = self.lexer.next_token();
             Ok(())
         } else {
+            println!("Invalid syntax");
             Err("Invalid syntax".to_string())
         }
     }
@@ -226,8 +239,22 @@ impl<'a> Parser<'a> {
     // expr: val ((AND | OR | LSHIFT | RSHIFT) val)?
     // val: (NOT)? sym | num
 
+    pub fn sym(&mut self) -> Result<Box<dyn Node>, String> {
+        match self.current_token.clone() {
+            Token::Symbol(sym) => {
+                self.eat(&Token::Symbol("".to_string()))?;
+                Ok(Box::new(SymbolNode::from(sym)))
+            }
+            _ => Err("not a symbol".to_string()),
+        }
+    }
+
     pub fn val(&mut self) -> Result<Box<dyn Node>, String> {
-        match self.current_token {
+        match self.current_token.clone() {
+            Token::Symbol(sym) => {
+                self.eat(&Token::Symbol("".to_string()))?;
+                Ok(Box::new(SymbolNode::from(sym)))
+            }
             Token::Number(num) => {
                 self.eat(&Token::Number(0))?;
                 Ok(Box::new(NumberNode::from(num)))
@@ -257,9 +284,52 @@ impl<'a> Parser<'a> {
                 });
                 Ok(node)
             }
+            Token::Or => {
+                self.eat(&Token::Or)?;
+                let node = Box::new(BinaryOpNode {
+                    token: Token::Or,
+                    lhs: node,
+                    rhs: self.val()?,
+                });
+                Ok(node)
+            }
+            Token::RShift => {
+                self.eat(&Token::RShift)?;
+                let node = Box::new(BinaryOpNode {
+                    token: Token::RShift,
+                    lhs: node,
+                    rhs: self.val()?,
+                });
+                Ok(node)
+            }
+            Token::LShift => {
+                self.eat(&Token::LShift)?;
+                let node = Box::new(BinaryOpNode {
+                    token: Token::LShift,
+                    lhs: node,
+                    rhs: self.val()?,
+                });
+                Ok(node)
+            }
             Token::Illegal => Err("Illegal input".to_string()),
-            Token::EndOfFile => Ok(node),
-            _ => Err("Unknown token".to_string()),
+            _ => Ok(node),
+        }
+    }
+
+    pub fn assignment(&mut self) -> Result<Box<dyn Node>, String> {
+        let node = self.expr()?;
+
+        match self.current_token {
+            Token::Assignment => {
+                self.eat(&Token::Assignment)?;
+                let node = Box::new(AssignmentNode {
+                    token: Token::Assignment,
+                    lhs: node,
+                    rhs: self.sym()?,
+                });
+                Ok(node)
+            }
+            _ => Ok(node),
         }
     }
 }
@@ -277,102 +347,171 @@ impl<'a> Interpreter<'a> {
         }
     }
 
-    pub fn interpret(&mut self) -> Result<u16, String> {
-        let tree = self.parser.expr()?;
+    pub fn with_globals(
+        parser: &'a mut Parser<'a>,
+        globals: HashMap<String, u16>,
+    ) -> Interpreter<'a> {
+        Interpreter { globals, parser }
+    }
+
+    pub fn interpret(&mut self) -> Result<Token, String> {
+        let tree = self.parser.assignment()?;
         self.visit(&tree)
     }
 
-    pub fn visit(&self, tree: &Box<dyn Node>) -> Result<u16, String> {
+    pub fn visit(&mut self, tree: &Box<dyn Node>) -> Result<Token, String> {
         tree.accept(self)
     }
 
-    pub fn visit_num(&self, node: &NumberNode) -> Result<u16, String> {
-        match node.token {
-            Token::Number(val) => Ok(val),
+    pub fn visit_num(&mut self, node: &NumberNode) -> Result<Token, String> {
+        match &node.token {
+            num @ Token::Number(_) => Ok(num.clone()),
             _ => Err("Not an integer".to_string()),
         }
     }
 
-    pub fn visit_sym(&self, node: &SymbolNode) -> Result<u16, String> {
+    pub fn visit_sym(&mut self, node: &SymbolNode) -> Result<Token, String> {
         match &node.token {
-            Token::Symbol(sym) => {
-                let val = *self.globals.get(&(sym.clone())).unwrap_or(&(0 as u16));
-                Ok(val)
-            }
+            Token::Symbol(ref sym) => match self.globals.get(sym) {
+                Some(val) => Ok(Token::Number(*val)),
+                _ => Ok(Token::Symbol(sym.clone())),
+            },
             _ => Err("Not a symbol".to_string()),
         }
     }
 
-    pub fn visit_unop(&self, node: &UnaryOpNode) -> Result<u16, String> {
-        let rhs = self.visit(&node.rhs)?;
+    pub fn visit_unop(&mut self, node: &UnaryOpNode) -> Result<Token, String> {
+        let rhs = match self.visit(&node.rhs) {
+            Ok(Token::Number(val)) => val,
+            _ => return Err("not a number".to_string()),
+        };
 
         match node.token {
-            Token::Not => Ok(!rhs),
-            _ => Err("Not an unary operator".to_string()),
+            Token::Not => Ok(Token::Number(!rhs)),
+            _ => return Err("Not an unary operator".to_string()),
         }
     }
 
-    pub fn visit_binop(&self, node: &BinaryOpNode) -> Result<u16, String> {
-        let lhs = self.visit(&node.lhs)?;
-        let rhs = self.visit(&node.rhs)?;
+    pub fn visit_binop(&mut self, node: &BinaryOpNode) -> Result<Token, String> {
+        let lhs = match self.visit(&node.lhs) {
+            Ok(Token::Number(val)) => val,
+            _ => return Err("not a number".to_string()),
+        };
+        let rhs = match self.visit(&node.rhs) {
+            Ok(Token::Number(val)) => val,
+            _ => return Err("not a number".to_string()),
+        };
 
         match node.token {
-            Token::And => Ok(lhs & rhs),
-            Token::Or => Ok(lhs | rhs),
-            Token::RShift => Ok(lhs >> rhs),
-            Token::LShift => Ok(lhs << rhs),
+            Token::And => Ok(Token::Number(lhs & rhs)),
+            Token::Or => Ok(Token::Number(lhs | rhs)),
+            Token::RShift => Ok(Token::Number(lhs >> rhs)),
+            Token::LShift => Ok(Token::Number(lhs << rhs)),
             _ => Err("Not a binary operator".to_string()),
         }
     }
+
+    pub fn visit_assign(&mut self, node: &AssignmentNode) -> Result<Token, String> {
+        let lhs = match self.visit(&node.lhs) {
+            Ok(Token::Number(val)) => val,
+            _ => return Err("not a number".to_string()),
+        };
+        let rhs = match self.visit(&node.rhs) {
+            Ok(Token::Symbol(sym)) => sym,
+            _ => return Err("not a symbol".to_string()),
+        };
+        self.globals.insert(rhs, lhs);
+        Ok(Token::EndOfFile)
+    }
 }
 
-static TEST: &str = "123 -> x
-456 -> y
-x AND y -> d
-x OR y -> e
-x LSHIFT 2 -> f
-y RSHIFT 2 -> g
-NOT x -> h
-NOT y -> i";
+struct Executor {
+    globals: HashMap<String, u16>,
+}
+
+impl Executor {
+    pub fn new() -> Self {
+        Executor {
+            globals: HashMap::new(),
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.globals = HashMap::new();
+    }
+
+    pub fn eval(&mut self, input: &str) -> Result<(), String> {
+        let mut line = input.to_string();
+        let mut lexer = Lexer::new(&mut line);
+        let mut parser = Parser::new(&mut lexer);
+        let mut interpreter = Interpreter::with_globals(&mut parser, self.globals.clone());
+
+        match interpreter.interpret() {
+            Ok(_) => {
+                self.globals.extend(interpreter.globals);
+                Ok(())
+            }
+            Err(_) => Err("".to_string()),
+        }
+    }
+
+    pub fn get<S: Into<String>>(&self, var: S) -> Option<u16> {
+        let key = var.into();
+        let val = self.globals.get(&key);
+        val.copied()
+    }
+
+    pub fn solve(&mut self, lines: &Vec<&str>) {
+        self.globals.reserve(lines.len());
+        let mut lines: VecDeque<_> = VecDeque::from(lines.clone());
+
+        while !lines.is_empty() {
+            let Some(line) = lines.pop_front() else { break };
+            match self.eval(line) {
+                Ok(_) => continue,
+                Err(_) => lines.push_back(line),
+            }
+        }
+    }
+}
 
 fn main() {
     let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day7.txt");
-    let lines = data
-        .split('\n')
-        .filter(|&x| !x.is_empty())
-        .collect::<Vec<_>>();
+    let lines: Vec<_> = data.split('\n').filter(|&x| !x.is_empty()).collect();
+    let mut executor = Executor::new();
 
-    man_test();
+    // Part I
+    executor.solve(&lines);
+    let a_signal = executor.get("a").unwrap();
+    println!("{}", a_signal);
+
+    // Part II
+    executor.reset();
+    let lines: Vec<_> = lines.into_iter().filter(|&x| !x.ends_with(" b")).collect();
+    executor.globals.insert("b".to_string(), a_signal);
+    executor.solve(&lines);
+    let a_signal = executor.get("a").unwrap();
+    println!("{}", a_signal);
 }
 
-fn interpret(input: &str) -> Result<u16, String> {
-    let mut line = input.to_string();
-    let mut lexer = Lexer::new(&mut line);
-    let mut parser = Parser::new(&mut lexer);
-    let mut interpreter = Interpreter::new(&mut parser);
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    interpreter.interpret()
-}
-
-fn man_test() {
-    let mut registers: HashMap<&str, u32> = HashMap::new();
-    registers.insert("x", 123);
-    registers.insert("y", 456);
-
-    for line in TEST.split('\n') {
-        let mut input = line.to_owned();
-        let lexer = Lexer::new(&mut input);
-
-        for token in lexer {
-            println!("{:?}", token);
-        }
-
-        println!("-------------");
+    #[test]
+    fn test_case() {
+        let example: Vec<_> = vec![
+            "123 -> x",
+            "NOT x -> h",
+            "456 -> y",
+            "x AND y -> d",
+            "x OR y -> e",
+            "x LSHIFT 2 -> f",
+            "y RSHIFT 2 -> g",
+            "NOT y -> i",
+        ];
+        let mut executor = Executor::new();
+        executor.solve(&example);
+        assert_eq!(executor.get("x").unwrap(), 123);
     }
-
-    // test all
-    println!("{}={}", "NOT 123", interpret("NOT 123").unwrap());
-
-    // test 2
-    //interpret("123 AND 456");
 }
