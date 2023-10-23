@@ -1,4 +1,4 @@
-use aoc::load_input;
+use aoc::aoc_input;
 use regex::Regex;
 use serde_json::{json, Value};
 
@@ -49,8 +49,7 @@ fn sum_node(val: &Value) -> i64 {
 }
 
 fn main() {
-    let data =
-        load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day12.txt");
+    let data = aoc_input!(2015, 12).unwrap();
 
     // Part I
     println!("{}", find_sum(&data));

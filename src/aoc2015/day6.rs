@@ -1,4 +1,4 @@
-use aoc::load_input;
+use aoc::aoc_input;
 
 #[derive(PartialEq, Debug)]
 enum Action {
@@ -112,7 +112,7 @@ fn parse_line(line: &str) -> (Action, Range) {
 }
 
 fn main() {
-    let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day6.txt");
+    let data = aoc_input!(2015, 6).unwrap();
     let commands = data
         .split('\n')
         .filter(|&x| !x.is_empty())

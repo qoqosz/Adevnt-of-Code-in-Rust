@@ -1,4 +1,4 @@
-use aoc::load_input;
+use aoc::aoc_input;
 
 pub trait InMemorySize {
     fn in_mem_size(&self) -> usize;
@@ -40,7 +40,7 @@ fn encoded_len<T: Into<String>>(text: T) -> usize {
 }
 
 fn main() {
-    let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day8.txt");
+    let data = aoc_input!(2015, 8).unwrap();
     let lines: Vec<_> = data.split('\n').filter(|&x| !x.is_empty()).collect();
 
     // Part I

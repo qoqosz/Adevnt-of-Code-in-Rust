@@ -1,4 +1,4 @@
-use aoc::load_input;
+use aoc::aoc_input;
 
 #[derive(Debug)]
 struct Box {
@@ -67,7 +67,7 @@ fn total_ribbon_len(boxes: &Vec<Box>) -> usize {
 }
 
 fn main() {
-    let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day2.txt");
+    let data = aoc_input(2015, 2).unwrap();
     let boxes: Vec<Box> = data
         .split('\n')
         .filter(|&x| !x.is_empty())
