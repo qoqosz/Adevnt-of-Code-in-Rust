@@ -28,8 +28,12 @@ macro_rules! aoc_input {
 
     ($y:expr, $d:expr) => {{
         let session_cookie =
-            $crate::io::load_cookie($crate::io::AOC_ENV_VAR, $crate::io::AOC_COOKIE_FILE)
-                .expect("No AoC session cookie found");
-        $crate::io::get_aoc_input($crate::io::AOC_DIR, &session_cookie, $y as u16, $d as u16)
+            $crate::io::load_cookie($crate::io::AOC_ENV_VAR, $crate::io::AOC_COOKIE_FILE).ok();
+        $crate::io::get_aoc_input(
+            $crate::io::AOC_DIR,
+            session_cookie.as_deref(),
+            $y as u16,
+            $d as u16,
+        )
     }};
 }

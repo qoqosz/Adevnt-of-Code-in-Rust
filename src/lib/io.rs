@@ -4,6 +4,7 @@ use std::{
     fs, io,
     path::{Path, PathBuf},
 };
+
 extern crate shellexpand;
 
 pub static AOC_DIR: &str = "~/.aoc";
@@ -34,9 +35,9 @@ fn get_from_cache(
     cache_dir: impl AsRef<str>,
     year: impl Unsigned,
     day: impl Unsigned,
-) -> Option<String> {
+) -> io::Result<String> {
     let path = get_path(cache_dir, year, day);
-    fs::read_to_string(path).ok()
+    fs::read_to_string(path)
 }
 
 /// Write puzzle input to a file in cache dir.
@@ -53,11 +54,14 @@ fn save_to_cache(
 }
 
 /// Load cookie from an env var or a file
-pub fn load_cookie(env_var: &str, cookie_file: &str) -> Option<String> {
-    let trim = |x: String| x.trim().to_string();
+pub fn load_cookie(env_var: &str, cookie_file: &str) -> io::Result<String> {
+    let trim = |x: &String| x.trim().to_string();
     match std::env::var(env_var) {
-        Ok(var) => Some(trim(var)),
-        _ => fs::read_to_string(cookie_file).map(trim).ok(),
+        Ok(ref var) if !trim(var).is_empty() => Ok(trim(var)),
+        _ => {
+            let cwd = std::env::current_dir()?;
+            fs::read_to_string(cwd.join(cookie_file)).map(|x| trim(&x))
+        }
     }
 }
 
@@ -88,39 +92,34 @@ async fn download_aoc_input(
     download_file(&client, &url).await.ok()
 }
 
-async fn aget_aoc_input(
+pub fn get_aoc_input(
     cache_dir: impl AsRef<str>,
-    session_cookie: &str,
+    session_cookie: Option<&str>,
     year: impl Unsigned,
     day: impl Unsigned,
 ) -> io::Result<String> {
     create_store(&cache_dir)?;
 
-    match get_from_cache(&cache_dir, year, day) {
-        Some(input) => Ok(input),
-        _ => {
-            let puzzle_input = download_aoc_input(session_cookie, year, day)
-                .await
-                .map(|input| {
-                    save_to_cache(cache_dir, year, day, &input).unwrap_or(());
-                    input
-                });
+    get_from_cache(&cache_dir, year, day).or_else(|_| {
+        if session_cookie.is_none() {
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Empty AoC session cookie",
+            ));
+        }
+        let puzzle_input = tokio::runtime::Runtime::new()
+            .unwrap()
+            .block_on(download_aoc_input(session_cookie.unwrap(), year, day));
 
-            puzzle_input.ok_or(io::Error::new(
+        match puzzle_input {
+            Some(input) => {
+                save_to_cache(cache_dir, year, day, &input)?;
+                Ok(input)
+            }
+            _ => Err(io::Error::new(
                 io::ErrorKind::Other,
                 "Error retrieving AoC input",
-            ))
+            )),
         }
-    }
-}
-
-pub fn get_aoc_input(
-    cache_dir: impl AsRef<str>,
-    session_cookie: &str,
-    year: impl Unsigned,
-    day: impl Unsigned,
-) -> io::Result<String> {
-    tokio::runtime::Runtime::new()
-        .unwrap()
-        .block_on(aget_aoc_input(cache_dir, session_cookie, year, day))
+    })
 }
