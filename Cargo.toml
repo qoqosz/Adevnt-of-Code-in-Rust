@@ -11,6 +11,7 @@ opt-level = 0
 opt-level = 3
 codegen-units = 1
 lto = false
+debug = true
 
 [lib]
 name = "aoc"
@@ -41,3 +42,4 @@ reqwest = "0.11.22"
 tokio = { version = "1.33.0", features = ["full"] }
 clap = "4.4.6"
 chrono = "0.4.31"
+fxhash = "0.2.1"
