@@ -4,6 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = false
 
 [lib]
 name = "aoc"
@@ -15,7 +22,7 @@ path = "src/bin/download.rs"
 
 [[bin]]
 name = "cur"
-path = "src/aoc2015/day14.rs"
+path = "src/aoc2015/day15.rs"
 
 
 [[bin]]
