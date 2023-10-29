@@ -106,7 +106,7 @@ fn parse_line(line: &str) -> Vec<(&str, usize)> {
 fn main() {
     let data = aoc_input!(2015, 16).unwrap();
     let sues: Vec<Compounds> = data
-        .split('\n')
+        .lines()
         .filter(|x| !x.is_empty())
         .map(|l| Compounds::from(&parse_line(l)))
         .collect::<Vec<_>>();
