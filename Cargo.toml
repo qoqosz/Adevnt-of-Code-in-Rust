@@ -10,7 +10,7 @@ opt-level = 0
 [profile.release]
 opt-level = 3
 codegen-units = 1
-lto = false
+lto = true
 debug = true
 
 [lib]
@@ -23,7 +23,7 @@ path = "src/bin/download.rs"
 
 [[bin]]
 name = "cur"
-path = "src/aoc2015/day25.rs"
+path = "src/aoc2015/day24.rs"
 
 [[bin]]
 name = "temp"
