@@ -1,4 +1,5 @@
 use aoc::aoc_input;
+use itertools::Itertools;
 
 fn step(c: char, lvl: i32) -> i32 {
     match c {
@@ -9,24 +10,19 @@ fn step(c: char, lvl: i32) -> i32 {
 
 fn dest_floor(instructions: &str) -> i32 {
     // Calculate the final floor where Santa ends given the instructions.
-    instructions.chars().fold(0, |mut lvl, c| {
-        lvl = step(c, lvl);
-        lvl
-    })
+    instructions.chars().fold(0, |lvl, c| step(c, lvl))
 }
 
 fn reach_basement(instructions: &str) -> Option<usize> {
     // The position of the character that causes Santa to first enter the basement.
-    let mut pos: i32 = 0;
-
-    for (i, c) in instructions.chars().enumerate() {
-        pos = step(c, pos);
-
-        if pos == -1 {
-            return Some(i + 1);
-        }
-    }
-    None
+    instructions
+        .chars()
+        .scan(0, |pos, c| {
+            *pos = step(c, *pos);
+            Some(*pos)
+        })
+        .find_position(|pos| *pos == -1)
+        .map(|(i, _)| i + 1)
 }
 
 fn main() {

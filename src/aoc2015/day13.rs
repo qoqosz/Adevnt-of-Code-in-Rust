@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use aoc::{aoc_input, load_input};
+use aoc::aoc_input;
 use itertools::Itertools;
-use petgraph::{data::Build, graph::Node, prelude::*, Graph};
+use petgraph::{prelude::*, Graph};
 
 #[derive(Clone)]
 struct Edge {
@@ -59,10 +59,10 @@ impl Attendees {
         }
     }
 
-    fn get_index_mut(&mut self, person: &String) -> NodeIndex {
+    fn get_index_mut(&mut self, person: &str) -> NodeIndex {
         *self
             .people
-            .entry(person.clone())
+            .entry(person.to_string())
             .or_insert_with(|| self.graph.add_node(()))
     }
 
@@ -76,7 +76,7 @@ impl Attendees {
         self.graph.add_edge(from, to, edge.delta);
     }
 
-    fn happiness(&self, arrangement: &Vec<&String>) -> i32 {
+    fn happiness(&self, arrangement: &[&String]) -> i32 {
         let mut cost = 0;
 
         for (&person, &neighbor) in arrangement.iter().zip(arrangement.iter().cycle().skip(1)) {
@@ -100,7 +100,7 @@ impl Attendees {
             .permutations(n - 1)
             .map(|cycle| {
                 let mut arr = cycle.clone();
-                arr.push(&person);
+                arr.push(person);
                 self.happiness(&arr)
             })
             .max()
@@ -109,7 +109,6 @@ impl Attendees {
 
     fn add_myself(&mut self) {
         let me = "me".to_string();
-        let my_idx = self.get_index_mut(&me);
         let people = self.people.clone();
 
         for person in people.keys() {

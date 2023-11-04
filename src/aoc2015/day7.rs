@@ -5,8 +5,9 @@ use std::mem::discriminant;
 use std::str::Chars;
 
 // Token
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Default, Debug, PartialEq, Clone)]
 pub enum Token {
+    #[default]
     Illegal,
     EndOfFile,
 
@@ -21,19 +22,13 @@ pub enum Token {
     Not,
 }
 
-impl Default for Token {
-    fn default() -> Self {
-        Token::Illegal
-    }
-}
-
 // Lexer
 pub struct Lexer<'a> {
     input: Peekable<Chars<'a>>,
 }
 
 impl<'a> Lexer<'a> {
-    pub fn new(line: &'a String) -> Self {
+    pub fn new(line: &'a str) -> Self {
         Lexer {
             input: line.chars().peekable(),
         }
@@ -388,7 +383,7 @@ impl<'a> Interpreter<'a> {
 
         match node.token {
             Token::Not => Ok(Token::Number(!rhs)),
-            _ => return Err("Not an unary operator".to_string()),
+            _ => Err("Not an unary operator".to_string()),
         }
     }
 
@@ -441,8 +436,8 @@ impl Executor {
     }
 
     pub fn eval(&mut self, input: &str) -> Result<(), String> {
-        let mut line = input.to_string();
-        let mut lexer = Lexer::new(&mut line);
+        let line = input.to_string();
+        let mut lexer = Lexer::new(&line);
         let mut parser = Parser::new(&mut lexer);
         let mut interpreter = Interpreter::with_globals(&mut parser, self.globals.clone());
 

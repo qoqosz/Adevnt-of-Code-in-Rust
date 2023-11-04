@@ -31,19 +31,13 @@ fn main() {
     let mut graph = Graph::<&str, i32, Undirected>::new_undirected();
     let mut map: HashMap<&str, NodeIndex> = HashMap::new();
 
-    for line in data.split('\n').filter(|x| !x.is_empty()) {
+    for line in data.lines().filter(|x| !x.is_empty()) {
         let words: Vec<_> = line.split(' ').collect();
         let from = words[0];
         let dest = words[2];
         let dist: i32 = words.last().unwrap().parse().unwrap();
-        let node1 = map
-            .entry(from)
-            .or_insert_with(|| graph.add_node(from))
-            .clone();
-        let node2 = map
-            .entry(dest)
-            .or_insert_with(|| graph.add_node(dest))
-            .clone();
+        let node1 = *map.entry(from).or_insert_with(|| graph.add_node(from));
+        let node2 = *map.entry(dest).or_insert_with(|| graph.add_node(dest));
         graph.add_edge(node1, node2, dist);
     }
 
@@ -63,12 +57,11 @@ mod tests {
 
     #[test]
     fn test_example() {
-        let mut graph = Graph::<&str, usize, Undirected>::new_undirected();
+        let mut graph = Graph::<&str, i32, Undirected>::new_undirected();
         let d = graph.add_node("Dublin");
         let l = graph.add_node("London");
         let b = graph.add_node("Belfast");
-        let n = graph.node_count();
-        graph.extend_with_edges(&[(d, l, 464), (d, b, 141), (l, b, 518)]);
+        graph.extend_with_edges([(d, l, 464), (d, b, 141), (l, b, 518)]);
 
         assert_eq!(605, shortest_path(&graph).unwrap());
     }

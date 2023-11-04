@@ -7,21 +7,29 @@ struct Box {
     h: usize,
 }
 
-impl Box {
-    fn from_dims(dims: &str) -> Self {
+impl From<&str> for Box {
+    fn from(dims: &str) -> Self {
         // Convert input line into a Box object.
         let vec: Vec<usize> = dims
             .split('x')
             .map(|x| x.parse::<usize>().unwrap())
             .collect();
-        assert_eq!(vec.len(), 3);
+        Box::from(&vec)
+    }
+}
+
+impl From<&Vec<usize>> for Box {
+    fn from(value: &Vec<usize>) -> Self {
+        assert_eq!(value.len(), 3);
         Box {
-            l: vec[0],
-            w: vec[1],
-            h: vec[2],
+            l: value[0],
+            w: value[1],
+            h: value[2],
         }
     }
+}
 
+impl Box {
     fn surface_area(&self) -> usize {
         // Total surface area.
         2 * self.sides_area().iter().sum::<usize>()
@@ -58,20 +66,20 @@ impl Box {
     }
 }
 
-fn total_wrapping_area(boxes: &Vec<Box>) -> usize {
+fn total_wrapping_area(boxes: &[Box]) -> usize {
     boxes.iter().map(|b| b.wrapping_area()).sum()
 }
 
-fn total_ribbon_len(boxes: &Vec<Box>) -> usize {
+fn total_ribbon_len(boxes: &[Box]) -> usize {
     boxes.iter().map(|b| b.ribbon_len()).sum()
 }
 
 fn main() {
-    let data = aoc_input(2015, 2).unwrap();
+    let data = aoc_input!(2015, 2).unwrap();
     let boxes: Vec<Box> = data
-        .split('\n')
+        .lines()
         .filter(|&x| !x.is_empty())
-        .map(|line| Box::from_dims(&line))
+        .map(Box::from)
         .collect();
 
     // Part I

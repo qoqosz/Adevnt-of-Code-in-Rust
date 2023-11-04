@@ -113,11 +113,11 @@ fn search(ingredients: &Vec<Property>, calories: Option<i64>) -> i64 {
 
 fn main() {
     let data = aoc_input!(2015, 15).unwrap();
-    let mut ingredients = vec![];
-
-    for line in data.split('\n').filter(|x| !x.is_empty()) {
-        ingredients.push(Property::from(line));
-    }
+    let ingredients = data
+        .lines()
+        .filter(|x| !x.is_empty())
+        .map(Property::from)
+        .collect::<Vec<_>>();
 
     // Part I
     println!("{:?}", search(&ingredients, None));

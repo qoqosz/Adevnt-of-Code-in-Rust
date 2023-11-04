@@ -1,4 +1,5 @@
 use aoc::aoc_input;
+use itertools::Itertools;
 
 #[derive(PartialEq, Debug)]
 enum Action {
@@ -20,12 +21,7 @@ impl Range {
         assert!(x0 <= x1);
         assert!(y0 <= y1);
 
-        Range {
-            x0: x0,
-            y0: y0,
-            x1: x1,
-            y1: y1,
-        }
+        Range { x0, y0, x1, y1 }
     }
 
     fn from_vec(v: Vec<usize>) -> Self {
@@ -34,14 +30,9 @@ impl Range {
     }
 
     fn points(&self) -> Vec<(usize, usize)> {
-        let mut container = Vec::with_capacity((self.x1 - self.x0) * (self.y1 - self.y0));
-
-        for i in self.x0..=self.x1 {
-            for j in self.y0..=self.y1 {
-                container.push((i, j))
-            }
-        }
-        container
+        (self.x0..=self.x1)
+            .cartesian_product(self.y0..=self.y1)
+            .collect::<Vec<_>>()
     }
 }
 
@@ -55,7 +46,7 @@ impl Grid {
     fn new(size_x: usize, size_y: usize) -> Self {
         let capacity = (size_x + 1) * (size_y + 1);
         Grid {
-            size_x: size_x,
+            size_x,
             // size_y: size_y,
             grid: vec![0; capacity],
         }
@@ -100,9 +91,8 @@ fn parse_line(line: &str) -> (Action, Range) {
 
     let parts = line
         .split_whitespace()
-        .filter(|x| x.chars().nth(0).unwrap().is_digit(10))
-        .map(|x| x.split(','))
-        .flatten()
+        .filter(|x| x.chars().next().unwrap().is_ascii_digit())
+        .flat_map(|x| x.split(','))
         .map(|x| x.parse::<usize>().unwrap())
         .collect::<Vec<usize>>();
 
@@ -114,7 +104,7 @@ fn parse_line(line: &str) -> (Action, Range) {
 fn main() {
     let data = aoc_input!(2015, 6).unwrap();
     let commands = data
-        .split('\n')
+        .lines()
         .filter(|&x| !x.is_empty())
         .map(parse_line)
         .collect::<Vec<_>>();
@@ -166,7 +156,7 @@ mod tests {
     #[test]
     fn test_case_2() {
         let line: &str = "toggle 461,550 through 564,900";
-        let result = parse_line(&line);
+        let result = parse_line(line);
 
         assert_eq!(result.0, Action::Toggle);
         assert_eq!(result.1, Range::new(461, 550, 564, 900));

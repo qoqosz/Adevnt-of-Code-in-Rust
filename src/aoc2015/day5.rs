@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use aoc::aoc_input;
+use rustc_hash::FxHashMap;
 
 static VOWELS: &str = "aeiou";
 
@@ -12,77 +11,59 @@ fn has_at_least_three_vowels(txt: &str) -> bool {
 }
 
 fn has_repeated_letter(txt: &str) -> bool {
-    for window in txt.chars().collect::<Vec<_>>().windows(2) {
-        if window[0] == window[1] {
-            return true;
-        }
-    }
-    false
+    txt.chars()
+        .collect::<Vec<_>>()
+        .windows(2)
+        .any(|window| window[0] == window[1])
 }
 
 fn does_not_have_selected(txt: &str) -> bool {
-    for window in txt.chars().collect::<Vec<_>>().windows(2) {
-        match window {
-            ['a', 'b'] => return false,
-            ['c', 'd'] => return false,
-            ['p', 'q'] => return false,
-            ['x', 'y'] => return false,
-            _ => {}
-        }
-    }
-    true
+    !txt.chars()
+        .collect::<Vec<_>>()
+        .windows(2)
+        .any(|window| matches!(window, ['a', 'b'] | ['c', 'd'] | ['p', 'q'] | ['x', 'y']))
 }
 
 fn is_nice1(txt: &str) -> bool {
     has_at_least_three_vowels(txt) && has_repeated_letter(txt) && does_not_have_selected(txt)
 }
 
-fn ans1(data: &Vec<&str>) -> usize {
-    data.iter().map(|txt| is_nice1(txt) as usize).sum()
+fn ans1(data: &[&str]) -> usize {
+    data.iter().filter(|x| is_nice1(x)).count()
 }
 
 fn is_in_between(txt: &str) -> bool {
-    for window in txt.chars().collect::<Vec<_>>().windows(3) {
-        if window[0] == window[2] {
-            return true;
-        }
-    }
-    false
+    txt.chars()
+        .collect::<Vec<_>>()
+        .windows(3)
+        .any(|window| window[0] == window[2])
 }
 
 fn has_pair_twice(txt: &str) -> bool {
-    let mut visited: HashMap<(char, char), usize> = HashMap::new();
+    let mut visited: FxHashMap<(char, char), usize> = FxHashMap::default();
 
-    for (i, window) in txt.chars().collect::<Vec<_>>().windows(2).enumerate() {
-        let key = (window[0], window[1]);
-
-        if visited.contains_key(&key) {
-            let j = *visited.get(&key).unwrap();
-
-            if i.abs_diff(j) > 1 {
-                return true;
-            }
-        } else {
-            visited.insert(key, i);
-        }
-    }
-    false
+    txt.chars()
+        .collect::<Vec<_>>()
+        .windows(2)
+        .enumerate()
+        .any(|(i, window)| {
+            let key = (window[0], window[1]);
+            let j = visited.entry(key).or_insert(i);
+            i.abs_diff(*j) > 1
+        })
 }
 
 fn is_nice2(txt: &str) -> bool {
     is_in_between(txt) && has_pair_twice(txt)
 }
 
-fn ans2(data: &Vec<&str>) -> usize {
-    data.iter().map(|txt| is_nice2(txt) as usize).sum()
+fn ans2(data: &[&str]) -> usize {
+    data.iter().filter(|txt| is_nice2(txt)).count()
 }
 
 fn main() {
     let data = aoc_input!(2015, 5).unwrap();
-    let data = data
-        .split('\n')
-        .filter(|x| !x.is_empty())
-        .collect::<Vec<_>>();
+    let data = data.lines().filter(|x| !x.is_empty()).collect::<Vec<_>>();
 
     // Part I
     println!("{}", ans1(&data));
