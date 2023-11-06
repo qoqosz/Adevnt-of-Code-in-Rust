@@ -3,6 +3,7 @@ use aoc::graph::parse_graph;
 use petgraph::algo::{astar, Measure};
 use petgraph::graph::DiGraph;
 use petgraph::visit::EdgeRef;
+use std::cmp::max;
 use std::fmt::Debug;
 
 fn shortest_path<T>(graph: &DiGraph<T, ()>) -> Option<T>
@@ -21,12 +22,56 @@ where
     path.unzip().0
 }
 
+fn increment(data: &str) -> String {
+    data.to_owned()
+        .chars()
+        .map(|c| match c {
+            ref x if x.is_ascii_digit() => max(49, (*x as u8 + 1) % 58) as char,
+            x => x,
+        })
+        .collect()
+}
+
+fn extend(data: &str) -> String {
+    let mut out: String = String::new();
+
+    for line in data.lines() {
+        let mut inc: String = line.to_string();
+        out += &inc;
+
+        for _ in 0..4 {
+            inc = increment(&inc);
+            out += &inc;
+        }
+
+        out += "\n";
+    }
+
+    let mut lines = out.lines().map(|x| x.to_string()).collect::<Vec<_>>();
+    let n = lines.len();
+
+    for i in 0..4 {
+        for j in 0..n {
+            let inc = increment(&lines[i * n + j]);
+            lines.push(inc);
+        }
+    }
+
+    lines.join("\n")
+}
+
 fn main() {
     let data = aoc_input!(2021, 15).unwrap();
-    let graph: DiGraph<u32, ()> = parse_graph(&data, |c| c.parse::<u32>().unwrap());
-    let dist = shortest_path(&graph).unwrap();
 
     // Part I
+    let graph: DiGraph<u32, ()> = parse_graph(&data, |c| c.parse::<u32>().unwrap());
+    let dist = shortest_path(&graph).unwrap();
+    println!("{}", dist);
+
+    // Part II
+    let data2 = extend(&data);
+    let graph = parse_graph(&data2, |c| c.parse::<u32>().unwrap());
+    let dist = shortest_path(&graph).unwrap();
     println!("{}", dist);
 }
 
