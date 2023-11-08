@@ -11,12 +11,7 @@ fn seat_id(code: &str) -> usize {
 
 fn main() {
     let data = aoc_input!(2020, 5).unwrap();
-    let ids: Vec<usize> = data
-        .lines()
-        .filter(|x| !x.is_empty())
-        .map(seat_id)
-        .sorted()
-        .collect();
+    let ids: Vec<usize> = data.trim_end().lines().map(seat_id).sorted().collect();
 
     // Part I
     println!("{}", ids.last().unwrap());
