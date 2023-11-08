@@ -1,5 +1,4 @@
 use aoc::aoc_input;
-use itertools::FoldWhile::{Continue, Done};
 use itertools::Itertools;
 
 fn seat_id(code: &str) -> usize {
@@ -20,22 +19,14 @@ fn main() {
         .collect();
 
     // Part I
-    let (min, max) = (ids.first().unwrap(), ids.last().unwrap());
-    println!("{}", max);
+    println!("{}", ids.last().unwrap());
 
     // Part II
     println!(
         "{}",
-        ids.iter()
-            .skip(1)
-            .fold_while(min, |prev, x| {
-                if x - 1 == *prev {
-                    Continue(x)
-                } else {
-                    Done(prev)
-                }
-            })
-            .into_inner()
-            + 1
+        ids.windows(2)
+            .find(|w| w[0] + 1 != w[1])
+            .map(|w| w[0] + 1)
+            .unwrap()
     );
 }
