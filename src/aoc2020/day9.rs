@@ -19,7 +19,7 @@ fn find_invalid(nums: &[i64], preamble: usize) -> Option<i64> {
     })
 }
 
-fn find_subset(nums: &Vec<i64>, target: i64) -> Option<&[i64]> {
+fn find_subset(nums: &[i64], target: i64) -> Option<&[i64]> {
     for i in 0..nums.len() {
         let (j, sum) = nums[i..]
             .iter()
