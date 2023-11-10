@@ -1,9 +1,9 @@
 use aoc::aoc_input;
+use hashbrown::HashMap;
 use regex::Regex;
-use rustc_hash::FxHashMap;
 
 struct Bag<'a> {
-    container: FxHashMap<&'a str, Vec<(usize, &'a str)>>,
+    container: HashMap<&'a str, Vec<(usize, &'a str)>>,
     target_color: Option<&'a str>,
 }
 
@@ -11,7 +11,7 @@ impl<'a> Bag<'a> {
     fn from_input(data: &'a str) -> Self {
         let re: Regex = Regex::new(r"(\d+) (.*?) bag").unwrap();
 
-        let container: FxHashMap<&'a str, Vec<(usize, &'a str)>> = data
+        let container: HashMap<&'a str, Vec<(usize, &'a str)>> = data
             .lines()
             .filter_map(|line| {
                 let (out_color, in_color) = line.trim().split_once(" bags contain ").unwrap();

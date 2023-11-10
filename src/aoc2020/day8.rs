@@ -1,5 +1,24 @@
 use aoc::aoc_input;
 
+fn exe(prog: &[(&str, i32)]) -> (bool, i32) {
+    let (mut acc, mut i) = (0, 0);
+    let mut executed = vec![false; prog.len()];
+
+    loop {
+        match executed.get_mut(i) {
+            Some(&mut true) => return (false, acc),
+            Some(x @ &mut false) => *x = true,
+            _ => return (true, acc),
+        }
+
+        match prog[i] {
+            ("acc", val) => (acc, i) = (acc + val, i + 1),
+            ("jmp", val) => i = i.saturating_add_signed(val as isize),
+            _ => i += 1,
+        }
+    }
+}
+
 fn main() {
     let data = aoc_input!(2020, 8).unwrap();
     let prog = data
@@ -9,64 +28,25 @@ fn main() {
         .collect::<Vec<_>>();
 
     // Part I
-    let (mut acc, mut i) = (0, 0);
-    let mut executed = vec![false; prog.len()];
-
-    while !executed[i as usize] {
-        executed[i as usize] = true;
-        let (cmd, val) = prog[i as usize];
-
-        match cmd {
-            "acc" => (acc, i) = (acc + val, i + 1),
-            "jmp" => i += val,
-            _ => i += 1,
-        }
-    }
-
-    println!("{:?}", acc);
+    println!("{:?}", exe(&prog).1);
 
     // Part II
-    fn exe(prog: &Vec<(&str, i32)>) -> (bool, i32) {
-        let (mut acc, mut i) = (0, 0);
-        let mut executed = vec![false; prog.len()];
+    for (i, (cmd, val)) in prog
+        .iter()
+        .enumerate()
+        .filter(|(_, (c, _))| ["nop", "jmp"].contains(c))
+    {
+        let mut new_prog = prog.clone();
 
-        loop {
-            match executed.get(i as usize) {
-                Some(val) => {
-                    if *val {
-                        return (false, acc);
-                    }
-                }
-                _ => return (true, acc),
-            }
-
-            executed[i as usize] = true;
-            let (cmd, val) = prog[i as usize];
-
-            match cmd {
-                "acc" => (acc, i) = (acc + val, i + 1),
-                "jmp" => i += val,
-                _ => i += 1,
-            }
+        match *cmd {
+            "nop" => new_prog[i] = ("jmp", *val),
+            "jmp" => new_prog[i] = ("nop", *val),
+            _ => {}
         }
-    }
 
-    for (i, (cmd, val)) in prog.iter().enumerate() {
-        if ["nop", "jmp"].contains(cmd) {
-            let mut new_prog = prog.clone();
-
-            match *cmd {
-                "nop" => new_prog[i] = ("jmp", *val),
-                "jmp" => new_prog[i] = ("nop", *val),
-                _ => {}
-            }
-
-            let (exe_code, acc) = exe(&new_prog);
-
-            if exe_code {
-                println!("{}", acc);
-                break;
-            }
+        if let (true, acc) = exe(&new_prog) {
+            println!("{}", acc);
+            break;
         }
     }
 }
