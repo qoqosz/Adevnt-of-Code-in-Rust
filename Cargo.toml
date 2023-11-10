@@ -25,7 +25,7 @@ path = "src/bin/download.rs"
 
 [[bin]]
 name = "cur"
-path = "src/aoc2020/day8.rs"
+path = "src/aoc2020/day9.rs"
 
 [[bin]]
 name = "temp"
