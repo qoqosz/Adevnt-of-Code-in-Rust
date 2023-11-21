@@ -25,7 +25,7 @@ path = "src/bin/download.rs"
 
 [[bin]]
 name = "cur"
-path = "src/aoc2020/day10.rs"
+path = "src/aoc2015/day22.rs"
 
 [[bin]]
 name = "temp"
@@ -39,10 +39,8 @@ regex = "1.10.2"
 serde_json = "1.0.107"
 shellexpand = "3.1.0"
 lazy_static = "1.4.0"
-reqwest = "0.11.22"
-tokio = { version = "1.33.0", features = ["full"] }
 clap = "4.4.6"
-chrono = "0.4.31"
 rustc-hash = "1.1.0"
 rayon = "1.8.0"
 hashbrown = "0.14.2"
+ureq = "2.9.0"

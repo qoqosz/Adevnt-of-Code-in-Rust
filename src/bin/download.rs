@@ -1,6 +1,5 @@
 // TODO: File doc
-use aoc::aoc_input;
-use chrono::Datelike;
+use aoc::{aoc_input, date::get_current_year};
 use clap::{arg, Command};
 
 fn main() -> std::process::ExitCode {
@@ -12,7 +11,7 @@ fn main() -> std::process::ExitCode {
                 .value_parser(clap::value_parser!(u16)),
         )
         .arg(
-            arg!(<DAY> "Day")
+            arg!(-d --day <DAY> "Day")
                 .required(true)
                 .value_parser(clap::value_parser!(u16)),
         )
@@ -20,7 +19,7 @@ fn main() -> std::process::ExitCode {
 
     let year = *matches
         .get_one::<u16>("year")
-        .unwrap_or(&(chrono::Utc::now().year() as u16));
+        .unwrap_or(&get_current_year());
     let day = *matches.get_one::<u16>("day").expect("required");
 
     if let Err(e) = aoc_input!(year, day) {

@@ -1,5 +1,4 @@
 use crate::num::Unsigned;
-use reqwest::{header, Client, ClientBuilder};
 use std::{
     fs, io,
     path::{Path, PathBuf},
@@ -66,30 +65,30 @@ pub fn load_cookie(env_var: &str, cookie_file: &str) -> io::Result<String> {
 }
 
 /// Use a client (which holds a cookie) to download the input from AoC website
-async fn download_file(client: &Client, url: &str) -> reqwest::Result<String> {
-    let response = client.get(url).send().await?;
-    let data = response.text().await?;
-    Ok(data)
+fn download_file(url: &str, session_cookie: &str) -> Result<String, io::Error> {
+    let response = match ureq::get(url).set("cookie", session_cookie).call() {
+        Ok(resp) => resp,
+        Err(_) => {
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                "Problem downloading the input",
+            ))
+        }
+    };
+    let body = response.into_string().unwrap_or_default();
+    Ok(body)
 }
 
 /// Download AoC puzzle input for a given year and day.
-async fn download_aoc_input(
+fn download_aoc_input(
     session_cookie: &str,
     year: impl Unsigned,
     day: impl Unsigned,
 ) -> Option<String> {
-    let mut request_headers = header::HeaderMap::new();
-    request_headers.insert(
-        header::COOKIE,
-        header::HeaderValue::from_str(&format!("session={}", session_cookie.trim())).unwrap(),
-    );
-    let client = ClientBuilder::new()
-        .default_headers(request_headers)
-        .build()
-        .unwrap();
     let url = format!("https://adventofcode.com/{}/day/{}/input", year, day);
+    let cookie = format!("session={}", session_cookie.trim());
 
-    download_file(&client, &url).await.ok()
+    download_file(&url, &cookie).ok()
 }
 
 pub fn get_aoc_input(
@@ -107,9 +106,7 @@ pub fn get_aoc_input(
                 "Empty AoC session cookie",
             ));
         }
-        let puzzle_input = tokio::runtime::Runtime::new()
-            .unwrap()
-            .block_on(download_aoc_input(session_cookie.unwrap(), year, day));
+        let puzzle_input = download_aoc_input(session_cookie.unwrap(), year, day);
 
         match puzzle_input {
             Some(input) => {

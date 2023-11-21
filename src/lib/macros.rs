@@ -22,7 +22,7 @@ macro_rules! load_input {
 #[macro_export]
 macro_rules! aoc_input {
     ($d:expr) => {
-        let year = chrono::Utc::now().year();
+        let year = $crate::date::get_current_year();
         aoc_input!(year, $d)
     };
 
