@@ -52,15 +52,10 @@ impl TryFrom<pico_args::Arguments> for Args {
             return Err(ArgsError::Help);
         }
 
-        let day = match args.value_from_str("-d") {
-            Ok(day) => day,
-            Err(e) => {
-                return Err(ArgsError::Error(format!("{e}")));
-            }
-        };
-
         Ok(Args {
-            day,
+            day: args
+                .value_from_str("-d")
+                .map_err(|e| ArgsError::Error(format!("{e}")))?,
             year: args
                 .value_from_str("-y")
                 .unwrap_or_else(|_| get_current_year()),
