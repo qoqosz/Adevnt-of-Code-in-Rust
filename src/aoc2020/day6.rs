@@ -23,7 +23,7 @@ where
     result
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2020, 6).unwrap();
     let answers: Vec<Vec<HashSet<char>>> = data
         .trim_end()

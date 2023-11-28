@@ -75,7 +75,7 @@ fn work_with_robo_santa(path: &str) -> usize {
     santa.visited.len()
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 3).unwrap();
 
     // Part I

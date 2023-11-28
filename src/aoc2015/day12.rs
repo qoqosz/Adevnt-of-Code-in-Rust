@@ -1,5 +1,5 @@
 use aoc::aoc_input;
-use regex::Regex;
+use regex_lite::Regex;
 use serde_json::{json, Value};
 
 fn find_sum(data: &str) -> i64 {
@@ -42,7 +42,7 @@ fn sum_node(val: &Value) -> i64 {
     sum
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 12).unwrap();
 
     // Part I

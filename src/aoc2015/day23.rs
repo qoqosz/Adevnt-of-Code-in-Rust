@@ -96,7 +96,7 @@ impl<'a> Program<'a> {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 23).unwrap();
     let tape = data
         .lines()

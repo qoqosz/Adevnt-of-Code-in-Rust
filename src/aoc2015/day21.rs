@@ -70,7 +70,7 @@ fn search(player: Item, boss: Item) -> (i32, i32) {
     (min_cost, max_cost)
 }
 
-fn main() {
+pub fn main() {
     let boss = (103, 9, 2);
     let player = (100, 0, 0);
 

@@ -19,7 +19,7 @@ fn exe(prog: &[(&str, i32)]) -> (bool, i32) {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2020, 8).unwrap();
     let prog = data
         .lines()

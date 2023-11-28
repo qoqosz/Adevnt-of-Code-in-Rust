@@ -10,7 +10,7 @@ fn iloc(row: u64, col: u64) -> u64 {
     col + n * (n - 1) / 2
 }
 
-fn main() {
+pub fn main() {
     let (row, col) = (3010, 3019);
     let x0 = 20151125;
     let i = iloc(row, col);

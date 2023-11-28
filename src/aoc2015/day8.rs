@@ -39,7 +39,7 @@ fn encoded_len<T: Into<String>>(text: T) -> usize {
     })
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 8).unwrap();
     let lines: Vec<_> = data.lines().filter(|&x| !x.is_empty()).collect();
 

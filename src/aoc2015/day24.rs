@@ -19,7 +19,7 @@ fn min_qe(packages: &Vec<i64>, n: i64) -> Option<i64> {
     None
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 24).unwrap();
     let packages = data
         .lines()

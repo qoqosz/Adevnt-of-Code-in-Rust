@@ -13,7 +13,7 @@ fn solve(target: usize, limit: usize) -> Option<usize> {
     None
 }
 
-fn main() {
+pub fn main() {
     let input: usize = 33100000;
 
     // Part I

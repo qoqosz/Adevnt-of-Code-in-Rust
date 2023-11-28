@@ -52,7 +52,7 @@ fn is_valid2(passport: &&FxHashMap<&str, &str>) -> bool {
         .all(|x| *x)
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2020, 4).unwrap();
     let passports = data
         .split("\n\n")

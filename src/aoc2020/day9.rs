@@ -40,7 +40,7 @@ fn find_subset(nums: &[i64], target: i64) -> Option<&[i64]> {
     None
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2020, 9).unwrap();
     let nums = data
         .lines()

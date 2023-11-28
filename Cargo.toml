@@ -2,6 +2,7 @@
 name = "aoc"
 version = "0.1.0"
 edition = "2021"
+default-run = "aoc"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [profile.dev]
@@ -14,8 +15,6 @@ lto = true
 debug = true
 
 [lib]
-# proc-macro = true
-# crate-type = ["proc-macro"]
 name = "aoc"
 path = "src/lib/lib.rs"
 
@@ -24,22 +23,20 @@ name = "download"
 path = "src/bin/download.rs"
 
 [[bin]]
-name = "cur"
-path = "src/aoc2020/day7.rs"
+name = "aoc"
+path = "src/main.rs"
 
-[[bin]]
-name = "temp"
-path = "src/temp.rs"
 
 [dependencies]
-petgraph = "0.6.4"
-md5 = "0.7.0"
 itertools = "0.11.0"
-regex = "1.10.2"
+lazy_static = "1.4.0"
+md5 = "0.7.0"
+petgraph = "0.6.4"
+pico-args = "0.5.0"
+rayon = "1.8.0"
+regex-lite = "0.1.5"
+rustc-hash = "1.1.0"
 serde_json = "1.0.107"
 shellexpand = "3.1.0"
-lazy_static = "1.4.0"
-rustc-hash = "1.1.0"
-rayon = "1.8.0"
 ureq = "2.9.0"
-pico-args = "0.5.0"
+

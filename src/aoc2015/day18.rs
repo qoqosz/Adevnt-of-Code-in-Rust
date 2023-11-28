@@ -127,7 +127,7 @@ impl Grid {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 18).unwrap();
     let mut grid = Grid::from(&data);
     let n = 100;

@@ -60,7 +60,7 @@ fn extend(data: &str) -> String {
     lines.join("\n")
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2021, 15).unwrap();
 
     // Part I

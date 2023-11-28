@@ -75,7 +75,7 @@ fn next_password(password: impl Into<String>) -> String {
     next_password
 }
 
-fn main() {
+pub fn main() {
     let data = "hepxcrrq";
 
     // Part I

@@ -1,7 +1,7 @@
 use aoc::aoc_input;
 use itertools::Itertools;
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2020, 2).unwrap();
     let input = data
         .lines()

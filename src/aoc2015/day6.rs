@@ -101,7 +101,7 @@ fn parse_line(line: &str) -> (Action, Range) {
     (action, range)
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 6).unwrap();
     let commands = data
         .lines()

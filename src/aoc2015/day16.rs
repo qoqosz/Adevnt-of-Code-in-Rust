@@ -103,7 +103,7 @@ fn parse_line(line: &str) -> Vec<(&str, usize)> {
     parts
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 16).unwrap();
     let sues: Vec<Compounds> = data
         .lines()

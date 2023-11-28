@@ -23,6 +23,8 @@ fn prog() -> Option<String> {
 #[derive(Debug, Clone)]
 pub enum ArgsError {
     Help,
+    InvalidDay,
+    InvalidYear,
     Error(String),
 }
 
@@ -30,9 +32,11 @@ impl std::fmt::Display for ArgsError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Help => {
-                let help = HELP.replace("{}", &prog().unwrap());
+                let help = HELP.replace("{}", &prog().unwrap_or("aoc".to_string()));
                 write!(f, "{}", help)
             }
+            Self::InvalidDay => write!(f, "Valid days are: 1, 2, ..., 25"),
+            Self::InvalidYear => write!(f, "AoC started in 2015"),
             Self::Error(msg) => write!(f, "Error while parsing arguments: {}", msg),
         }
     }
@@ -52,13 +56,20 @@ impl TryFrom<pico_args::Arguments> for Args {
             return Err(ArgsError::Help);
         }
 
-        Ok(Args {
-            day: args
-                .value_from_str("-d")
-                .map_err(|e| ArgsError::Error(format!("{e}")))?,
-            year: args
-                .value_from_str("-y")
-                .unwrap_or_else(|_| get_current_year()),
-        })
+        let day = args
+            .value_from_str("-d")
+            .map_err(|e| ArgsError::Error(format!("{e}")))?;
+        let year = args
+            .value_from_str("-y")
+            .unwrap_or_else(|_| get_current_year());
+
+        if !(1..=25).contains(&(day as i32)) {
+            return Err(ArgsError::InvalidDay);
+        }
+        if year < 2015 {
+            return Err(ArgsError::InvalidYear);
+        }
+
+        Ok(Args { day, year })
     }
 }

@@ -1,6 +1,6 @@
 use aoc::aoc_input;
 use itertools::Itertools;
-use regex::Regex;
+use regex_lite::Regex;
 use rustc_hash::FxHashMap;
 
 #[derive(Debug)]
@@ -37,7 +37,7 @@ impl From<&str> for Reindeer {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 14).unwrap();
     let reindeers = data
         .lines()
