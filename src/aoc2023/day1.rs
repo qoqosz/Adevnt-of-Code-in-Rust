@@ -1,7 +1,7 @@
 use aoc::aoc_input;
 
-static NUMS: [&str; 9] = [
-    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+static NUMS: [&str; 10] = [
+    ".", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 ];
 
 fn calc(digits: &[(usize, u32)]) -> u32 {
@@ -26,7 +26,7 @@ fn enumerate_words(line: impl Into<String> + Clone) -> Vec<(usize, u32)> {
             line.clone()
                 .into()
                 .match_indices(num)
-                .map(|(j, _)| (j, i as u32 + 1))
+                .map(|(j, _)| (j, i as u32))
                 .collect::<Vec<_>>()
         })
         .collect()
