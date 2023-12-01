@@ -66,7 +66,14 @@ pub fn load_cookie(env_var: &str, cookie_file: &str) -> io::Result<String> {
 
 /// Use a client (which holds a cookie) to download the input from AoC website
 fn download_file(url: &str, session_cookie: &str) -> Result<String, io::Error> {
-    let response = match ureq::get(url).set("cookie", session_cookie).call() {
+    let response = match ureq::get(url)
+        .set("cookie", session_cookie)
+        .set(
+            "User-Agent",
+            "https://github.com/qoqosz/Adevnt-of-Code-in-Rust by qoqosz@gmail.com",
+        )
+        .call()
+    {
         Ok(resp) => resp,
         Err(_) => {
             return Err(io::Error::new(
