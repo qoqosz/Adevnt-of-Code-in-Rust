@@ -175,11 +175,8 @@ impl Recharge for State {
 
 fn play(boss_hp: i16, damage: i16, hard_mode: bool) -> i16 {
     let start = State::new(boss_hp);
-    let mut queue = MinHeap::new();
-    let mut cache = FxHashSet::default();
-
-    queue.push(0, start);
-    cache.insert(start);
+    let mut queue = MinHeap::from([(0, start)]);
+    let mut cache = FxHashSet::from_iter([start]);
 
     while let Some((spent, mut state)) = queue.pop() {
         if state.apply_spell_effects().is_win() {

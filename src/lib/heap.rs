@@ -66,3 +66,23 @@ impl<K: Ord, V> MinHeap<K, V> {
         self.heap.pop().map(|w| (w.key, w.value))
     }
 }
+
+impl<K: Ord, V, const N: usize> From<[(K, V); N]> for MinHeap<K, V> {
+    fn from(arr: [(K, V); N]) -> Self {
+        Self::from_iter(arr)
+    }
+}
+
+impl<K: Ord, V> FromIterator<(K, V)> for MinHeap<K, V> {
+    fn from_iter<I: IntoIterator<Item = (K, V)>>(iter: I) -> Self {
+        MinHeap::from(iter.into_iter().collect::<Vec<_>>())
+    }
+}
+
+impl<K: Ord, V> From<Vec<(K, V)>> for MinHeap<K, V> {
+    fn from(vec: Vec<(K, V)>) -> Self {
+        let wrapped = vec.into_iter().map(|(key, value)| Wrapper { key, value });
+        let heap = BinaryHeap::from_iter(wrapped);
+        MinHeap { heap }
+    }
+}
