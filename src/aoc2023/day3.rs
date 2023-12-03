@@ -29,35 +29,37 @@ impl Number {
     }
 }
 
-impl From<&Match<'_>> for Number {
-    fn from(m: &Match<'_>) -> Self {
-        Number {
-            value: m.as_str().parse::<u32>().unwrap(),
+impl TryFrom<&Match<'_>> for Number {
+    type Error = std::num::ParseIntError;
+
+    fn try_from(m: &Match<'_>) -> Result<Self, Self::Error> {
+        Ok(Number {
+            value: m.as_str().parse::<u32>()?,
             y: 0,
             x_min: m.start(),
             x_max: m.end(),
-        }
+        })
     }
 }
 
 #[derive(Debug)]
-struct Symbol {
-    symbol: char,
+struct Symbol<'h> {
+    symbol: &'h str,
     y: usize,
     x: usize,
 }
 
-impl From<&Match<'_>> for Symbol {
-    fn from(m: &Match<'_>) -> Self {
+impl<'h> From<&Match<'h>> for Symbol<'h> {
+    fn from(m: &Match<'h>) -> Self {
         Symbol {
-            symbol: m.as_str().chars().next().unwrap(),
+            symbol: m.as_str(),
             y: 0,
             x: m.start(),
         }
     }
 }
 
-impl Symbol {
+impl<'h> Symbol<'h> {
     /// Collect all numbers adjacent to the symbol.
     fn neighbors<I>(&self, numbers: &[Number]) -> I
     where
@@ -71,13 +73,13 @@ impl Symbol {
     }
 }
 
-fn read_schema(lines: &[&str]) -> (Vec<Number>, Vec<Symbol>) {
+fn read_schema<'h>(lines: &'h [&str]) -> (Vec<Number>, Vec<Symbol<'h>>) {
     let mut numbers = vec![];
     let mut symbols = vec![];
 
     for (i, line) in lines.iter().enumerate() {
         for captures in RE_NUMBER.captures_iter(line) {
-            let mut number = Number::from(&captures.get(0).unwrap());
+            let mut number = Number::try_from(&captures.get(0).unwrap()).unwrap();
             number.y = i;
             numbers.push(number);
         }
@@ -111,7 +113,7 @@ pub fn main() {
     // Part II
     let sum_gear_ratios = symbols
         .iter()
-        .filter(|s| s.symbol == '*')
+        .filter(|s| s.symbol == "*")
         .filter_map(|s| match s.neighbors::<Vec<_>>(&numbers) {
             adj if adj.len() == 2 => Some(adj.iter().product::<u32>()),
             _ => None,
