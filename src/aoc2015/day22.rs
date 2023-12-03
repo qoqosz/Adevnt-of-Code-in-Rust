@@ -2,7 +2,7 @@
 use aoc::heap::MinHeap;
 use rustc_hash::FxHashSet;
 
-#[derive(Debug, Default, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 struct State {
     boss_hp: i16,
     player_hp: i16,
@@ -39,20 +39,20 @@ impl State {
         *self
     }
 
-    fn is_win(&self) -> bool {
-        self.boss_hp <= 0
-    }
-
-    fn is_alive(&self) -> bool {
-        self.player_hp > 0 && self.player_mana >= 53
-    }
-
     fn boss_turn(&mut self, attack: i16) -> Self {
         self.player_hp -= match self.shield_effect > 0 {
             true => (attack - 7).max(1),
             false => attack,
         };
         *self
+    }
+
+    fn is_win(&self) -> bool {
+        self.boss_hp <= 0
+    }
+
+    fn is_alive(&self) -> bool {
+        self.player_hp > 0 && self.player_mana >= 53
     }
 }
 
@@ -62,14 +62,14 @@ trait MagicMissile: Sized {
 
 impl MagicMissile for State {
     fn magic_missile(&self) -> Option<Self> {
-        match self.player_mana {
-            mana if mana >= 53 => Some(Self {
-                boss_hp: self.boss_hp - 4,
-                player_mana: self.player_mana - 53,
-                ..*self
-            }),
-            _ => None,
+        if self.player_mana < 53 {
+            return None;
         }
+        Some(Self {
+            boss_hp: self.boss_hp - 4,
+            player_mana: self.player_mana - 53,
+            ..*self
+        })
     }
 }
 
@@ -79,15 +79,15 @@ trait Drain: Sized {
 
 impl Drain for State {
     fn drain(&self) -> Option<Self> {
-        match self.player_mana {
-            mana if mana >= 73 => Some(Self {
-                boss_hp: self.boss_hp - 2,
-                player_hp: self.player_hp + 2,
-                player_mana: self.player_mana - 73,
-                ..*self
-            }),
-            _ => None,
+        if self.player_mana < 73 {
+            return None;
         }
+        Some(Self {
+            boss_hp: self.boss_hp - 2,
+            player_hp: self.player_hp + 2,
+            player_mana: self.player_mana - 73,
+            ..*self
+        })
     }
 }
 
@@ -163,8 +163,9 @@ fn play(boss_hp: i16, damage: i16, hard_mode: bool) -> i16 {
             }
         }
 
-        let mut cast_spell = |effect: Option<State>, cost| {
+        let mut cast_spell = |effect: Option<State>| {
             if let Some(mut next) = effect {
+                let cost = state.player_mana - next.player_mana;
                 if next.apply_spell_effects().is_win() {
                     return Some(spent + cost);
                 }
@@ -176,27 +177,23 @@ fn play(boss_hp: i16, damage: i16, hard_mode: bool) -> i16 {
         };
 
         // Magic Missile
-        if let Some(spent) = cast_spell(state.magic_missile(), 53) {
+        if let Some(spent) = cast_spell(state.magic_missile()) {
             return spent;
         }
-
         // Drain
-        if let Some(spent) = cast_spell(state.drain(), 73) {
+        if let Some(spent) = cast_spell(state.drain()) {
             return spent;
         }
-
         // Shield
-        if let Some(spent) = cast_spell(state.shield(), 113) {
+        if let Some(spent) = cast_spell(state.shield()) {
             return spent;
         }
-
         // Poison
-        if let Some(spent) = cast_spell(state.poison(), 173) {
+        if let Some(spent) = cast_spell(state.poison()) {
             return spent;
         }
-
         // Recharge
-        if let Some(spent) = cast_spell(state.recharge(), 229) {
+        if let Some(spent) = cast_spell(state.recharge()) {
             return spent;
         }
     }
