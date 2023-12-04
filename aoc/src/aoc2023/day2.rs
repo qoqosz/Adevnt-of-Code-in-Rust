@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use std::str::FromStr;
 
 #[derive(Debug, Default)]
@@ -88,6 +88,7 @@ fn parse(data: &str) -> Vec<&str> {
     data.lines().filter(|x| !x.is_empty()).collect()
 }
 
+#[aoc(2023, 2)]
 pub fn main() {
     let data = aoc_input!(2023, 2).unwrap();
     let lines = parse(&data);

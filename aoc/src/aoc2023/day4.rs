@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -53,6 +53,7 @@ fn recursive_score(id: usize, cards: &[Card], cache: &mut [u32]) -> u32 {
     score
 }
 
+#[aoc(2023, 4)]
 pub fn main() {
     let data = aoc_input!(2023, 4).unwrap();
     let cards = data.lines().flat_map(Card::from_str).collect::<Vec<_>>();
@@ -62,11 +63,10 @@ pub fn main() {
     println!("{score}");
 
     // Part II
-    let mut cache: Vec<u32> = vec![u32::MAX; cards.len()];
-    let recursive_score: u32 = cards
-        .iter()
-        .enumerate()
-        .map(|(id, _)| recursive_score(id, &cards, &mut cache))
+    let n = cards.len();
+    let mut cache: Vec<u32> = vec![u32::MAX; n];
+    let recursive_score: u32 = (0..n)
+        .map(|id| recursive_score(id, &cards, &mut cache))
         .sum();
     println!("{recursive_score}");
 }

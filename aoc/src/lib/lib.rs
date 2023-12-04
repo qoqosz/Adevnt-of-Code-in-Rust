@@ -6,3 +6,7 @@ pub mod io;
 pub mod macros;
 pub mod num;
 pub mod point2d;
+
+extern crate aoc_derive;
+
+pub use aoc_derive::aoc;
