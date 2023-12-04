@@ -50,13 +50,13 @@ fn recursive_score(id: usize, cards: &[Card], cache: &mut [u32]) -> u32 {
     }
 
     let card = &cards[id - 1];
-    let res = 1
+    let score = 1
         + (1..=card.count)
             .map(|i| recursive_score(id + i, cards, cache))
             .sum::<u32>();
 
-    cache[id - 1] = res;
-    res
+    cache[id - 1] = score;
+    score
 }
 
 fn parse(data: &str) -> Vec<&str> {
