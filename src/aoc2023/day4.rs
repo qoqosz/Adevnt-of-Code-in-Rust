@@ -1,5 +1,4 @@
 use aoc::aoc_input;
-use rustc_hash::FxHashMap;
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -44,9 +43,10 @@ impl Card {
 }
 
 // Score for Part II
-fn recursive_score(id: usize, cards: &[Card], cache: &mut FxHashMap<usize, u32>) -> u32 {
-    if let Some(score) = cache.get(&id) {
-        return *score;
+fn recursive_score(id: usize, cards: &[Card], cache: &mut [u32]) -> u32 {
+    match cache.get(id - 1) {
+        None | Some(&u32::MAX) => {}
+        Some(score) => return *score,
     }
 
     let card = &cards[id - 1];
@@ -55,7 +55,8 @@ fn recursive_score(id: usize, cards: &[Card], cache: &mut FxHashMap<usize, u32>)
             .map(|i| recursive_score(id + i, cards, cache))
             .sum::<u32>();
 
-    *cache.entry(id).or_insert(res)
+    cache[id - 1] = res;
+    res
 }
 
 fn parse(data: &str) -> Vec<&str> {
@@ -75,7 +76,7 @@ pub fn main() {
     println!("{score}");
 
     // Part II
-    let mut cache: FxHashMap<usize, u32> = FxHashMap::default();
+    let mut cache: Vec<u32> = vec![u32::MAX; cards.len()];
     let recursive_score: u32 = cards
         .iter()
         .map(|card| recursive_score(card.id, &cards, &mut cache))
