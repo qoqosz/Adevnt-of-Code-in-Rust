@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 use petgraph::prelude::*;
 use std::collections::HashMap;
@@ -26,6 +26,7 @@ fn shortest_path(graph: &Graph<&str, i32, Undirected>) -> Option<i32> {
     }
 }
 
+#[aoc(2015, 9)]
 pub fn main() {
     let data = aoc_input!(2015, 9).unwrap();
     let mut graph = Graph::<&str, i32, Undirected>::new_undirected();

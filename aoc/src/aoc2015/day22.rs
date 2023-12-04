@@ -1,5 +1,5 @@
 //! Based on: https://github.com/maneatingape/advent-of-code-rust/blob/main/src/year2015/day22.rs
-use aoc::heap::MinHeap;
+use aoc::{aoc, heap::MinHeap};
 use rustc_hash::FxHashSet;
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
@@ -212,6 +212,7 @@ static SPELLS: [Spell; 5] = [
     Spell::Recharge(229, 5),
 ];
 
+#[aoc(2015, 22)]
 pub fn main() {
     let (boss_hp, damage): (i16, i16) = (58, 9);
 

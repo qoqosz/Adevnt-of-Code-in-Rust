@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use regex_lite::Regex;
 use serde_json::{json, Value};
 
@@ -42,6 +42,7 @@ fn sum_node(val: &Value) -> i64 {
     sum
 }
 
+#[aoc(2015, 12)]
 pub fn main() {
     let data = aoc_input!(2015, 12).unwrap();
 

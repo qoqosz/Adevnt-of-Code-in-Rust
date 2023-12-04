@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 
 fn part1(lines: &[&str]) -> String {
     println!("{lines:?}");
@@ -14,8 +14,9 @@ fn parse(data: &str) -> Vec<&str> {
     data.lines().filter(|x| !x.is_empty()).collect()
 }
 
+#[aoc(2023, 5)]
 pub fn main() {
-    // let data = aoc_input!(2023, 1).unwrap();
+    // let data = aoc_input!(2023, 5).unwrap();
     let data = "hello\nworld\n".to_owned();
     let lines = parse(&data);
 

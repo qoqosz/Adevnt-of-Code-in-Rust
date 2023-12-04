@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 
 #[derive(Debug, Default)]
 struct Compounds {
@@ -103,6 +103,7 @@ fn parse_line(line: &str) -> Vec<(&str, usize)> {
     parts
 }
 
+#[aoc(2015, 16)]
 pub fn main() {
     let data = aoc_input!(2015, 16).unwrap();
     let sues: Vec<Compounds> = data

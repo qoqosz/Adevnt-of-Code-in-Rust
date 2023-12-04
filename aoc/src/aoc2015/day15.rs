@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use regex_lite::Regex;
 use std::cmp::max;
 
@@ -111,6 +111,7 @@ fn search(ingredients: &Vec<Property>, calories: Option<i64>) -> i64 {
     max_score
 }
 
+#[aoc(2015, 15)]
 pub fn main() {
     let data = aoc_input!(2015, 15).unwrap();
     let ingredients = data

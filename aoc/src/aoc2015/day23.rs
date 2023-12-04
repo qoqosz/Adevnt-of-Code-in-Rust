@@ -1,6 +1,5 @@
+use aoc::{aoc, aoc_input};
 use std::fmt::{Display, Formatter, Result};
-
-use aoc::aoc_input;
 
 #[derive(Debug)]
 enum Instructions {
@@ -96,6 +95,7 @@ impl<'a> Program<'a> {
     }
 }
 
+#[aoc(2015, 23)]
 pub fn main() {
     let data = aoc_input!(2015, 23).unwrap();
     let tape = data

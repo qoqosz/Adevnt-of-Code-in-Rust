@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use rustc_hash::FxHashMap;
 
 static VOWELS: &str = "aeiou";
@@ -61,6 +61,7 @@ fn ans2(data: &[&str]) -> usize {
     data.iter().filter(|txt| is_nice2(txt)).count()
 }
 
+#[aoc(2015, 5)]
 pub fn main() {
     let data = aoc_input!(2015, 5).unwrap();
     let data = data.lines().filter(|x| !x.is_empty()).collect::<Vec<_>>();

@@ -1,3 +1,5 @@
+use aoc::aoc;
+
 fn look_and_say(text: &str) -> String {
     let mut out: Vec<String> = Vec::with_capacity(text.len() * 2);
     let mut count = 0;
@@ -22,6 +24,7 @@ fn play(text: &str, n: usize) -> usize {
         .len()
 }
 
+#[aoc(2015, 10)]
 pub fn main() {
     let data = "1321131112";
 

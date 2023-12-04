@@ -1,8 +1,7 @@
-use std::collections::HashMap;
-
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 use petgraph::{prelude::*, Graph};
+use std::collections::HashMap;
 
 #[derive(Clone)]
 struct Edge {
@@ -123,6 +122,7 @@ impl Attendees {
     }
 }
 
+#[aoc(2015, 13)]
 pub fn main() {
     let data = aoc_input!(2015, 13).unwrap();
     let mut attendees = Attendees::new();

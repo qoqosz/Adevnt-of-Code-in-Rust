@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 
 #[derive(Debug)]
 struct Box {
@@ -74,6 +74,7 @@ fn total_ribbon_len(boxes: &[Box]) -> usize {
     boxes.iter().map(|b| b.ribbon_len()).sum()
 }
 
+#[aoc(2015, 2)]
 pub fn main() {
     let data = aoc_input!(2015, 2).unwrap();
     let boxes: Vec<Box> = data

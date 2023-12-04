@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 
 fn step(c: char, lvl: i32) -> i32 {
     match c {
@@ -24,6 +24,7 @@ fn reach_basement(instructions: &str) -> Option<usize> {
         .map(|i| i + 1)
 }
 
+#[aoc(2015, 1)]
 pub fn main() {
     let data = aoc_input!(2015, 1).unwrap();
 

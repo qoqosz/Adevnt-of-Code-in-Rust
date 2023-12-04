@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
 #[derive(PartialEq, Debug)]
@@ -101,6 +101,7 @@ fn parse_line(line: &str) -> (Action, Range) {
     (action, range)
 }
 
+#[aoc(2015, 6)]
 pub fn main() {
     let data = aoc_input!(2015, 6).unwrap();
     let commands = data

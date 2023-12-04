@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use std::fmt;
 
 struct Grid {
@@ -127,6 +127,7 @@ impl Grid {
     }
 }
 
+#[aoc(2015, 18)]
 pub fn main() {
     let data = aoc_input!(2015, 18).unwrap();
     let mut grid = Grid::from(&data);

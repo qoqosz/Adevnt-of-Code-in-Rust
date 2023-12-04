@@ -70,6 +70,7 @@ fn main() -> ExitCode {
         (2023, 2) => aoc2023::day2::main(),
         (2023, 3) => aoc2023::day3::main(),
         (2023, 4) => aoc2023::day4::main(),
+        (2023, 5) => aoc2023::day5::main(),
         _ => {
             unimplemented!()
         }

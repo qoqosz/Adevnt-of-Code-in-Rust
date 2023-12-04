@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use rustc_hash::FxHashMap;
 
 type Visits = FxHashMap<(i32, i32), usize>;
@@ -75,6 +75,7 @@ fn work_with_robo_santa(path: &str) -> usize {
     santa.visited.len()
 }
 
+#[aoc(2015, 3)]
 pub fn main() {
     let data = aoc_input!(2015, 3).unwrap();
 

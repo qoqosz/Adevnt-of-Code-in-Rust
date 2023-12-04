@@ -1,3 +1,5 @@
+use aoc::aoc;
+
 /// Use a sieve to fill in `taregt` houses with presents from elves
 fn solve(target: usize, limit: usize) -> Option<usize> {
     let mut houses: Vec<usize> = vec![1; target];
@@ -13,6 +15,7 @@ fn solve(target: usize, limit: usize) -> Option<usize> {
     None
 }
 
+#[aoc(2015, 20)]
 pub fn main() {
     let input: usize = 33100000;
 
