@@ -15,7 +15,7 @@ impl Race {
     ///
     ///   v * (self.time - v) > self.distance
     ///
-    /// where `v` is the speed/the number of ms the button was held.
+    /// where `v` is the speed/number of ms the button was held.
     fn nwins(&self) -> u64 {
         let delta_sqrt = ((self.time * self.time - 4 * self.distance) as f64).sqrt();
         let time = self.time as f64;
