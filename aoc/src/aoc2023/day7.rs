@@ -106,7 +106,7 @@ impl<'a, G> Hand<'a, G>
 where
     G: GameType,
 {
-    fn as_vec(&self) -> Vec<u8> {
+    fn as_vec(&'a self) -> Vec<u8> {
         self.cards.chars().map(|c| c.card_strength::<G>()).collect()
     }
 
