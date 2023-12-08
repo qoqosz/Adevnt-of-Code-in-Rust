@@ -13,6 +13,7 @@ impl FromStr for Map {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut nums = s.split_whitespace().flat_map(|x| x.parse::<u64>());
+
         Ok(Map {
             dest: nums.next().unwrap(),
             src: nums.next().unwrap(),
@@ -23,21 +24,14 @@ impl FromStr for Map {
 
 impl Map {
     fn convert(&self, num: u64) -> Option<u64> {
-        let start = self.src;
-        let end = self.src + self.length;
+        let (start, end) = (self.src, self.src + self.length);
 
-        if (start..end).contains(&num) {
-            let diff = num - start;
-            return Some(self.dest + diff);
-        }
-        None
-    }
-
-    fn inv(&self) -> Self {
-        Map {
-            dest: self.src,
-            src: self.dest,
-            length: self.length,
+        match (start..end).contains(&num) {
+            false => None,
+            true => {
+                let diff = num - start;
+                Some(self.dest + diff)
+            }
         }
     }
 }
@@ -65,44 +59,20 @@ impl Mapping {
     fn convert(&self, num: u64) -> u64 {
         self.maps.iter().find_map(|m| m.convert(num)).unwrap_or(num)
     }
+
     fn inv(&self) -> Self {
         Mapping {
-            maps: self.maps.iter().map(|m| m.inv()).collect::<Vec<_>>(),
+            maps: self
+                .maps
+                .iter()
+                .map(|m| Map {
+                    src: m.dest,
+                    dest: m.src,
+                    length: m.length,
+                })
+                .collect::<Vec<_>>(),
         }
     }
-}
-
-fn part1(seeds: &[u64], mappings: &[Mapping]) -> String {
-    let mut seeds = seeds.to_vec();
-
-    for category_mapping in mappings {
-        seeds = seeds
-            .iter()
-            .map(|seed| category_mapping.convert(*seed))
-            .collect::<Vec<_>>();
-    }
-
-    let sol = seeds.iter().min().unwrap();
-    format!("{sol}")
-}
-
-fn part2(seeds: &[u64], mappings: &[Mapping]) -> String {
-    let inv_maps = mappings.iter().rev().map(|m| m.inv()).collect::<Vec<_>>();
-
-    for seed in 0..u64::MAX {
-        let mut num = seed;
-
-        for category_mapping in &inv_maps {
-            num = category_mapping.convert(num);
-        }
-
-        for win in seeds.chunks(2) {
-            if win[0] <= num && num < win[0] + win[1] {
-                return format!("{seed}");
-            }
-        }
-    }
-    unreachable!()
 }
 
 fn parse(data: &str) -> (Vec<u64>, Vec<Mapping>) {
@@ -121,23 +91,57 @@ fn parse(data: &str) -> (Vec<u64>, Vec<Mapping>) {
     (seeds, mappings)
 }
 
+/// Project the input `seed` through the `mappings` to the final location.
+#[inline]
+fn project(seed: u64, mappings: &[Mapping]) -> u64 {
+    mappings
+        .iter()
+        .fold(seed, |current_seed, mapping| mapping.convert(current_seed))
+}
+
+/// Run `project`ion on each seed and return `min`.
+fn part1(seeds: &[u64], mappings: &[Mapping]) -> Option<u64> {
+    seeds.iter().map(|seed| project(*seed, mappings)).min()
+}
+
+/// Check if `seed` falls in any of the `seeds` intervals.
+#[inline]
+fn is_seed(seeds: &[u64], seed: u64) -> bool {
+    seeds.chunks(2).any(|win| {
+        let (start, end) = (win[0], win[0] + win[1]);
+
+        (start..end).contains(&seed)
+    })
+}
+
+/// Iterate final `location`s and project them through the inverse
+/// `mappings` to get the seed.
+fn part2(seeds: &[u64], mappings: &[Mapping]) -> Option<u64> {
+    let inv_maps = mappings.iter().rev().map(|m| m.inv()).collect::<Vec<_>>();
+
+    (0..u64::MAX).find(|location| {
+        let seed = project(*location, &inv_maps);
+        is_seed(seeds, seed)
+    })
+}
+
 #[aoc(2023, 5)]
 pub fn main() {
     let data = aoc_input!(2023, 5).unwrap();
     let (seeds, mappings) = parse(&data);
 
     // Part I
-    println!("{}", part1(&seeds, &mappings));
+    println!("{}", part1(&seeds, &mappings).unwrap());
 
     // Part II
-    println!("{}", part2(&seeds, &mappings));
+    println!("{}", part2(&seeds, &mappings).unwrap());
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    static EXAMPLE1: &str = "seeds: 79 14 55 13
+    static EXAMPLE: &str = "seeds: 79 14 55 13
 
 seed-to-soil map:
 50 98 2
@@ -173,13 +177,13 @@ humidity-to-location map:
 
     #[test]
     fn test_part1() {
-        let (seeds, mappings) = parse(EXAMPLE1);
-        assert_eq!(part1(&seeds, &mappings), "35");
+        let (seeds, mappings) = parse(EXAMPLE);
+        assert_eq!(part1(&seeds, &mappings).unwrap(), 35);
     }
 
     #[test]
     fn test_part2() {
-        let (seeds, mappings) = parse(EXAMPLE1);
-        assert_eq!(part2(&seeds, &mappings), "46");
+        let (seeds, mappings) = parse(EXAMPLE);
+        assert_eq!(part2(&seeds, &mappings).unwrap(), 46);
     }
 }
