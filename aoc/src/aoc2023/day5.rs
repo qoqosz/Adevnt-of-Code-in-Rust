@@ -107,11 +107,9 @@ fn part1(seeds: &[u64], mappings: &[Mapping]) -> Option<u64> {
 /// Check if `seed` falls in any of the `seeds` intervals.
 #[inline]
 fn is_seed(seeds: &[u64], seed: u64) -> bool {
-    seeds.chunks(2).any(|win| {
-        let (start, end) = (win[0], win[0] + win[1]);
-
-        (start..end).contains(&seed)
-    })
+    seeds
+        .chunks(2)
+        .any(|win| (win[0]..win[0] + win[1]).contains(&seed))
 }
 
 /// Iterate final `location`s and project them through the inverse
