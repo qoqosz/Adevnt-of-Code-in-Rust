@@ -17,22 +17,15 @@ fn parse(data: &str) -> FxHashSet<(i64, i64)> {
 }
 
 fn expand(sky: &FxHashSet<(i64, i64)>, inc: i64) -> FxHashSet<(i64, i64)> {
-    let n_rows = sky.iter().map(|p| p.0).max().unwrap();
-    let n_cols = sky.iter().map(|p| p.1).max().unwrap();
+    let n_rows = sky.iter().map(|(r, _)| *r).max().unwrap();
+    let n_cols = sky.iter().map(|(_, c)| *c).max().unwrap();
 
-    let mut empty_rows = vec![];
-    let mut empty_cols = vec![];
-
-    for i in 0..n_rows {
-        if sky.iter().filter(|p| p.0 == i).count() == 0 {
-            empty_rows.push(i);
-        }
-    }
-    for j in 0..n_cols {
-        if sky.iter().filter(|p| p.1 == j).count() == 0 {
-            empty_cols.push(j);
-        }
-    }
+    let empty_rows = (0..n_rows)
+        .filter(|i| sky.iter().filter(|(r, _)| r == i).count() == 0)
+        .collect::<Vec<_>>();
+    let empty_cols = (0..n_cols)
+        .filter(|j| sky.iter().filter(|(_, c)| c == j).count() == 0)
+        .collect::<Vec<_>>();
 
     sky.iter()
         .map(|(row, col)| {
@@ -48,7 +41,7 @@ fn shortest_paths(sky: &FxHashSet<(i64, i64)>) -> u64 {
     sky.iter()
         .tuple_combinations()
         .map(|(a, b)| a.0.abs_diff(b.0) + a.1.abs_diff(b.1))
-        .sum::<u64>()
+        .sum()
 }
 
 #[aoc(2023, 11)]
