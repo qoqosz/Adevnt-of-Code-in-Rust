@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "aoc",
+  "aoc_core",
   "aoc_derive"
 ]  
 

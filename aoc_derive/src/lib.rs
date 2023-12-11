@@ -1,9 +1,9 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ItemFn};
+use syn::{parse::Parser, parse_macro_input, punctuated::Punctuated, Expr, ItemFn, Token};
 
 #[proc_macro_attribute]
-pub fn aoc(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn aoc(attr: TokenStream, item: TokenStream) -> TokenStream {
     let ItemFn {
         attrs,
         vis,
@@ -11,12 +11,29 @@ pub fn aoc(_attr: TokenStream, item: TokenStream) -> TokenStream {
         block,
     } = parse_macro_input!(item as ItemFn);
 
+    let exprs = Punctuated::<Expr, Token![,]>::parse_terminated
+        .parse(attr)
+        .unwrap()
+        .into_iter()
+        .collect::<Vec<_>>();
+
+    let (year, day) = match &*exprs {
+        [year, day] => (year, day),
+        _ => panic!("aoc: Invalid number of parameters; expected 2"),
+    };
+
+    let fn_name = sig.ident.clone();
     let start = quote!(__measure_time_start_instant);
     let expanded = quote! {
+
         #(#attrs)*
         #vis #sig {
+            fn inner() {
+                #block
+            }
+
             let #start = ::std::time::Instant::now();
-            let ret = #block;
+            let ret = inner();
             let duration = #start.elapsed();
 
             if duration.as_secs() > 0 {
@@ -29,6 +46,10 @@ pub fn aoc(_attr: TokenStream, item: TokenStream) -> TokenStream {
             }
 
             ret
+        }
+
+        inventory::submit! {
+            aoc_core::Solution::new(#year, #day, #fn_name)
         }
     };
 
