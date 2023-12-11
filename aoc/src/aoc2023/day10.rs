@@ -18,23 +18,18 @@ static TO_SOUTH: &str = "S|JL";
 static TO_EAST: &str = "S-7J";
 static TO_WEST: &str = "S-FL";
 
-trait Connection {
+trait PipeMaze {
     fn is_connected(&self, src: &Coord, dest: &Coord, dir: Direction) -> bool;
+    fn get_start(&self) -> Coord;
 }
 
-impl Connection for Diagram {
+impl PipeMaze for Diagram {
     fn is_connected(&self, src: &Coord, dest: &Coord, dir: Direction) -> bool {
-        let start = match self.get(src) {
-            Some(start) => *start,
-            None => {
-                return false;
-            }
+        let Some(&start) = self.get(src) else {
+            return false;
         };
-        let end = match self.get(dest) {
-            Some(end) => *end,
-            None => {
-                return false;
-            }
+        let Some(&end) = self.get(dest) else {
+            return false;
         };
 
         match dir {
@@ -44,11 +39,17 @@ impl Connection for Diagram {
             Direction::West => TO_EAST.contains(start) && TO_WEST.contains(end),
         }
     }
+
+    fn get_start(&self) -> Coord {
+        self.iter()
+            .find_map(|(k, v)| if *v == 'S' { Some(*k) } else { None })
+            .unwrap()
+    }
 }
 
 fn find_loop(diagram: &Diagram) -> FxHashSet<Coord> {
     let mut visited: FxHashSet<Coord> = FxHashSet::default();
-    let mut queue: VecDeque<Coord> = VecDeque::from_iter([get_start(diagram)]);
+    let mut queue: VecDeque<Coord> = VecDeque::from_iter([diagram.get_start()]);
 
     while let Some((i, j)) = queue.pop_front() {
         if !visited.insert((i, j)) {
@@ -71,20 +72,21 @@ fn find_loop(diagram: &Diagram) -> FxHashSet<Coord> {
     visited
 }
 
+/// Scanline algorithm
 fn area(diagram: &Diagram, r#loop: &FxHashSet<Coord>) -> usize {
-    let y = diagram.keys().max_by_key(|k| k.0).unwrap().0;
     let x = diagram.keys().max_by_key(|k| k.1).unwrap().1;
+    let y = diagram.keys().max_by_key(|k| k.0).unwrap().0;
     let mut res = 0;
     let toggle = "|F7"; // Or with "S" - depends on the input type
 
     for i in 0..y {
         let mut is_outside = true;
+
         for j in 0..x {
             let pos = (i, j);
             let ch = *diagram.get(&pos).unwrap();
 
             if !is_outside && !r#loop.contains(&pos) {
-                // println!("{:?}", pos);
                 res += 1;
             }
             if r#loop.contains(&pos) && toggle.contains(ch) {
@@ -106,15 +108,6 @@ fn parse(data: &str) -> Diagram {
                 .map(move |(j, ch)| ((i as i32, j as i32), ch))
         })
         .collect()
-}
-
-fn get_start(diagram: &Diagram) -> Coord {
-    for (k, v) in diagram {
-        if *v == 'S' {
-            return *k;
-        }
-    }
-    unreachable!()
 }
 
 #[aoc(2023, 10)]
