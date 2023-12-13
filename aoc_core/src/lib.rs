@@ -14,4 +14,10 @@ impl Solution {
     }
 }
 
+impl std::cmp::PartialEq<(u16, u16)> for Solution {
+    fn eq(&self, other: &(u16, u16)) -> bool {
+        (self.year, self.day) == *other
+    }
+}
+
 inventory::collect!(Solution);
