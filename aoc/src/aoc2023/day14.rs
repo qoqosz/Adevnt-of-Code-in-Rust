@@ -100,9 +100,7 @@ fn solve_cycle(platform: &mut Platform, n: u32) -> Option<u32> {
     for i in 1..n {
         platform.cycle();
 
-        let v = *cache.entry(platform.clone()).or_insert(i);
-
-        if v != i {
+        if let Some(v) = cache.insert(platform.clone(), i) {
             let y = (n - v) % (i - v) + v;
             return cache
                 .iter()
