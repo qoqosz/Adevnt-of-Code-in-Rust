@@ -92,6 +92,7 @@ fn solve_cycle(platform: &mut Platform, n: u32) -> u32 {
     let mut cache: FxHashMap<String, u32> = FxHashMap::default();
     cache.insert(platform.to_string(), 0);
 
+    // TODO: This could be simplified even more...
     while i < n {
         platform.cycle();
 
