@@ -44,17 +44,11 @@ fn solve(contraption: &FxHashMap<(i32, i32), char>, init: &State) -> usize {
                     queue.push_back((next, -1, 0));
                 }
                 // the beam is reflected 90 degrees
-                (_, _, '\\') => {
-                    queue.push_back((next, dy, dx));
-                }
+                (_, _, '\\') => queue.push_back((next, dy, dx)),
                 // the beam is reflected 90 degrees
-                (_, _, '/') => {
-                    queue.push_back((next, -dy, -dx));
-                }
-                // continue in the same direction}
-                _ => {
-                    queue.push_back((next, dx, dy));
-                }
+                (_, _, '/') => queue.push_back((next, -dy, -dx)),
+                // continue in the same direction
+                _ => queue.push_back((next, dx, dy)),
             }
         }
     }
@@ -67,7 +61,6 @@ fn maximize(contraption: &FxHashMap<(i32, i32), char>, width: i32, height: i32) 
     for x in 0..width {
         // top row
         inits.push(((x, -1), 0, 1));
-
         // bottom row
         inits.push(((x, height), 0, -1));
     }
@@ -75,7 +68,6 @@ fn maximize(contraption: &FxHashMap<(i32, i32), char>, width: i32, height: i32) 
     for y in 0..height {
         // leftmost column
         inits.push(((-1, y), 1, 0));
-
         // rightmost column
         inits.push(((width, y), -1, 0));
     }
