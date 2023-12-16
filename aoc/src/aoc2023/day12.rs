@@ -22,7 +22,7 @@ fn arrangement(records: &str) -> Vec<usize> {
 
     for (k, v) in &records.chars().group_by(|c| *c) {
         if k == '#' {
-            res.push(v.count() as usize);
+            res.push(v.count());
         }
     }
 
