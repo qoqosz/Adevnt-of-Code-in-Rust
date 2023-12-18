@@ -1,9 +1,7 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
-type Plan<'a> = Vec<(char, i64)>;
-
-fn parse(data: &str) -> Plan {
+fn parse(data: &str) -> Vec<(char, i64)> {
     data.trim()
         .lines()
         .map(|line| {
@@ -15,7 +13,7 @@ fn parse(data: &str) -> Plan {
         .collect()
 }
 
-fn parse_hex(data: &str) -> Plan {
+fn parse_hex(data: &str) -> Vec<(char, i64)> {
     data.trim()
         .lines()
         .map(|line| {
@@ -34,9 +32,9 @@ fn parse_hex(data: &str) -> Plan {
         .collect()
 }
 
-fn dig(plan: &Plan) -> Vec<(i64, i64)> {
+fn dig(plan: &Vec<(char, i64)>) -> Vec<(i64, i64)> {
     let (mut x, mut y) = (0, 0);
-    let mut hole = vec![(x, y)];
+    let mut edges = vec![(x, y)];
 
     for (dir, step) in plan {
         let (dx, dy) = match dir {
@@ -48,20 +46,20 @@ fn dig(plan: &Plan) -> Vec<(i64, i64)> {
         };
 
         (x, y) = (x + step * dx, y + step * dy);
-        hole.push((x, y));
+        edges.push((x, y));
     }
 
-    hole
+    edges
 }
 
-fn shoelace(hole: &[(i64, i64)]) -> u64 {
-    let area: i64 = hole
+fn shoelace(edges: &[(i64, i64)]) -> u64 {
+    let area: i64 = edges
         .iter()
         .circular_tuple_windows::<(_, _, _)>()
         .map(|(w0, w1, w2)| w1.1 * (w0.0 - w2.0))
         .sum();
 
-    let border: u64 = hole
+    let border: u64 = edges
         .iter()
         .circular_tuple_windows()
         .map(|(w0, w1)| w0.0.abs_diff(w1.0) + w0.1.abs_diff(w1.1))
@@ -76,13 +74,13 @@ pub fn main() {
 
     // Part I
     let plan = parse(&data);
-    let hole = dig(&plan);
-    println!("{}", shoelace(&hole));
+    let edges = dig(&plan);
+    println!("{}", shoelace(&edges));
 
     // Part II
     let plan = parse_hex(&data);
-    let hole = dig(&plan);
-    println!("{}", shoelace(&hole));
+    let edges = dig(&plan);
+    println!("{}", shoelace(&edges));
 }
 
 #[cfg(test)]

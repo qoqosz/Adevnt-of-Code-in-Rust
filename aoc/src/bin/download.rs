@@ -17,9 +17,13 @@ fn main() -> ExitCode {
         }
     };
 
-    if let Err(err) = aoc_input!(args.year, args.day) {
-        eprintln!("{err}");
-        return ExitCode::FAILURE;
+    if let Some(day) = args.day {
+        if let Err(err) = aoc_input!(args.year, day) {
+            eprintln!("{err}");
+            return ExitCode::FAILURE;
+        }
+    } else {
+        eprintln!("downloading all inputs for a given year is not supported")
     }
     ExitCode::SUCCESS
 }

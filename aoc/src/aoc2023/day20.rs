@@ -4,7 +4,7 @@ fn parse(data: &str) {
     _ = data.trim().lines();
 }
 
-#[aoc(2023, 20)]
+//#[aoc(2023, 20)]
 pub fn main() {
     let data = aoc_input!(2023, 20).unwrap();
     parse(&data);

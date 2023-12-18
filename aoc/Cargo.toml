@@ -25,7 +25,7 @@ path = "src/main.rs"
 aoc_core = { path = "../aoc_core" }
 aoc_derive = { path = "../aoc_derive" }
 inventory = "0.3.13"
-itertools = "0.11.0"
+itertools = "0.12.0"
 lazy_static = "1.4.0"
 md5 = "0.7.0"
 memoize = { version = "0.4.1", features = ["full"] }
