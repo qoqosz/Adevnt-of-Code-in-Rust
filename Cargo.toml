@@ -14,5 +14,5 @@ opt-level = 0
 opt-level = 3
 codegen-units = 1
 lto = true
-debug = true
+debug = false
 

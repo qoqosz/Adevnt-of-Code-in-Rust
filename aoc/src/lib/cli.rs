@@ -63,7 +63,8 @@ impl TryFrom<pico_args::Arguments> for Args {
             .value_from_str("-y")
             .unwrap_or_else(|_| get_current_year());
 
-        if !(1..=25).contains(&(day as i32)) {
+        // TODO: either make it optional or add a flag to run for all days in a year
+        if !(0..=25).contains(&(day as i32)) {
             return Err(ArgsError::InvalidDay);
         }
         if year < 2015 {
