@@ -65,6 +65,7 @@ fn calc(record: String, groups: Vec<usize>) -> usize {
     unreachable!()
 }
 
+#[allow(clippy::useless_vec)]
 #[aoc(2023, 12)]
 pub fn main() {
     let data = aoc_input!(2023, 12).unwrap();
@@ -103,8 +104,6 @@ mod tests {
 ????.#...#... 4,1,1
 ????.######..#####. 1,6,5
 ?###???????? 3,2,1";
-
-    static EXAMPLE2: &str = "????.######..#####. 1,6,5";
 
     #[test]
     fn test_arrangement() {
