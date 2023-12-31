@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 use std::borrow::Borrow;
 use std::collections::HashSet;
@@ -23,6 +23,7 @@ where
     result
 }
 
+#[aoc(2020, 6)]
 pub fn main() {
     let data = aoc_input!(2020, 6).unwrap();
     let answers: Vec<Vec<HashSet<char>>> = data

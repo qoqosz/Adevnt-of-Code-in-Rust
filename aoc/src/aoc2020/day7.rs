@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use regex_lite::Regex;
 use rustc_hash::FxHashMap;
 
@@ -67,6 +67,7 @@ impl<'a> Bag<'a> {
     }
 }
 
+#[aoc(2020, 7)]
 pub fn main() {
     let data = aoc_input!(2020, 7).unwrap();
     let mut bag = Bag::from_input(&data);

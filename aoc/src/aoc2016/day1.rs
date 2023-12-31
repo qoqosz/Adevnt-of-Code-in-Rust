@@ -1,15 +1,6 @@
-use aoc::aoc_input;
-use aoc::point2d::Point;
+use aoc::{aoc, aoc_input};
+use glam::i32::IVec2 as Point;
 use lazy_static::lazy_static;
-
-lazy_static! {
-    static ref PHASES: [Point; 4] = [
-        Point::new(0, 1),
-        Point::new(1, 0),
-        Point::new(0, -1),
-        Point::new(-1, 0),
-    ];
-}
 
 trait Dist {
     fn dist(&self) -> i32;
@@ -19,6 +10,15 @@ impl Dist for Point {
     fn dist(&self) -> i32 {
         self.x.abs() + self.y.abs()
     }
+}
+
+lazy_static! {
+    static ref PHASES: [Point; 4] = [
+        Point::new(0, 1),
+        Point::new(1, 0),
+        Point::new(0, -1),
+        Point::new(-1, 0),
+    ];
 }
 
 fn path(instructions: &[&str]) -> Vec<Point> {
@@ -38,7 +38,7 @@ fn path(instructions: &[&str]) -> Vec<Point> {
         let ds = PHASES[phi % 4];
 
         for _ in 1..=val {
-            pos = pos + ds;
+            pos += ds;
             out.push(pos);
         }
     }
@@ -59,6 +59,7 @@ fn find_duplicate(path: &[Point]) -> Option<Point> {
     None
 }
 
+#[aoc(2016, 1)]
 pub fn main() {
     let data = aoc_input!(2016, 1).unwrap();
     let tokens = data.split(',').map(|x| x.trim()).collect::<Vec<_>>();

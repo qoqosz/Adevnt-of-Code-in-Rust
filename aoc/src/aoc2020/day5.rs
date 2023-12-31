@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
 fn seat_id(code: &str) -> usize {
@@ -9,6 +9,7 @@ fn seat_id(code: &str) -> usize {
     usize::from_str_radix(row, 2).unwrap() * 8 + usize::from_str_radix(col, 2).unwrap()
 }
 
+#[aoc(2020, 5)]
 pub fn main() {
     let data = aoc_input!(2020, 5).unwrap();
     let ids: Vec<usize> = data.trim_end().lines().map(seat_id).sorted().collect();

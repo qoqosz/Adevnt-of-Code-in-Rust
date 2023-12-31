@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 
 fn count_trees<'a>(mut map: impl Iterator<Item = &'a str>, shift: usize) -> usize {
     let n = map.next().unwrap().len();
@@ -7,6 +7,7 @@ fn count_trees<'a>(mut map: impl Iterator<Item = &'a str>, shift: usize) -> usiz
         .count()
 }
 
+#[aoc(2020, 3)]
 pub fn main() {
     let data = aoc_input!(2020, 3).unwrap();
     let iter = data.lines().filter(|x| !x.is_empty());

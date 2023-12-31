@@ -1,6 +1,7 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
+#[aoc(2020, 2)]
 pub fn main() {
     let data = aoc_input!(2020, 2).unwrap();
     let input = data

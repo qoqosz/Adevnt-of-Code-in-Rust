@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use lazy_static::lazy_static;
 use rustc_hash::{FxHashMap, FxHashSet};
 
@@ -52,6 +52,7 @@ fn is_valid2(passport: &&FxHashMap<&str, &str>) -> bool {
         .all(|x| *x)
 }
 
+#[aoc(2020, 4)]
 pub fn main() {
     let data = aoc_input!(2020, 4).unwrap();
     let passports = data

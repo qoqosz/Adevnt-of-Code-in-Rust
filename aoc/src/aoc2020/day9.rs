@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::FoldWhile::{Continue, Done};
 use itertools::Itertools;
 use itertools::MinMaxResult::MinMax;
@@ -40,6 +40,7 @@ fn find_subset(nums: &[i64], target: i64) -> Option<&[i64]> {
     None
 }
 
+#[aoc(2020, 9)]
 pub fn main() {
     let data = aoc_input!(2020, 9).unwrap();
     let nums = data

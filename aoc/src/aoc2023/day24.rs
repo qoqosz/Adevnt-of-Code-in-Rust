@@ -14,6 +14,14 @@
 ///  0 = r ^ (v_j - v_i) ^ (r_j - r_i) + r_i ^ v_i ^ r_j + r_j ^ v_j ^ r_i
 ///
 /// Having 3 such eqs allow to solve for all coordinates of r
+// Debug:
+// 20361
+// 558415252330828
+// Elapsed: 34ms
+
+// Day 24, 2023
+// 20361
+// 558415252330828
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 use std::fmt;

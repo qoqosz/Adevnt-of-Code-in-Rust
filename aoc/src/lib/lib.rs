@@ -6,7 +6,6 @@ pub mod interval;
 pub mod io;
 pub mod macros;
 pub mod num;
-pub mod point2d;
 pub mod utils;
 
 extern crate aoc_derive;
