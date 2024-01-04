@@ -5,7 +5,7 @@ pub mod aoc2021;
 pub mod aoc2023;
 
 use aoc::cli::{Args, ArgsError};
-use aoc_core::Solution;
+use aoc_core::solution::Solution;
 use itertools::Itertools;
 use std::process::ExitCode;
 

@@ -49,7 +49,7 @@ pub fn aoc(attr: TokenStream, item: TokenStream) -> TokenStream {
         }
 
         inventory::submit! {
-            aoc_core::Solution::new(#year, #day, #fn_name)
+            aoc_core::solution::Solution::new(#year, #day, #fn_name)
         }
     };
 
