@@ -22,6 +22,7 @@
 // Day 24, 2023
 // 20361
 // 558415252330828
+// Elapsed: 6ms
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 use std::fmt;
