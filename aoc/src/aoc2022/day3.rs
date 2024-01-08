@@ -1,12 +1,13 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
-use rustc_hash::FxHashSet;
+use std::borrow::Borrow;
 
 #[inline(always)]
-fn priority(ch: &char) -> u16 {
+fn priority<C: Borrow<char>>(ch: C) -> u16 {
+    let ch = *ch.borrow();
     match ch {
-        'a'..='z' => *ch as u16 - 96,
-        'A'..='Z' => *ch as u16 - 38,
+        'a'..='z' => ch as u16 - 96,
+        'A'..='Z' => ch as u16 - 38,
         _ => unreachable!(),
     }
 }
@@ -19,15 +20,10 @@ pub fn main() {
     let sum_priorities: u16 = data
         .trim()
         .lines()
-        .map(|line| {
+        .flat_map(|line| {
             let n = line.len();
             let (first, second) = line.split_at(n / 2);
-            let (first, second) = (
-                FxHashSet::from_iter(first.chars()),
-                FxHashSet::from_iter(second.chars()),
-            );
-            let common = first.intersection(&second);
-            common.map(priority).sum::<u16>()
+            first.chars().find(|ch| second.contains(*ch)).map(priority)
         })
         .sum();
     println!("{sum_priorities}");
@@ -35,20 +31,15 @@ pub fn main() {
     // Part II
     let sum_priorities: u16 = data
         .trim()
-        .split('\n')
+        .lines()
         .chunks(3)
         .into_iter()
-        .map(|chunk| chunk.map(|line| FxHashSet::from_iter(line.chars())))
-        .map(|mut sets| {
-            sets.next()
-                .map(|set| {
-                    sets.fold(set, |set1, set2| {
-                        set1.intersection(&set2).copied().collect()
-                    })
-                })
-                .unwrap()
+        .flat_map(|mut lines| {
+            let mut first = lines.next().unwrap().chars();
+            // let mut first = lines.next().unwrap().chars().collect::<Vec<_>>();
+            first.find(|ch| lines.all(|l| l.contains(*ch)));
+            first.map(priority)
         })
-        .map(|x| x.iter().map(priority).sum::<u16>())
         .sum();
     println!("{sum_priorities}");
 }
