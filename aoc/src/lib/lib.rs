@@ -3,4 +3,4 @@ extern crate aoc_derive;
 
 // pub use aoc_core::macros::aoc_input;
 pub use aoc_core::*;
-pub use aoc_derive::aoc;
+pub use aoc_derive::{aoc, aoc_main};
