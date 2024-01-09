@@ -52,8 +52,19 @@ where
         Self { start, end }
     }
 
+    #[inline]
     pub fn len(&self) -> T {
         self.end - self.start
+    }
+
+    #[inline]
+    pub fn contains(&self, other: &Self) -> bool {
+        self.start <= other.start && self.end >= other.end
+    }
+
+    #[inline]
+    pub fn overlaps(&self, other: &Self) -> bool {
+        max(self.start, other.start) <= min(self.end, other.end)
     }
 
     pub fn union_parts(&self, other: &Self) -> UnionParts<T> {
