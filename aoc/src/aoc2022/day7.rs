@@ -25,7 +25,7 @@ impl<'a> Disk<'a> {
         self.dirs[parent].dirs.push(id);
     }
 
-    fn size(&self, i: usize, cache: &mut Vec<Option<usize>>) -> usize {
+    fn size(&self, i: usize, cache: &mut [Option<usize>]) -> usize {
         if let Some(sz) = cache[i] {
             return sz;
         }
@@ -78,7 +78,7 @@ pub fn main() {
     let disk = parse(&data);
 
     // Part I
-    let mut cache = vec![None; disk.dirs.len()];
+    let mut cache = [None; 256];
     let total_size = (0..disk.dirs.len())
         .map(|i| disk.size(i, &mut cache))
         .filter(|&size| size <= 100_000)

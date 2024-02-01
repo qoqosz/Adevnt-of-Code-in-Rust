@@ -1,171 +1,113 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
-#[derive(Debug)]
-struct Grid {
-    data: Vec<u8>,
-    x: usize,
-    y: usize,
+struct Grid<'a> {
+    data: Vec<&'a [u8]>,
+    width: usize,
+    height: usize,
 }
 
-impl From<&str> for Grid {
-    fn from(value: &str) -> Self {
-        let x = value.find('\n').unwrap();
-        let y = value.trim_end().matches('\n').count() + 1;
-        let data = value
-            .as_bytes()
-            .iter()
-            .filter(|ch| **ch != 10)
-            .map(|ch| *ch - 48)
-            .collect();
-        Self { data, x, y }
+impl<'a> From<&'a str> for Grid<'a> {
+    fn from(value: &'a str) -> Self {
+        let data: Vec<_> = value.lines().map(|line| line.as_bytes()).collect();
+        let width = data[0].len();
+        let height = data.len();
+
+        Grid {
+            data,
+            width,
+            height,
+        }
     }
 }
 
-macro_rules! any {
-    ($a:expr, $b:expr, $($args:expr),*) => {
-        any!((($a) || ($b)), $($args),*)
-    };
-    ($a:expr, $b:expr) => {
-        ($a) || ($b)
-    };
+impl Grid<'_> {
+    fn get(&self, x: usize, y: usize) -> Option<&u8> {
+        self.data.get(y).and_then(|row| row.get(x))
+    }
+
+    fn size(&self) -> usize {
+        self.width * self.height
+    }
+
+    #[inline]
+    fn iter_left(&self, x: usize, y: usize) -> impl Iterator<Item = u8> + '_ {
+        (0..x).rev().map(move |i| self.data[y][i])
+    }
+
+    #[inline]
+    fn iter_right(&self, x: usize, y: usize) -> impl Iterator<Item = u8> + '_ {
+        ((x + 1)..(self.width)).map(move |i| self.data[y][i])
+    }
+
+    #[inline]
+    fn iter_up(&self, x: usize, y: usize) -> impl Iterator<Item = u8> + '_ {
+        (0..y).rev().map(move |i| self.data[i][x])
+    }
+
+    #[inline]
+    fn iter_down(&self, x: usize, y: usize) -> impl Iterator<Item = u8> + '_ {
+        ((y + 1)..(self.height)).map(move |i| self.data[i][x])
+    }
 }
 
-macro_rules! prod {
-    ($a:expr, $($args:expr),*) => {
-        $a * prod!($($args),*)
-    };
+fn visible_trees(grid: &Grid, x: isize, y: isize, dx: isize, dy: isize, seen: &mut [bool]) {
+    let mut x = x;
+    let mut y = y;
+    let mut max_height = -1;
 
-    ($a:expr) => {
-        $a
-    };
+    while let Some(&tree) = grid.get(x as usize, y as usize) {
+        if tree as isize > max_height {
+            seen[y as usize * grid.width + x as usize] = true;
+            max_height = tree as isize;
+        }
+        x += dx;
+        y += dy;
+    }
 }
 
-macro_rules! is_visible {
-    ($it:expr, $height:expr) => {
-        $it.all(|p| *p < $height)
-    };
-}
+fn scenic_score(grid: &Grid, x: usize, y: usize) -> usize {
+    let max_h = grid.data[y][x];
 
-macro_rules! count_trees {
-    ($it:expr, $height:expr) => {
-        $it.take_while_inclusive(|&&p| p < $height).count()
-    };
-}
-
-impl Grid {
-    fn iter_pos(&self) -> impl Iterator<Item = (usize, usize)> {
-        (1..(self.x - 1)).cartesian_product(1..(self.y - 1))
+    fn count(iter: impl Iterator<Item = u8>, max_h: u8) -> usize {
+        iter.take_while_inclusive(|tree| *tree < max_h).count()
     }
 
-    fn iter_left(&self, pos: (usize, usize)) -> impl Iterator<Item = &u8> {
-        let start = self.y * pos.1;
-        self.data[start..(start + pos.0)].iter().rev()
-    }
+    let factors = [
+        count(grid.iter_left(x, y), max_h),
+        count(grid.iter_right(x, y), max_h),
+        count(grid.iter_up(x, y), max_h),
+        count(grid.iter_down(x, y), max_h),
+    ];
 
-    fn iter_right(&self, pos: (usize, usize)) -> impl Iterator<Item = &u8> {
-        let start = self.y * pos.1;
-        self.data[(start + pos.0 + 1)..(start + self.y)].iter()
-    }
-
-    fn iter_up(&self, pos: (usize, usize)) -> impl Iterator<Item = &u8> {
-        let n = self.data.len() - 1;
-        self.data
-            .iter()
-            .rev()
-            .enumerate()
-            .filter_map(move |(j, p)| match (n - j) % self.y == pos.0 {
-                true => Some(p),
-                _ => None,
-            })
-            .skip(self.y - pos.1)
-    }
-
-    fn iter_down(&self, pos: (usize, usize)) -> impl Iterator<Item = &u8> {
-        self.data
-            .iter()
-            .enumerate()
-            .filter_map(move |(j, p)| match j % self.y == pos.0 {
-                true => Some(p),
-                _ => None,
-            })
-            .skip(pos.1 + 1)
-    }
-
-    fn is_visible(&self, pos: (usize, usize)) -> bool {
-        let height = self.data[pos.0 + self.x * pos.1];
-
-        any!(
-            is_visible!(self.iter_left(pos), height),
-            is_visible!(self.iter_right(pos), height),
-            is_visible!(self.iter_up(pos), height),
-            is_visible!(self.iter_down(pos), height)
-        )
-    }
-
-    fn count_visible(&self) -> usize {
-        let count = self
-            .iter_pos()
-            .filter(|&(i, j)| self.is_visible((i, j)))
-            .count();
-        count + 2 * (self.x + self.y - 2)
-    }
-
-    fn scenic_score(&self, pos: (usize, usize)) -> usize {
-        let height = self.data[pos.0 + self.y * pos.1];
-
-        prod!(
-            count_trees!(self.iter_left(pos), height),
-            count_trees!(self.iter_right(pos), height),
-            count_trees!(self.iter_up(pos), height),
-            count_trees!(self.iter_down(pos), height)
-        )
-    }
+    factors.iter().product()
 }
 
 #[aoc(2022, 8)]
 pub fn main() {
     let data = aoc_input!(2022, 8).unwrap();
     let grid = Grid::from(data.as_str());
+    let mut seen = vec![false; grid.size()];
+    let (width, height) = (grid.width as isize, grid.height as isize);
 
     // Part I
-    println!("{}", grid.count_visible());
+    for x in 0..width {
+        visible_trees(&grid, x, 0, 0, 1, &mut seen);
+        visible_trees(&grid, x, height - 1, 0, -1, &mut seen);
+    }
+    for y in 0..height {
+        visible_trees(&grid, 0, y, 1, 0, &mut seen);
+        visible_trees(&grid, height - 1, y, -1, 0, &mut seen);
+    }
+
+    println!("{}", seen.iter().filter(|x| **x).count());
 
     // Part II
-    println!(
-        "{}",
-        grid.iter_pos()
-            .map(|pos| grid.scenic_score(pos))
-            .max()
-            .unwrap()
-    )
-}
+    let max_score = (0..width)
+        .cartesian_product(0..height)
+        .map(|(x, y)| scenic_score(&grid, x as usize, y as usize))
+        .max()
+        .unwrap();
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    static EXAMPLE: &str = "30373
-25512
-65332
-33549
-35390";
-
-    #[test]
-    fn test_part1() {
-        let grid = Grid::from(EXAMPLE);
-        assert_eq!(grid.count_visible(), 21);
-    }
-
-    #[test]
-    fn test_part2() {
-        let grid = Grid::from(EXAMPLE);
-        assert_eq!(
-            grid.iter_pos()
-                .map(|pos| grid.scenic_score(pos))
-                .max()
-                .unwrap(),
-            8
-        );
-    }
+    println!("{}", max_score);
 }
