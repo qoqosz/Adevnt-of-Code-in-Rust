@@ -40,3 +40,4 @@ ureq = "2.9.0"
 rustworkx-core = "0.13.2"
 glam = { version = "0.25.0" }
 tinyvec = "1.6.0"
+atoi = "2.0.0"
