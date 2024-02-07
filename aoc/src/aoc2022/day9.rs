@@ -30,7 +30,7 @@ enum Direction {
 }
 
 impl Direction {
-    fn to_ivec2(&self) -> (IVec2, i32) {
+    fn to_ivec2(&self) -> IVec2 {
         match self {
             Self::Down => IVec2::new(0, -1),
             Self::Up => IVec2::new(0, 1),
@@ -47,13 +47,13 @@ impl From<&str> for Motion {
         let (dir, val) = value.split_once(' ').unwrap();
         let val = atoi::<i32>(val.as_bytes()).unwrap();
         let dir = match dir {
-            "D" => Self::Down,
-            "U" => Self::Up,
-            "L" => Self::Left,
-            "R" => Self::Right,
+            "D" => Direction::Down,
+            "U" => Direction::Up,
+            "L" => Direction::Left,
+            "R" => Direction::Right,
             _ => unimplemented!(),
         };
-        (dir, val)
+        Self(dir, val)
     }
 }
 
@@ -85,7 +85,7 @@ impl Rope {
 
     #[inline]
     fn move_head(&mut self, direction: &Direction) {
-        self.H += direction.to_step().0;
+        self.H += direction.to_ivec2();
     }
 
     #[inline]
@@ -122,7 +122,7 @@ pub fn main() {
     let motions = data
         .trim_end()
         .lines()
-        .map(Direction::from)
+        .map(Motion::from)
         .collect::<Vec<_>>();
 
     // Part I
