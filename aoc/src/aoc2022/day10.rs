@@ -83,7 +83,7 @@ pub fn main() {
     let mut idx_crt = 0;
     let mut display: Vec<char> = Vec::with_capacity(320);
 
-    for (cycle, value) in cpu.states {
+    for (_, value) in cpu.states {
         display.push(if (idx_crt - value).abs() <= 1 {
             '█'
         } else {

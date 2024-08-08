@@ -1,6 +1,6 @@
 use aoc::{aoc, aoc_input};
 use glam::i32::IVec2 as Point;
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
 
 trait Dist {
     fn dist(&self) -> i32;
@@ -12,14 +12,14 @@ impl Dist for Point {
     }
 }
 
-lazy_static! {
-    static ref PHASES: [Point; 4] = [
+static PHASES: LazyLock<[Point; 4]> = LazyLock::new(|| {
+    [
         Point::new(0, 1),
         Point::new(1, 0),
         Point::new(0, -1),
         Point::new(-1, 0),
-    ];
-}
+    ]
+});
 
 fn path(instructions: &[&str]) -> Vec<Point> {
     let mut pos = Point::default();

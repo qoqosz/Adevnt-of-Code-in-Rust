@@ -1,11 +1,9 @@
 use aoc::{aoc, aoc_input};
-use lazy_static::lazy_static;
 use regex_lite::{Match, Regex};
+use std::sync::LazyLock;
 
-lazy_static! {
-    static ref RE_NUMBER: Regex = Regex::new(r"\d+").unwrap();
-    static ref RE_SYMBOL: Regex = Regex::new(r"[^.\d]").unwrap();
-}
+static RE_NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d+").unwrap());
+static RE_SYMBOL: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[^.\d]").unwrap());
 
 #[derive(Debug)]
 struct Number {
