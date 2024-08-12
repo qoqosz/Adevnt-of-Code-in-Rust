@@ -5,7 +5,7 @@ pub fn main() {
     let data = aoc_input!(2021, 1).unwrap();
     let measurements = data
         .lines()
-        .filter_map(|x| x.parse::<u32>().ok())
+        .flat_map(|x| x.parse::<u32>())
         .collect::<Vec<_>>();
 
     // Part I

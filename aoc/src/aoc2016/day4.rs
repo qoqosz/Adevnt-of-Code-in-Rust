@@ -74,7 +74,7 @@ pub fn main() {
     let data = aoc_input!(2016, 4).unwrap();
     let entries = data
         .lines()
-        .filter_map(|l| Entry::try_from(l).ok())
+        .flat_map(|l| Entry::try_from(l))
         .collect::<Vec<_>>();
     let mut rooms = entries.iter().filter(|e| e.is_room());
 

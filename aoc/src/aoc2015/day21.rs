@@ -71,7 +71,7 @@ fn search(player: Item, boss: Item) -> (i32, i32) {
     (min_cost, max_cost)
 }
 
-#[aoc(2015, 12)]
+#[aoc(2015, 21)]
 pub fn main() {
     let boss = (103, 9, 2);
     let player = (100, 0, 0);

@@ -10,7 +10,7 @@ fn parse(data: &str) -> Vec<(u32, u32, u32)> {
         .filter(|x| !x.is_empty())
         .map(|l| {
             l.split_whitespace()
-                .filter_map(|x| x.parse::<u32>().ok())
+                .flat_map(|x| x.parse::<u32>())
                 .collect_tuple::<(u32, u32, u32)>()
                 .unwrap()
         })

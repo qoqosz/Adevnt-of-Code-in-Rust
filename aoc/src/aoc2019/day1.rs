@@ -23,7 +23,7 @@ pub fn main() {
     let data = aoc_input!(2019, 1).unwrap();
     let fuels = data
         .lines()
-        .filter_map(|x| x.parse::<u32>().ok())
+        .flat_map(|x| x.parse::<u32>())
         .collect::<Vec<_>>();
 
     // Part I

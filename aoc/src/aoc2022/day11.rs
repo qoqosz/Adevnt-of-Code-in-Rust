@@ -52,7 +52,7 @@ impl From<&str> for Monkey {
         let items = lines.next().unwrap().split_once(": ").unwrap().1;
         let items = items
             .split(", ")
-            .filter_map(|v| v.parse::<usize>().ok())
+            .flat_map(|v| v.parse::<usize>())
             .collect::<VecDeque<_>>();
         let op = Op::from(&lines.next().unwrap()[23..]);
         let divisor = lines.next().unwrap()[21..].parse::<usize>().unwrap();
@@ -106,7 +106,6 @@ impl<'m> Gang<'m> {
     fn new(monkeys: &'m mut [Monkey]) -> Self {
         let mut gang = Self(monkeys, 0);
         gang.1 = gang.lcm();
-        println!("lcm: {}", gang.1);
         gang
     }
 
