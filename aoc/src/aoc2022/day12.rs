@@ -28,7 +28,7 @@ fn neighbors(p: &(i16, i16)) -> impl IntoIterator<Item = (i16, i16)> {
 #[inline]
 fn is_transition(start: char, end: char) -> bool {
     match (start, end) {
-        ('E', 'z') | ('E', 'y') | ('a', 'S') => true,
+        ('E', 'y' | 'z') | ('a', 'S') => true,
         ('E', _) | (_, 'S') => false,
         (src @ _, dest @ _) => (dest as i8) + 1 >= (src as i8),
     }
@@ -99,19 +99,19 @@ abdefghi";
     }
 
     #[rstest]
-    fn test_end(graph: Graph) {
+    fn test_end(#[by_ref] graph: &Graph) {
         assert_eq!(graph.get(&(2, 5)), Some(&'E'));
     }
 
     #[rstest]
-    fn test_part1(graph: Graph) {
-        let res = shortest_path_len(&graph, (2, 5), 'S');
+    fn test_part1(#[by_ref] graph: &Graph) {
+        let res = shortest_path_len(graph, (2, 5), 'S');
         assert_eq!(res, Some(31));
     }
 
     #[rstest]
-    fn test_part2(graph: Graph) {
-        let res = shortest_path_len(&graph, (2, 5), 'a');
+    fn test_part2(#[by_ref] graph: &Graph) {
+        let res = shortest_path_len(graph, (2, 5), 'a');
         assert_eq!(res, Some(29));
     }
 }
