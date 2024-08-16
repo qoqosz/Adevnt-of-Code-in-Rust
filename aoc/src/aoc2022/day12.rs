@@ -40,13 +40,13 @@ fn shortest_path_len(graph: &Graph, start: (i16, i16), target: char) -> Option<u
 
     while let Some((dist, pos)) = queue.pop() {
         if let Some(&ch) = graph.get(&pos) {
-            // end condition
-            if ch == target {
-                return Some(dist);
-            }
             // already visited
             if !visited.insert(pos) {
                 continue;
+            }
+            // end condition
+            if ch == target {
+                return Some(dist);
             }
             // visit neighbors
             for n in neighbors(&pos) {
