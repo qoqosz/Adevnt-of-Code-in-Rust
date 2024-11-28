@@ -1,11 +1,9 @@
 use aoc::{aoc, aoc_input};
 use std::rc::Rc;
 
-fn is_aba(txt: &str) -> bool {
-    for win in txt.as_bytes().windows(3) {
-        if win[0] == win[2] && win[0] != win[1] {
-            return true;
-        }
+fn is_aba(txt: &[u8]) -> bool {
+    if txt[0] == txt[2] && txt[0] != txt[1] {
+        return true;
     }
     false
 }
@@ -76,8 +74,16 @@ impl<'a> Address<'a> {
         is_left || is_right
     }
 
-    fn hypernet_abas(&self, abas: &mut Vec<&str>) {
-        // Iterator for iterating over aba's?
+    fn aba_supernet(&self) -> &str {
+        let mut aba = vec![];
+
+        for win in self.left.as_bytes().windows(3) {
+            if is_aba(&win) {
+                aba.push(win);
+            }
+        }
+
+        ""
     }
 }
 

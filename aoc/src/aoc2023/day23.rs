@@ -18,7 +18,55 @@ fn parse(data: &str) -> Map {
         .collect::<Map>()
 }
 
-fn build_graph(data: &str) {
+fn longest_path(map: &Map, end: &(i32, i32)) -> Option<usize> {
+    let mut queue = VecDeque::new();
+    let mut paths = vec![];
+
+    queue.push_back(vec![(1, 0)]);
+
+    while let Some(path) = queue.pop_front() {
+        let (x, y) = *path.last().unwrap();
+        if (x, y) == *end {
+            paths.push(path);
+            continue;
+        }
+
+        let ch = match map.get(&(x, y)) {
+            Some(val) => *val,
+            None => {
+                continue;
+            }
+        };
+
+        if ch == '#' {
+            continue;
+        }
+        if (ch == '.' || ch == '>') && !path.contains(&(x + 1, y)) {
+            let mut new_path = path.clone();
+            new_path.push((x + 1, y));
+            queue.push_back(new_path);
+        }
+        if (ch == '.' || ch == '<') && !path.contains(&(x - 1, y)) {
+            let mut new_path = path.clone();
+            new_path.push((x - 1, y));
+            queue.push_back(new_path);
+        }
+        if (ch == '.' || ch == 'v') && !path.contains(&(x, y + 1)) {
+            let mut new_path = path.clone();
+            new_path.push((x, y + 1));
+            queue.push_back(new_path);
+        }
+        if (ch == '.' || ch == '^') && !path.contains(&(x, y - 1)) {
+            let mut new_path = path.clone();
+            new_path.push((x, y - 1));
+            queue.push_back(new_path);
+        }
+    }
+
+    paths.iter().map(|x| x.len() - 1).max()
+}
+
+fn longest_hike(data: &str) -> Option<i32> {
     //}-> DiGraph<char, i32> {
     let map = parse(data);
     let mut idx = FxHashMap::default();
@@ -88,55 +136,7 @@ fn build_graph(data: &str) {
             .sum::<i32>()
     });
 
-    println!("{}", path_lens.max().unwrap());
-}
-
-fn longest_path(map: &Map, end: &(i32, i32)) -> Option<usize> {
-    let mut queue = VecDeque::new();
-    let mut paths = vec![];
-
-    queue.push_back(vec![(1, 0)]);
-
-    while let Some(path) = queue.pop_front() {
-        let (x, y) = *path.last().unwrap();
-        if (x, y) == *end {
-            paths.push(path);
-            continue;
-        }
-
-        let ch = match map.get(&(x, y)) {
-            Some(val) => *val,
-            None => {
-                continue;
-            }
-        };
-
-        if ch == '#' {
-            continue;
-        }
-        if (ch == '.' || ch == '>') && !path.contains(&(x + 1, y)) {
-            let mut new_path = path.clone();
-            new_path.push((x + 1, y));
-            queue.push_back(new_path);
-        }
-        if (ch == '.' || ch == '<') && !path.contains(&(x - 1, y)) {
-            let mut new_path = path.clone();
-            new_path.push((x - 1, y));
-            queue.push_back(new_path);
-        }
-        if (ch == '.' || ch == 'v') && !path.contains(&(x, y + 1)) {
-            let mut new_path = path.clone();
-            new_path.push((x, y + 1));
-            queue.push_back(new_path);
-        }
-        if (ch == '.' || ch == '^') && !path.contains(&(x, y - 1)) {
-            let mut new_path = path.clone();
-            new_path.push((x, y - 1));
-            queue.push_back(new_path);
-        }
-    }
-
-    paths.iter().map(|x| x.len() - 1).max()
+    path_lens.max()
 }
 
 #[aoc(2023, 23)]
@@ -147,8 +147,8 @@ pub fn main() {
     // Part I
     println!("{}", longest_path(&map, &(139, 140)).unwrap());
 
-    // Part I bis
-    build_graph(&data);
+    // Part II
+    println!("{}", longest_hike(&data).unwrap());
 }
 
 #[cfg(test)]
@@ -196,10 +196,5 @@ mod tests {
         }
         let n = longest_path(&map, &(21, 22)).unwrap();
         assert_eq!(n, 154);
-    }
-
-    #[test]
-    fn test_part1b() {
-        build_graph(EXAMPLE);
     }
 }
