@@ -1,5 +1,6 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
+use rustc_hash::FxHashMap;
 
 fn parse(data: &str) -> (Vec<u64>, Vec<u64>) {
     let (mut a, mut b) = (vec![], vec![]);
@@ -30,12 +31,15 @@ pub fn main() {
     println!("{total_distance}");
 
     // Part II
-    let mut similarity_score = 0;
+    let mut right_count: FxHashMap<u64, usize> = FxHashMap::default();
 
-    for x in left_sorted.iter() {
-        let n = right_sorted.iter().filter(|y| *y == x).count();
-        similarity_score += **x * (n as u64);
+    for y in right_sorted {
+        *right_count.entry(*y).or_default() += 1;
     }
 
+    let similarity_score: u64 = left_sorted
+        .iter()
+        .map(|x| **x * (right_count.get(*x).copied().unwrap_or_default() as u64))
+        .sum();
     println!("{similarity_score}");
 }
