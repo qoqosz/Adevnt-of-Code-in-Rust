@@ -2,19 +2,12 @@ use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
 fn parse(data: &str) -> (Vec<u64>, Vec<u64>) {
-    let input = data
-        .lines()
-        .filter(|x| !x.is_empty())
-        .map(|line| {
-            let (x, y) = line.split_once("   ").unwrap();
-            (x.parse::<u64>().unwrap(), y.parse::<u64>().unwrap())
-        })
-        .collect::<Vec<(_, _)>>();
     let (mut a, mut b) = (vec![], vec![]);
 
-    for (x, y) in input {
-        a.push(x);
-        b.push(y);
+    for line in data.lines().filter(|x| !x.is_empty()) {
+        let (x, y) = line.split_once("   ").unwrap();
+        a.push(x.parse::<u64>().unwrap());
+        b.push(y.parse::<u64>().unwrap());
     }
 
     (a, b)
