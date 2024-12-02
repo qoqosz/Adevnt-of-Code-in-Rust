@@ -38,22 +38,18 @@ fn is_clamped(report: &[i64], min: i64, max: i64) -> bool {
 }
 
 fn is_safe_tol(report: &Vec<i64>) -> bool {
-    if is_safe(report) {
-        return true;
-    }
+    match is_safe(report) {
+        true => true,
+        false => {
+            let n = report.len();
 
-    let n = report.len();
-
-    for i in 0..n {
-        let mut copy = report.clone();
-        copy.remove(i);
-
-        if is_safe(&copy) {
-            return true;
+            (0..n).any(|i| {
+                let mut copy = report.clone();
+                copy.remove(i);
+                is_safe(&copy)
+            })
         }
     }
-
-    false
 }
 
 #[aoc(2024, 2)]
