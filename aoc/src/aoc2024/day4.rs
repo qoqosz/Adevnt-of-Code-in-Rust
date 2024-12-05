@@ -90,9 +90,9 @@ pub fn main() {
 
     // Part I
     let n = xmas_count(&grid);
-    println!("{n:?}");
+    println!("{n}");
 
     // Part II
     let n = x_mas_count(&grid);
-    println!("{n:?}");
+    println!("{n}");
 }
