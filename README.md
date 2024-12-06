@@ -19,3 +19,20 @@ cargo run -- -y YEAR -d DAY
 - aoc_derive - proc macro
 - aoc_core - extracted common utilities
 - aoc - solutions
+
+## Progress
+
+| Year  | Stars |
+| ----- | ----- |
+| 2015  | 50⭐  |
+| 2016  | 13⭐  |
+| 2017  | 2⭐   |
+| 2018  | 2⭐   |
+| 2019  | 6⭐   |
+| 2020  | 26⭐  |
+| 2021  | 4⭐   |
+| 2022  | 24⭐  |
+| 2023  | 50⭐  |
+| 2024  | 12⭐  |
+| Total | 189⭐ |
+

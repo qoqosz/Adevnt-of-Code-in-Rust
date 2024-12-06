@@ -81,7 +81,7 @@ impl GuardMap {
         self.visited.iter().map(|(k, _)| *k).unique().count()
     }
 
-    fn is_loop(&mut self) -> bool {
+    fn has_loop(&mut self) -> bool {
         loop {
             match self.advance() {
                 GuardState::Loop => return true,
@@ -100,7 +100,7 @@ fn find_loops(map: &GuardMap) -> usize {
         .filter_map(|(pos, _)| {
             let mut new_map = map.clone();
             new_map.grid.insert(*pos, '#');
-            new_map.is_loop().then(|| ())
+            new_map.has_loop().then(|| ())
         })
         .count()
 }
