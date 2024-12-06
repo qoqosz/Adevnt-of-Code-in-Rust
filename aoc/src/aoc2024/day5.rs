@@ -47,9 +47,9 @@ fn validate(update: &[u8], rules: &[(u8, u8)]) -> bool {
 // Part II
 fn correct(update: &[u8], rules: &[(u8, u8)]) -> Vec<u8> {
     let mut tmp = Vec::from(update);
-    let mut is_valid;
+    let mut is_valid = false;
 
-    loop {
+    while !is_valid {
         is_valid = true;
 
         for (x, y) in rules {
@@ -60,10 +60,6 @@ fn correct(update: &[u8], rules: &[(u8, u8)]) -> Vec<u8> {
                     break;
                 }
             }
-        }
-
-        if is_valid {
-            break;
         }
     }
 
