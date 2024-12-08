@@ -118,7 +118,7 @@ impl Cave {
                 let dest = source + dt;
 
                 if self.is_air(&dest) {
-                    source += dt;
+                    source = dest;
                     move_on = true;
                     self.prevs.push(dest);
                     break;
