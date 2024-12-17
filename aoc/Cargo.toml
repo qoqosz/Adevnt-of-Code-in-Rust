@@ -17,6 +17,10 @@ name = "download"
 path = "src/bin/download.rs"
 
 [[bin]]
+name = "gen"
+path = "src/bin/gen.rs"
+
+[[bin]]
 name = "aoc"
 path = "src/main.rs"
 

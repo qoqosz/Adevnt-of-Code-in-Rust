@@ -1,7 +1,11 @@
 use aoc::{aoc, aoc_input};
+use rustc_hash::FxHashSet;
 use std::rc::Rc;
 
 fn is_aba(txt: &[u8]) -> bool {
+    if txt.len() < 3 {
+        return false;
+    }
     if txt[0] == txt[2] && txt[0] != txt[1] {
         return true;
     }
@@ -74,33 +78,32 @@ impl<'a> Address<'a> {
         is_left || is_right
     }
 
-    fn aba_supernet(&self) -> &str {
-        let mut aba = vec![];
+    fn is_ssl(&self) -> bool {
+        // let mut in_bracket = false;
+        // let mut abas = FxHashSet::default();
+        // let mut babs = FxHashSet::default();
 
-        for win in self.left.as_bytes().windows(3) {
-            if is_aba(&win) {
-                aba.push(win);
-            }
-        }
-
-        ""
+        // for (i, ch) in self.
+        false
     }
 }
 
 #[aoc(2016, 7)]
 pub fn main() {
     let data = aoc_input!(2016, 7).unwrap();
+    let addrs = data
+        .trim()
+        .lines()
+        .map(|line| Address::from(line))
+        .collect::<Vec<_>>();
 
     // Part I
-    let count = data
-        .lines()
-        .filter(|x| !x.is_empty())
-        .filter(|line| Address::from(*line).is_tls())
-        .count();
+    let count = addrs.iter().filter(|addr| addr.is_tls()).count();
     println!("{count}");
 
     // Part II
-    // let count =
+    let count = addrs.iter().filter(|addr| addr.is_ssl()).count();
+    println!("{count}");
 }
 
 #[cfg(test)]
