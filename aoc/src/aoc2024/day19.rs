@@ -2,20 +2,6 @@ use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
-trait TrimOnceStartMatches {
-    fn trim_once_start_matches(&self, pat: &str) -> &Self;
-}
-
-impl TrimOnceStartMatches for str {
-    fn trim_once_start_matches(&self, pat: &str) -> &Self {
-        if self.starts_with(pat) {
-            &self[pat.len()..]
-        } else {
-            self
-        }
-    }
-}
-
 fn parse(data: &str) -> (Vec<&str>, Vec<&str>) {
     let (towels, patterns) = data.trim().split_once("\n\n").unwrap();
 
@@ -46,7 +32,8 @@ fn check_design<'a>(
 
     let val = towels
         .iter()
-        .map(|towel| pattern.trim_once_start_matches(towel))
+        .filter(|towel| pattern.starts_with(**towel))
+        .map(|towel| &pattern[towel.len()..])
         .filter(|p| p.len() < n)
         .map(|p| check_design(p, towels, cache))
         .sum();
