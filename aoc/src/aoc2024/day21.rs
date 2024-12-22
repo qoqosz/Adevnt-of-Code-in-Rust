@@ -34,13 +34,11 @@ static DIRECTIONAL_KEYPAD: LazyLock<FxHashMap<Point, char>> = LazyLock::new(|| {
 fn find_all_shortest_paths(keypad: &FxHashMap<Point, char>, start: char, end: char) -> Vec<String> {
     let src = keypad
         .iter()
-        .find(|(_, v)| **v == start)
-        .map(|(k, _)| k)
+        .find_map(|(k, v)| if *v == start { Some(k) } else { None })
         .unwrap();
     let dst = keypad
         .iter()
-        .find(|(_, v)| **v == end)
-        .map(|(k, _)| k)
+        .find_map(|(k, v)| if *v == end { Some(k) } else { None })
         .unwrap();
     let mut paths = vec![];
     let mut queue = VecDeque::with_capacity(16);
@@ -90,7 +88,6 @@ fn find_shortest_sequence(code: String, depth: usize, numeric: bool) -> usize {
                 0 => shortest_paths[0].len() + 1,
                 _ => shortest_paths
                     .iter()
-                    .cloned()
                     .map(|path| find_shortest_sequence(format!("{path}A"), depth - 1, false))
                     .min()
                     .unwrap(),
