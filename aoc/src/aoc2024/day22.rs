@@ -24,11 +24,7 @@ fn next_secret(secret: usize) -> usize {
 #[aoc(2024, 22)]
 pub fn main() {
     let data = aoc_input!(2024, 22).unwrap();
-    let secrets: Vec<usize> = data
-        .trim()
-        .lines()
-        .filter_map(|line| line.parse().ok())
-        .collect();
+    let secrets: Vec<usize> = data.lines().filter_map(|line| line.parse().ok()).collect();
 
     // Part I
     let buyers_secrets = secrets
@@ -42,17 +38,13 @@ pub fn main() {
     let sum_secrets = buyers_secrets
         .iter()
         .filter_map(|bs| bs.last())
-        .copied()
         .sum::<usize>();
     println!("{sum_secrets}");
 
     // Part II
-    let buyers_prices = buyers_secrets
+    let bs_maps = buyers_secrets
         .iter()
         .map(|bs| bs.iter().map(|x| (x % 10) as i64).collect::<Vec<_>>())
-        .collect::<Vec<_>>();
-    let bs_maps = buyers_prices
-        .iter()
         .map(|bs| {
             let mut price_map = FxHashMap::default();
 
@@ -63,10 +55,7 @@ pub fn main() {
                     win[3] - win[2],
                     win[4] - win[3],
                 );
-
-                if !price_map.contains_key(&diff) {
-                    price_map.insert(diff, (win[4] % 10) as i64);
-                }
+                price_map.entry(diff).or_insert((win[4] % 10) as i64);
             }
 
             price_map
