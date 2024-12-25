@@ -84,7 +84,7 @@ pub fn main() {
         for adjs in graph.neighbors(node).permutations(2) {
             let (n1, n2) = (adjs[0], adjs[1]);
             if graph.contains_edge(n1, n2) {
-                let mut set = vec![node, n1, n2];
+                let mut set = [node, n1, n2];
                 set.sort_unstable();
                 computers.insert(set);
             }
