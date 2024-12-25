@@ -60,10 +60,7 @@ fn concat(a: u64, b: u64) -> u64 {
 }
 
 fn parse(data: &str) -> Vec<Equation> {
-    data.trim()
-        .lines()
-        .flat_map(|line| Equation::from_str(line))
-        .collect()
+    data.trim().lines().flat_map(Equation::from_str).collect()
 }
 
 #[aoc(2024, 7)]

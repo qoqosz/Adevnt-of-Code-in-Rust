@@ -96,7 +96,7 @@ impl DiskMap {
 #[aoc(2024, 9)]
 pub fn main() {
     let data = aoc_input!(2024, 9).unwrap();
-    let mut disk = DiskMap::from_str(&data).unwrap();
+    let mut disk: DiskMap = data.parse().unwrap();
 
     // Part I
     let mut disk_ = disk.clone();

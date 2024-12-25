@@ -110,10 +110,10 @@ pub fn main() {
     let data = aoc_input!(2024, 6).unwrap();
 
     // Part I
-    let mut map = GuardMap::from_str(&data).unwrap();
+    let mut map: GuardMap = data.parse().unwrap();
     println!("{}", map.pos_count());
 
     // Part II
-    let map = GuardMap::from_str(&data).unwrap();
+    let map: GuardMap = data.parse().unwrap();
     println!("{}", find_loops(&map));
 }

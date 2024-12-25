@@ -99,10 +99,7 @@ pub fn main() {
         blue: 14,
     };
 
-    let games = lines
-        .iter()
-        .flat_map(|x| Game::from_str(x))
-        .collect::<Vec<_>>();
+    let games = lines.iter().flat_map(|x| x.parse()).collect::<Vec<Game>>();
 
     // Part I
     let sum_ids = games

@@ -65,7 +65,7 @@ pub fn main() {
     let machines = data
         .trim()
         .split("\n\n")
-        .flat_map(|section| Machine::from_str(section).ok())
+        .flat_map(Machine::from_str)
         .collect::<Vec<_>>();
 
     // Part I

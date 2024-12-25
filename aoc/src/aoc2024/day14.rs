@@ -63,11 +63,7 @@ fn variance(pos: &[(i32, i32)]) -> f64 {
 #[aoc(2024, 14)]
 pub fn main() {
     let data = aoc_input!(2024, 14).unwrap();
-    let robots: Vec<_> = data
-        .trim()
-        .lines()
-        .flat_map(|line| Robot::from_str(line))
-        .collect();
+    let robots: Vec<_> = data.trim().lines().flat_map(Robot::from_str).collect();
 
     // Part I
     let pos: Vec<_> = robots.iter().map(|r| r.get_pos(100)).collect();

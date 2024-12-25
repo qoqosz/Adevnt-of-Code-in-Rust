@@ -123,7 +123,7 @@ impl Region {
 #[aoc(2024, 12)]
 pub fn main() {
     let data = aoc_input!(2024, 12).unwrap();
-    let garden = Garden::from_str(&data).unwrap();
+    let garden: Garden = data.parse().unwrap();
     let regions = garden.regions();
     let (mut cost1, mut cost2) = (0, 0);
 

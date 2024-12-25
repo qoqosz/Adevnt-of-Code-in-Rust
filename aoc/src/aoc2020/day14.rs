@@ -60,7 +60,7 @@ impl FromStr for InputLine {
     fn from_str(line: &str) -> Result<Self, Self::Err> {
         if line.starts_with("mask") {
             let (_, bit_mask) = line.split_once(" = ").unwrap();
-            Ok(InputLine::MASK(BitMask::from_str(bit_mask).unwrap()))
+            Ok(InputLine::MASK(bit_mask.parse().unwrap()))
         } else {
             let (addr, val) = line.split_once(" = ").unwrap();
             let addr: u64 = addr
@@ -82,7 +82,7 @@ pub fn main() {
     let instructions = data
         .trim()
         .lines()
-        .flat_map(|line| InputLine::from_str(line))
+        .flat_map(InputLine::from_str)
         .collect::<Vec<_>>();
 
     // Part I
