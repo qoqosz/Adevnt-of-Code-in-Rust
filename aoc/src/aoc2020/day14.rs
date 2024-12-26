@@ -89,7 +89,7 @@ pub fn main() {
     let mut mask = &BitMask::default();
     let mut memory = FxHashMap::default();
 
-    for instruction in instructions.iter() {
+    for instruction in &instructions {
         match instruction {
             InputLine::MASK(m) => mask = m,
             InputLine::PROG(prog) => {
@@ -99,7 +99,53 @@ pub fn main() {
         }
     }
 
-    println!("{}", memory.values().sum::<u64>())
+    println!("{}", memory.values().sum::<u64>());
 
     // Part II
+    let mut mask = &BitMask::default();
+    let mut memory = FxHashMap::default();
+    let mut x_mask = 0;
+
+    for instruction in &instructions {
+        match instruction {
+            InputLine::MASK(m) => {
+                mask = m;
+                x_mask = m.ones ^ m.zeros;
+            }
+            InputLine::PROG(prog) => {
+                let mut addr0 = prog.address | mask.zeros;
+                let mut x_mask = x_mask;
+                let mut addresses = vec![];
+
+                for i in 0..36 {
+                    let a = addr0 % 2;
+                    let x = x_mask % 2;
+
+                    addresses = if x == 1 {
+                        if addresses.is_empty() {
+                            vec![0, 1]
+                        } else {
+                            addresses
+                                .iter()
+                                .flat_map(|addr| vec![addr + (1 << i), *addr])
+                                .collect()
+                        }
+                    } else if addresses.is_empty() {
+                        vec![a]
+                    } else {
+                        addresses.iter().map(|addr| addr + a * (1 << i)).collect()
+                    };
+
+                    addr0 >>= 1;
+                    x_mask >>= 1;
+                }
+
+                for addr in addresses {
+                    memory.insert(addr, prog.value);
+                }
+            }
+        }
+    }
+
+    println!("{}", memory.values().sum::<u64>());
 }
