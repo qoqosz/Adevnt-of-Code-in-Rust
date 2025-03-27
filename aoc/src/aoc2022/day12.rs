@@ -16,7 +16,7 @@ fn build_graph(data: &str) -> Graph {
         .collect()
 }
 
-fn neighbors(p: &(i16, i16)) -> impl IntoIterator<Item = (i16, i16)> {
+fn neighbors(p: &(i16, i16)) -> impl IntoIterator<Item = (i16, i16)> + use<> {
     vec![
         (p.0 - 1, p.1),
         (p.0 + 1, p.1),

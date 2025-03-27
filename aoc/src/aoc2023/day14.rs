@@ -51,7 +51,7 @@ impl Platform {
     fn total_load(&self) -> u32 {
         self.platform
             .iter()
-            .filter(|(_, &v)| v == 'O')
+            .filter(|&(_, &v)| v == 'O')
             .map(|(k, _)| self.n - k.0)
             .sum::<u32>()
     }
@@ -104,7 +104,7 @@ fn solve_cycle(platform: &mut Platform, n: u32) -> Option<u32> {
             let y = (n - v) % (i - v) + v;
             return cache
                 .iter()
-                .find(|(_, &x)| x == y)
+                .find(|&(_, &x)| x == y)
                 .map(|(p, _)| p.total_load());
         }
     }

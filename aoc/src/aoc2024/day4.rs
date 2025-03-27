@@ -18,7 +18,7 @@ fn parse(data: &str) -> FxHashMap<(i32, i32), char> {
 // Part I
 fn xmas_count(grid: &FxHashMap<(i32, i32), char>) -> usize {
     grid.iter()
-        .filter(|(_, &v)| v == 'X')
+        .filter(|&(_, &v)| v == 'X')
         .map(|(k, _)| count_all_dirs(&grid, k))
         .sum::<usize>()
 }
@@ -63,7 +63,7 @@ fn count_all_dirs(grid: &FxHashMap<(i32, i32), char>, key: &(i32, i32)) -> usize
 // Part II
 fn x_mas_count(grid: &FxHashMap<(i32, i32), char>) -> usize {
     grid.iter()
-        .filter(|(_, &v)| v == 'A')
+        .filter(|&(_, &v)| v == 'A')
         .filter(|(k, _)| is_mas_cross(&grid, k))
         .count()
 }

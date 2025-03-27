@@ -5,7 +5,7 @@ authors = ["Łukasz Bednarski"]
 description = "Advent of Code solutions in Rust"
 repository = "https://github.com/qoqosz/Adevnt-of-Code-in-Rust/"
 readme = "../README.md"
-edition = "2021"
+edition = "2024"
 default-run = "aoc"
 
 [lib]

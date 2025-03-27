@@ -18,7 +18,7 @@ impl Layout {
         Self { grid, max_x, max_y }
     }
 
-    fn adj_dir(&self) -> impl Iterator<Item = (i32, i32)> {
+    fn adj_dir(&self) -> impl Iterator<Item = (i32, i32)> + use<> {
         (-1..=1)
             .cartesian_product(-1..=1)
             .filter(|(dx, dy)| *dx != 0 || *dy != 0)

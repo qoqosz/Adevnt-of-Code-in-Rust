@@ -81,7 +81,7 @@ fn solve(
 }
 
 macro_rules! wrap {
-    ($cont:expr, $x:expr, $y:expr, $a:expr, $b:expr, $c:expr, $d:expr) => {
+    ($cont:expr_2021, $x:expr_2021, $y:expr_2021, $a:expr_2021, $b:expr_2021, $c:expr_2021, $d:expr_2021) => {
         $cont.insert(IVec2::new($x, $y), (IVec2::new($a, $b), IVec2::new($c, $d)))
     };
 }

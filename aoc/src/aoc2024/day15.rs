@@ -35,7 +35,7 @@ fn parse(data: &str) -> (FxHashMap<Point, char>, Vec<Point>) {
 fn simulate(map: &mut FxHashMap<Point, char>, moves: &[Point]) {
     let mut robot = map
         .iter()
-        .find(|(_, &ch)| ch == '@')
+        .find(|&(_, &ch)| ch == '@')
         .map(|(k, _)| *k)
         .unwrap();
 
