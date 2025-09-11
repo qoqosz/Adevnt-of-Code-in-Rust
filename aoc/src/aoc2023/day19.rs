@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 type Workflows<'a> = FxHashMap<&'a str, Vec<&'a str>>;
 type Rating = FxHashMap<char, i32>; // TODO: tuple instead?
 
-fn parse(data: &str) -> (Workflows, Vec<Rating>) {
+fn parse(data: &str) -> (Workflows<'_>, Vec<Rating>) {
     let (workflows, ratings) = data.split_once("\n\n").unwrap();
     (
         workflows.lines().map(|line| parse_workflow(line)).collect(),

@@ -12,7 +12,7 @@ impl From<Vec<i32>> for Containers {
 }
 
 impl Containers {
-    fn partitions(&self, total: i32) -> ContainersPartitionsIter {
+    fn partitions(&self, total: i32) -> ContainersPartitionsIter<'_> {
         ContainersPartitionsIter::new(&self.containers, total)
     }
 }

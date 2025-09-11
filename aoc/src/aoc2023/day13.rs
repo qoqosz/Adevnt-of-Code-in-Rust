@@ -55,7 +55,7 @@ fn solve(pattern: &ReflectionPattern, diff: u32) -> usize {
     res
 }
 
-fn parse(data: &str) -> Vec<ReflectionPattern> {
+fn parse(data: &str) -> Vec<ReflectionPattern<'_>> {
     data.split("\n\n")
         .map(ReflectionPattern::new)
         .collect::<Vec<_>>()

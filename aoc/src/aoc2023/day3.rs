@@ -91,7 +91,7 @@ fn iter_line_numbers(line: &str, i: usize) -> impl Iterator<Item = Number> + '_ 
     })
 }
 
-fn iter_line_symbols(line: &str, i: usize) -> impl Iterator<Item = Symbol> + '_ {
+fn iter_line_symbols(line: &str, i: usize) -> impl Iterator<Item = Symbol<'_>> + '_ {
     RE_SYMBOL.captures_iter(line).map(move |captures| {
         let mut symbol = Symbol::from(&captures.get(0).unwrap());
         symbol.y = i;
