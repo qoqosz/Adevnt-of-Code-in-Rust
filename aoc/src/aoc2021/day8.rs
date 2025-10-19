@@ -84,7 +84,7 @@ pub fn main() {
     let (mut count, mut outval) = (0, 0);
 
     // Part I
-    let expected = FxHashSet::from_iter([2, 3, 4, 7]);
+    let expected = [2, 3, 4, 7];
 
     for (signal, output) in entries {
         // Part I
