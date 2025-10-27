@@ -1,6 +1,6 @@
-use aoc::aoc_input;
 use aoc::graph::parse_graph;
-use petgraph::algo::{astar, Measure};
+use aoc::{aoc, aoc_input};
+use petgraph::algo::{Measure, astar};
 use petgraph::graph::DiGraph;
 use petgraph::visit::EdgeRef;
 use std::cmp::max;
@@ -60,6 +60,7 @@ fn extend(data: &str) -> String {
     lines.join("\n")
 }
 
+#[aoc(2021, 15)]
 pub fn main() {
     let data = aoc_input!(2021, 15).unwrap();
 
