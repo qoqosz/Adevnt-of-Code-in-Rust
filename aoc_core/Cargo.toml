@@ -1,6 +1,8 @@
 [package]
 name = "aoc_core"
-version = "0.1.0"
+version = "0.2.0"
+authors = ["Łukasz Bednarski"]
+description = "Core utilities for Advent of Code solutions in Rust"
 edition = "2024"
 
 [lib]
@@ -13,3 +15,4 @@ ureq = "2.10.0"
 pico-args = "0.5.0"
 shellexpand = "3.1.0"
 petgraph = "0.6.5"
+rustc-hash = "2.0.0"
