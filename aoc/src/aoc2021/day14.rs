@@ -20,8 +20,8 @@ fn insert_pairs(pairs: &Counter<(u8, u8)>, rules: &FxHashMap<(u8, u8), u8>) -> C
 
     for (pair, count) in pairs {
         let new_char = rules.get(pair).unwrap();
-        res.add((pair.0, *new_char), *count);
-        res.add((*new_char, pair.1), *count);
+        res.increment_by((pair.0, *new_char), *count);
+        res.increment_by((*new_char, pair.1), *count);
     }
 
     res
@@ -31,8 +31,8 @@ fn score(pairs: &Counter<(u8, u8)>) -> usize {
     let mut counter: Counter<u8> = Counter::default();
 
     for (pair, count) in pairs {
-        counter.add(pair.0, *count);
-        counter.add(pair.1, *count);
+        counter.increment_by(pair.0, *count);
+        counter.increment_by(pair.1, *count);
     }
 
     match counter.values().minmax() {

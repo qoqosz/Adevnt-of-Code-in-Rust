@@ -10,15 +10,22 @@ impl<K> Counter<K>
 where
     K: Eq + Hash,
 {
+    #[inline(always)]
     pub fn keys(&self) -> std::collections::hash_map::Keys<'_, K, usize> {
         self.data.keys()
     }
 
+    #[inline(always)]
     pub fn values(&self) -> std::collections::hash_map::Values<'_, K, usize> {
         self.data.values()
     }
 
-    pub fn add(&mut self, key: K, value: usize) {
+    #[inline(always)]
+    pub fn increment(&mut self, key: K) {
+        self.increment_by(key, 1);
+    }
+
+    pub fn increment_by(&mut self, key: K, value: usize) {
         self.data
             .entry(key)
             .and_modify(|c| *c += value)
@@ -42,7 +49,7 @@ where
     fn from_iter<T: IntoIterator<Item = (K, usize)>>(iter: T) -> Self {
         iter.into_iter()
             .fold(Self::default(), |mut counter, (elem, count)| {
-                counter.add(elem, count);
+                counter.increment_by(elem, count);
                 counter
             })
     }
@@ -52,6 +59,7 @@ impl<'a, K> IntoIterator for &'a Counter<K> {
     type Item = (&'a K, &'a usize);
     type IntoIter = std::collections::hash_map::Iter<'a, K, usize>;
 
+    #[inline(always)]
     fn into_iter(self) -> Self::IntoIter {
         self.data.iter()
     }
