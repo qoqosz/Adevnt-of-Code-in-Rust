@@ -8,6 +8,7 @@ pub mod aoc2021;
 pub mod aoc2022;
 pub mod aoc2023;
 pub mod aoc2024;
+pub mod aoc2025;
 
 use aoc::cli::{Args, ArgsError};
 use aoc_core::solution::Solution;
