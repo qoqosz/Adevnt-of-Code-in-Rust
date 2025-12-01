@@ -24,32 +24,34 @@ impl TryFrom<&str> for Rotation {
 struct Dial {
     // position of the dial
     point: i16,
-    // number of times the dial points at 0
-    zeros: i16,
 }
 
 impl Dial {
     fn new() -> Self {
-        Self {
-            point: 50,
-            zeros: 0,
-        }
+        Self { point: 50 }
     }
 
-    fn rotate(&mut self, rotation: &Rotation) -> i16 {
-        match rotation {
+    /// Rotate the dial.
+    ///
+    /// # Returns
+    ///
+    /// - `i16` new dial's position.
+    /// - `i16` number of times the dial points at `0`.
+    fn rotate(&mut self, rotation: &Rotation) -> (i16, i16) {
+        let zeros = match rotation {
             Rotation::Left(left) => {
                 let val = (100 - self.point).rem_euclid(100) + left;
                 self.point = (100 - val).rem_euclid(100);
-                self.zeros += val / 100
+                val / 100
             }
             Rotation::Right(right) => {
                 let val = self.point + right;
                 self.point = val.rem_euclid(100);
-                self.zeros += val / 100
+                val / 100
             }
-        }
-        self.point
+        };
+
+        (self.point, zeros)
     }
 }
 
@@ -65,15 +67,13 @@ pub fn main() {
     let mut dial = Dial::new();
     let password = rotations
         .iter()
-        .map(|r| dial.rotate(r))
+        .map(|r| dial.rotate(r).0)
         .filter(|p| *p == 0)
         .count();
     println!("{password}");
 
     // Part II
     let mut dial = Dial::new();
-    for r in &rotations {
-        dial.rotate(r);
-    }
-    println!("{}", dial.zeros);
+    let zeros = rotations.iter().map(|r| dial.rotate(r).1).sum::<i16>();
+    println!("{zeros}");
 }
