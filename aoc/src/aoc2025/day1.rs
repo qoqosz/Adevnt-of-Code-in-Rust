@@ -1,6 +1,5 @@
-use std::num::ParseIntError;
-
 use aoc::{aoc, aoc_input};
+use std::num::ParseIntError;
 
 #[derive(Debug)]
 enum Rotation {
@@ -76,4 +75,43 @@ pub fn main() {
     let mut dial = Dial::new();
     let zeros = rotations.iter().map(|r| dial.rotate(r).1).sum::<i16>();
     println!("{zeros}");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const TEST: &str = "L68
+L30
+R48
+L5
+R60
+L55
+L1
+L99
+R14
+L82";
+
+    #[test]
+    fn test_part1() {
+        let mut dial = Dial::new();
+        let password = TEST
+            .lines()
+            .flat_map(Rotation::try_from)
+            .map(|r| dial.rotate(&r).0)
+            .filter(|p| *p == 0)
+            .count();
+        assert_eq!(password, 3);
+    }
+
+    #[test]
+    fn test_part2() {
+        let mut dial = Dial::new();
+        let zeros = TEST
+            .lines()
+            .flat_map(Rotation::try_from)
+            .map(|r| dial.rotate(&r).1)
+            .sum::<i16>();
+        assert_eq!(zeros, 6);
+    }
 }
