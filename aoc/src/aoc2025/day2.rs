@@ -14,11 +14,10 @@ fn is_invalid(num: u64) -> bool {
     let num = num.to_string();
     let n = num.len();
 
-    if n % 2 != 0 {
-        return false;
+    match n % 2 {
+        0 => &num[..n / 2] == &num[n / 2..],
+        _ => false,
     }
-
-    &num[..n / 2] == &num[n / 2..]
 }
 
 // Part II
