@@ -1,24 +1,26 @@
 use aoc::{aoc, aoc_input};
 
 fn max_joltage(bank: &str, sz: usize) -> usize {
-    fn inner(bank: &str, sz: usize) -> (u8, &str) {
-        let n = bank.len();
-        let digit = bank[..n - sz + 1].as_bytes().iter().max().unwrap();
-        let idx = bank.as_bytes().iter().position(|x| x == digit).unwrap();
-
-        (*digit, &bank[idx + 1..])
-    }
-
+    let n = bank.len();
     let mut out = Vec::with_capacity(sz);
-    let mut bank = bank;
+    let mut idx = 0;
 
-    for i in 0..sz {
-        let ch: u8;
-        (ch, bank) = inner(bank, sz - i);
+    for i in 1..=sz {
+        let (jdx, ch) =
+            bank[idx..n - sz + i]
+                .as_bytes()
+                .iter()
+                .enumerate()
+                .fold(
+                    (0, 0),
+                    |prev, (j, &d)| if d > prev.1 { (j, d) } else { prev },
+                );
+        idx += jdx + 1;
         out.push(ch);
     }
 
-    str::from_utf8(&out).unwrap().parse().unwrap()
+    out.iter()
+        .fold(0_usize, |acc, x| 10 * acc + (*x - b'0') as usize)
 }
 
 #[aoc(2025, 3)]
