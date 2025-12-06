@@ -19,11 +19,7 @@ fn parse(data: &str) -> (Vec<RangeInclusive<u64>>, Vec<u64>) {
         })
         .sorted_unstable_by_key(|r| *r.start())
         .collect();
-    let ids = ids
-        .trim()
-        .lines()
-        .map(|line| line.parse().unwrap())
-        .collect();
+    let ids = ids.lines().flat_map(|line| line.parse()).collect();
 
     (ranges, ids)
 }
