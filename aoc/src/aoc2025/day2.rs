@@ -1,32 +1,12 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
-use std::num::ParseIntError;
 
-#[derive(Debug)]
-struct Range {
-    first: u64,
-    last: u64,
-}
+fn parse(value: &str) -> std::ops::RangeInclusive<u64> {
+    let (x, y) = value.split_once('-').unwrap();
+    let first = x.parse().unwrap();
+    let last = y.parse().unwrap();
 
-impl IntoIterator for Range {
-    type Item = u64;
-    type IntoIter = std::ops::RangeInclusive<u64>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.first..=self.last
-    }
-}
-
-impl TryFrom<&str> for Range {
-    type Error = ParseIntError;
-
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        let (x, y) = value.split_once('-').unwrap();
-        Ok(Self {
-            first: x.parse()?,
-            last: y.parse()?,
-        })
-    }
+    first..=last
 }
 
 // Part I
@@ -61,10 +41,7 @@ fn is_invalid2(num: u64) -> bool {
 #[aoc(2025, 2)]
 pub fn main() {
     let data = aoc_input!(2025, 2).unwrap();
-    let ranges = data
-        .split(',')
-        .flat_map(Range::try_from)
-        .collect::<Vec<_>>();
+    let ranges = data.trim().split(',').map(parse);
 
     let (mut n1, mut n2) = (0, 0);
 
