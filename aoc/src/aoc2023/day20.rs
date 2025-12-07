@@ -1,278 +1,348 @@
 use aoc::{aoc, aoc_input};
+use num::Integer;
 use rustc_hash::FxHashMap;
+use std::hash::Hash;
 use std::{collections::VecDeque, fmt::Debug};
 
 const BROADCASTER: &str = "broadcaster";
 
-type NodeId = usize;
-
-#[derive(Debug)]
-struct Broadcast {
-    outputs: Vec<NodeId>,
+#[derive(Debug, Default, Clone)]
+struct Broadcast<K> {
+    outputs: Vec<K>,
 }
 
-#[derive(Debug)]
-struct FlipFlop {
-    state: bool,
-    outputs: Vec<NodeId>,
-}
-
-#[derive(Debug)]
-struct Conjunction {
-    inputs: FxHashMap<NodeId, bool>,
-    outputs: Vec<NodeId>,
-}
-
-trait Module: Debug {
-    fn process(&mut self, source: NodeId, signal: bool) -> (Option<bool>, &[NodeId]);
-}
-
-/// When it receives a pulse, it sends the same pulse to all of its destination modules.
-impl Module for Broadcast {
-    fn process(&mut self, source: NodeId, signal: bool) -> (Option<bool>, &[NodeId]) {
-        (Some(signal), &self.outputs)
-    }
-}
-
-impl Module for FlipFlop {
-    fn process(&mut self, source: NodeId, signal: bool) -> (Option<bool>, &[NodeId]) {
-        if signal {
-            (None, &[])
-        } else {
-            match self.state {
-                false => {
-                    self.state = true;
-                    (Some(true), &self.outputs)
-                }
-                true => {
-                    self.state = false;
-                    (Some(false), &self.outputs)
-                }
-            }
+impl<K> Broadcast<K>
+where
+    K: Debug + Eq + PartialEq + Hash,
+{
+    fn new<I>(outputs: I) -> Self
+    where
+        I: IntoIterator,
+        I::Item: Into<K>,
+    {
+        Self {
+            outputs: outputs.into_iter().map(|x| x.into()).collect(),
         }
     }
 }
 
-impl Module for Conjunction {
-    /// TODO: should add source `NodeId` if not in self.inputs
-    fn process(&mut self, source: NodeId, signal: bool) -> (Option<bool>, &[NodeId]) {
-        // update memory for the input source
-        self.inputs.entry(source).and_modify(|e| *e = signal);
-        (Some(!self.inputs.values().all(|v| *v)), &self.outputs)
+#[derive(Debug, Clone)]
+struct FlipFlop<K> {
+    state: bool,
+    outputs: Vec<K>,
+}
+
+impl<K> FlipFlop<K>
+where
+    K: Debug + Eq + PartialEq + Hash,
+{
+    fn new<I>(outputs: I) -> Self
+    where
+        I: IntoIterator,
+        I::Item: Into<K>,
+    {
+        Self {
+            state: false,
+            outputs: outputs.into_iter().map(|x| x.into()).collect(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Conjunction<K> {
+    inputs: FxHashMap<K, bool>,
+    outputs: Vec<K>,
+}
+
+impl<K> Conjunction<K>
+where
+    K: Debug + Eq + PartialEq + Hash,
+{
+    fn new<I, J>(inputs: I, outputs: J) -> Self
+    where
+        I: IntoIterator,
+        I::Item: Into<K>,
+        J: IntoIterator,
+        J::Item: Into<K>,
+    {
+        Self {
+            inputs: inputs
+                .into_iter()
+                .map(|k| (k.into(), false))
+                .collect::<FxHashMap<_, _>>(),
+            outputs: outputs.into_iter().map(|x| x.into()).collect(),
+        }
+    }
+}
+
+trait Module<K>: Debug
+where
+    K: Debug + Eq + PartialEq + Hash,
+{
+    fn process(&mut self, source: K, signal: bool) -> Option<bool>;
+    fn outputs(&self) -> &[K];
+    fn reset(&mut self) {}
+}
+
+impl<K> Module<K> for Broadcast<K>
+where
+    K: Debug + Eq + PartialEq + Hash,
+{
+    #[allow(unused_variables)]
+    fn process(&mut self, source: K, signal: bool) -> Option<bool> {
+        Some(signal)
+    }
+
+    fn outputs(&self) -> &[K] {
+        &self.outputs
+    }
+}
+
+impl<K> Module<K> for FlipFlop<K>
+where
+    K: Debug + Eq + PartialEq + Hash,
+{
+    #[allow(unused_variables)]
+    fn process(&mut self, source: K, signal: bool) -> Option<bool> {
+        match signal {
+            true => None,
+            false => {
+                self.state = !self.state;
+                Some(self.state)
+            }
+        }
+    }
+
+    fn outputs(&self) -> &[K] {
+        &self.outputs
+    }
+
+    fn reset(&mut self) {
+        self.state = false;
+    }
+}
+
+impl<K> Module<K> for Conjunction<K>
+where
+    K: Debug + Eq + PartialEq + Hash,
+{
+    fn process(&mut self, source: K, signal: bool) -> Option<bool> {
+        *self.inputs.get_mut(&source).unwrap() = signal;
+        Some(!self.inputs.values().all(|v| *v))
+    }
+
+    fn outputs(&self) -> &[K] {
+        &self.outputs
+    }
+
+    fn reset(&mut self) {
+        self.inputs.iter_mut().for_each(|(_, v)| *v = false);
     }
 }
 
 #[derive(Debug, Default)]
-struct Machine {
-    modules: Vec<Box<dyn Module>>,
+struct Machine<K> {
+    modules: FxHashMap<K, Box<dyn Module<K>>>,
 }
 
-impl Machine {
-    fn insert(&mut self, module: Box<dyn Module>) -> NodeId {
-        let idx = self.modules.len();
-        self.modules.push(module);
-        idx
+impl<K> Machine<K>
+where
+    K: Debug + Eq + PartialEq + Hash + Clone,
+{
+    fn reset(&mut self) {
+        self.modules.iter_mut().for_each(|(_, m)| m.reset());
     }
 
-    // TODO: parametrize where is button and broadcaster
-    fn push_button(&mut self, tr: &FxHashMap<NodeId, &str>) -> (usize, usize) {
+    fn insert(&mut self, key: impl Into<K>, module: Box<dyn Module<K>>) {
+        self.modules.insert(key.into(), module);
+    }
+
+    fn push_button(&mut self, broadcaster: impl Into<K>) -> (usize, usize) {
+        let broadcaster = broadcaster.into();
         let mut queue = VecDeque::new();
+        queue.push_back((broadcaster.clone(), false, broadcaster));
         let (mut n_low, mut n_high) = (1, 0);
 
-        queue.push_back((0, 0, false));
-
-        while let Some((src, dest, signal)) = queue.pop_front() {
-            let module = self.modules.get_mut(dest).unwrap();
-            let (out, receivers) = module.process(src, signal);
-
-            if let Some(sig) = out {
-                for rec in receivers {
-                    // let dest_name = tr.get(&dest).unwrap();
-                    // let rec_name = tr.get(rec).unwrap();
-                    // let sig_name = match sig {
-                    //     false => "low",
-                    //     true => "high",
-                    // };
-                    // println!("{} -{} => {}", dest_name, sig_name, rec_name);
-                    match sig {
-                        false => n_low += 1,
-                        true => n_high += 1,
+        while let Some((source, signal, dest)) = queue.pop_front() {
+            if let Some(module) = self.modules.get_mut(&dest) {
+                if let Some(output) = module.process(source, signal) {
+                    for rec in module.outputs() {
+                        match output {
+                            false => n_low += 1,
+                            true => n_high += 1,
+                        }
+                        queue.push_back((dest.clone(), output, rec.clone()));
                     }
-                    queue.push_back((dest, *rec, sig));
                 }
             }
         }
-
         (n_low, n_high)
     }
-}
 
-fn get_pos<'a>(tr: &mut Vec<&'a str>, key: &'a str) -> usize {
-    let idx = tr.iter().position(|&y| y == key);
-    match idx {
-        Some(val) => val,
-        None => {
-            tr.push(key);
-            tr.len() - 1
+    fn push_button_watch(&mut self, broadcaster: impl Into<K>, watch_list: &[K]) -> Option<K> {
+        let broadcaster = broadcaster.into();
+        let mut queue = VecDeque::new();
+        queue.push_back((broadcaster.clone(), false, broadcaster));
+
+        while let Some((source, signal, dest)) = queue.pop_front() {
+            if watch_list.contains(&source) && signal {
+                return Some(source.clone());
+            }
+
+            if let Some(module) = self.modules.get_mut(&dest) {
+                if let Some(output) = module.process(source, signal) {
+                    for rec in module.outputs() {
+                        queue.push_back((dest.clone(), output, rec.clone()));
+                    }
+                }
+            }
         }
+        None
     }
 }
 
-fn parse(data: &str) {
-    let mut tr: Vec<&str> = vec![]; //: FxHashMap<&str, NodeId> = FxHashMap::default();
-    let mut modules: FxHashMap<usize, Box<dyn Module>> = FxHashMap::default();
+fn parse_edges(data: &str) -> Vec<(&str, &str)> {
+    let mut edges = Vec::new();
 
     for line in data.trim().lines() {
-        let (in_, out) = line.split_once(" -> ").unwrap();
+        let (module, outputs) = line.split_once(" -> ").unwrap();
+        let outputs = outputs.split(", ");
 
-        if in_.starts_with('b') {
-            // get index of broadcaster
-            let idx = get_pos(&mut tr, in_);
-
-            let broadcaster = Broadcast {
-                outputs: out
-                    .split(", ")
-                    .map(|c| get_pos(&mut tr, c))
-                    .collect::<Vec<_>>(),
-            };
-            modules.insert(idx, Box::new(broadcaster));
-        }
-        if in_.starts_with('%') {
-            let idx = get_pos(&mut tr, in_);
-
-            let flip_flop = FlipFlop {
-                state: false,
-                outputs: out
-                    .split(", ")
-                    .map(|c| get_pos(&mut tr, c))
-                    .collect::<Vec<_>>(),
-            };
-            modules.insert(idx, Box::new(flip_flop));
-        }
-        if in_.starts_with('&') {
-            let idx = get_pos(&mut tr, in_);
-            let conj = Conjunction {
-                inputs: FxHashMap::default(),
-                outputs: out
-                    .split(", ")
-                    .map(|c| get_pos(&mut tr, c))
-                    .collect::<Vec<_>>(),
-            };
-            modules.insert(idx, Box::new(conj));
+        for output in outputs {
+            edges.push((module.trim_start_matches(['%', '&']), output));
         }
     }
+
+    edges
+}
+
+fn get_inputs<'a>(node: &'a str, edges: &'a [(&'a str, &'a str)]) -> Vec<&'a str> {
+    edges.iter().filter(|e| e.1 == node).map(|e| e.0).collect()
+}
+
+fn parse(data: &str) -> Machine<String> {
+    let mut machine = Machine::default();
+    let edges = parse_edges(data);
+
+    for line in data.trim().lines() {
+        let (module, outputs) = line.split_once(" -> ").unwrap();
+        let outputs = outputs.split(", ");
+
+        match module.chars().next().unwrap() {
+            'b' => machine.insert(module, Box::new(Broadcast::new(outputs))),
+            '%' => machine.insert(
+                module.trim_start_matches('%'),
+                Box::new(FlipFlop::new(outputs)),
+            ),
+            '&' => {
+                let key = module.trim_start_matches('&');
+                let inputs = get_inputs(key, &edges);
+                machine.insert(key, Box::new(Conjunction::new(inputs, outputs)));
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    machine
 }
 
 #[aoc(2023, 20)]
 pub fn main() {
     let data = aoc_input!(2023, 20).unwrap();
-    parse(&data);
+    let mut machine = parse(&data);
 
     // Part I
+    let (mut n_low, mut n_high) = (0, 0);
+
+    for _ in 0..1000 {
+        let out = machine.push_button(BROADCASTER);
+        n_low += out.0;
+        n_high += out.1;
+    }
+    println!("{}", n_low * n_high);
 
     // Part II
+    machine.reset();
+    // rx <- zp <- sb, nd, ds, hf
+    let mut watch_list = vec![
+        "sb".to_string(),
+        "nd".to_string(),
+        "ds".to_string(),
+        "hf".to_string(),
+    ];
+    let (mut i, mut rx): (u64, u64) = (1, 1);
+
+    while !watch_list.is_empty() {
+        if let Some(module) = machine.push_button_watch(BROADCASTER, &watch_list) {
+            rx = rx.lcm(&i);
+            watch_list.retain(|w| *w != module);
+        }
+        i += 1;
+    }
+    println!("{rx}");
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    static EXAMPLE: &str = "broadcaster -> a, b, c
+    static EXAMPLE1: &str = "broadcaster -> a, b, c
 %a -> b
 %b -> c
 %c -> inv
 &inv -> a";
 
+    static EXAMPLE2: &str = "broadcaster -> a
+%a -> inv, con
+&inv -> b
+%b -> con
+&con -> output";
+
     // #[ignore]
     #[test]
-    fn test_example1() {
-        let broadcaster = Broadcast {
-            outputs: vec![1, 2, 3],
-        };
-        let a = FlipFlop {
-            state: false,
-            outputs: vec![2],
-        };
-        let b = FlipFlop {
-            state: false,
-            outputs: vec![3],
-        };
-        let c = FlipFlop {
-            state: false,
-            outputs: vec![4],
-        };
-        let inv = Conjunction {
-            inputs: FxHashMap::from_iter([(3, false)]),
-            outputs: vec![1],
-        };
+    fn test_example1_manual() {
+        let mut machine: Machine<&str> = Machine::default();
+        machine.insert("broadcaster", Box::new(Broadcast::new(["a", "b", "c"])));
+        machine.insert("a", Box::new(FlipFlop::new(["b"])));
+        machine.insert("b", Box::new(FlipFlop::new(["c"])));
+        machine.insert("c", Box::new(FlipFlop::new(["inv"])));
+        machine.insert("inv", Box::new(Conjunction::new(["c"], ["a"])));
 
-        let mut machine = Machine::default();
-        machine.insert(Box::new(broadcaster));
-        machine.insert(Box::new(a));
-        machine.insert(Box::new(b));
-        machine.insert(Box::new(c));
-        machine.insert(Box::new(inv));
-        // println!("{:?}", machine);
-
-        let tr =
-            FxHashMap::from_iter([(0, "broadcaster"), (1, "a"), (2, "b"), (3, "c"), (4, "inv")]);
-
-        let (a, b) = machine.push_button(&tr);
-        println!("{}, {}", a, b);
+        assert_eq!((8, 4), machine.push_button("broadcaster"));
+        assert_eq!((8, 4), machine.push_button("broadcaster"));
     }
 
-    #[ignore]
+    // #[ignore]
     #[test]
-    // broadcaster -> a
-    // %a -> inv, con
-    // &inv -> b
-    // %b -> con
-    // &con -> output
-    // a=1, inv=2, con=4, b=3
-    fn test_example2() {
-        let broadcaster = Broadcast { outputs: vec![1] };
-        let a = FlipFlop {
-            state: false,
-            outputs: vec![2, 4],
-        };
-        let b = FlipFlop {
-            state: false,
-            outputs: vec![4],
-        };
-        let inv = Conjunction {
-            inputs: FxHashMap::from_iter([(1, false)]),
-            outputs: vec![3],
-        };
-        let con = Conjunction {
-            inputs: FxHashMap::from_iter([(1, false), (3, false)]),
-            outputs: vec![5],
-        };
-        let out = Broadcast { outputs: vec![] };
+    fn test_example2_manual() {
+        let mut machine: Machine<&str> = Machine::default();
+        machine.insert("broadcaster", Box::new(Broadcast::new(["a"])));
+        machine.insert("a", Box::new(FlipFlop::new(["inv", "con"])));
+        machine.insert("inv", Box::new(Conjunction::new(["a"], ["b"])));
+        machine.insert("b", Box::new(FlipFlop::new(["con"])));
+        machine.insert("con", Box::new(Conjunction::new(["a", "b"], ["output"])));
 
-        let mut machine = Machine::default();
-        machine.insert(Box::new(broadcaster));
-        machine.insert(Box::new(a));
-        machine.insert(Box::new(inv));
-        machine.insert(Box::new(b));
-        machine.insert(Box::new(con));
-        machine.insert(Box::new(out));
-        println!("{:?}", machine);
+        assert_eq!((4, 4), machine.push_button("broadcaster"));
+        assert_eq!((4, 2), machine.push_button("broadcaster"));
+        assert_eq!((5, 3), machine.push_button("broadcaster"));
+        assert_eq!((4, 2), machine.push_button("broadcaster"));
+    }
 
-        let tr = FxHashMap::from_iter([
-            (0, "broadcaster"),
-            (1, "a"),
-            (2, "inv"),
-            (3, "b"),
-            (4, "con"),
-            (5, "output"),
-        ]);
+    #[test]
+    fn test_with_parse1() {
+        let mut machine = parse(EXAMPLE1);
 
-        machine.push_button(&tr);
-        println!();
-        machine.push_button(&tr);
-        println!();
-        machine.push_button(&tr);
-        println!();
-        machine.push_button(&tr);
+        assert_eq!((8, 4), machine.push_button("broadcaster"));
+        assert_eq!((8, 4), machine.push_button("broadcaster"));
+    }
+
+    #[test]
+    fn test_with_parse2() {
+        let mut machine = parse(EXAMPLE2);
+
+        assert_eq!((4, 4), machine.push_button("broadcaster"));
+        assert_eq!((4, 2), machine.push_button("broadcaster"));
+        assert_eq!((5, 3), machine.push_button("broadcaster"));
+        assert_eq!((4, 2), machine.push_button("broadcaster"));
     }
 }

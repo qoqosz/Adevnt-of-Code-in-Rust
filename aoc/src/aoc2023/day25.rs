@@ -1,6 +1,7 @@
 use aoc::{aoc, aoc_input};
 use rand::seq::SliceRandom;
 use rustc_hash::{FxHashMap, FxHashSet};
+use std::fmt::{Debug, Display};
 use std::hash::Hash;
 
 type Graph<T> = FxHashMap<T, Vec<T>>;
@@ -72,7 +73,7 @@ where
 
 fn solve<T>(graph: &Graph<T>) -> usize
 where
-    T: Eq + PartialEq + Hash + Copy,
+    T: Eq + PartialEq + Hash + Copy + Debug + Display,
 {
     loop {
         let (n_cuts, a, b) = karger(&mut graph.clone());
