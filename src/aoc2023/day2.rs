@@ -9,17 +9,16 @@ struct Set {
 }
 
 #[derive(Debug, PartialOrd, PartialEq, Eq)]
-struct ParseSetError;
+struct ParseError;
 
 impl FromStr for Set {
-    type Err = ParseSetError;
+    type Err = ParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut set = Self::default();
-        let colors = ["green", "blue", "red"];
 
         for word in s.trim().split(',') {
-            for color in colors {
+            for color in ["green", "blue", "red"] {
                 if word.contains(color) {
                     let value = word.replace(color, "").trim().parse::<u32>().unwrap();
                     set.set_value(color, value);
@@ -55,11 +54,8 @@ struct Game {
     sets: Vec<Set>,
 }
 
-#[derive(Debug, PartialOrd, PartialEq, Eq)]
-struct ParseGameError;
-
 impl FromStr for Game {
-    type Err = ParseGameError;
+    type Err = ParseError;
 
     fn from_str(line: &str) -> Result<Self, Self::Err> {
         let (id, sets) = line.split_once(':').unwrap();
