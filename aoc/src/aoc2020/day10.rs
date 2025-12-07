@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
 fn fib(x: usize) -> usize {
@@ -8,6 +8,7 @@ fn fib(x: usize) -> usize {
     }
 }
 
+#[aoc(2020, 10)]
 pub fn main() {
     let data = aoc_input!(2020, 10).unwrap();
     let mut adapters = data

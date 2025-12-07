@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 
 fn exe(prog: &[(&str, i32)]) -> (bool, i32) {
     let (mut acc, mut i) = (0, 0);
@@ -19,6 +19,7 @@ fn exe(prog: &[(&str, i32)]) -> (bool, i32) {
     }
 }
 
+#[aoc(2020, 8)]
 pub fn main() {
     let data = aoc_input!(2020, 8).unwrap();
     let prog = data

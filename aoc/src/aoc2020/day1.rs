@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
 fn search(nums: &[i32], total: i32, n: usize) -> Option<i32> {
@@ -8,6 +8,7 @@ fn search(nums: &[i32], total: i32, n: usize) -> Option<i32> {
         .map(|v| v.iter().map(|x| **x).product())
 }
 
+#[aoc(2020, 1)]
 pub fn main() {
     let data = aoc_input!(2020, 1).unwrap();
     let nums = data.lines().flat_map(|x| x.parse::<i32>()).collect_vec();
