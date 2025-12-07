@@ -85,7 +85,12 @@ pub fn main() {
     println!("{}", solve(&contraption, &init));
 
     // Part II
-    let energy = maximize(&contraption, 110, 110);
+    let (width, height) = contraption
+        .keys()
+        .max()
+        .map(|(w, h)| (*w + 1, *h + 1))
+        .unwrap();
+    let energy = maximize(&contraption, width, height);
     println!("{}", energy.unwrap());
 }
 
