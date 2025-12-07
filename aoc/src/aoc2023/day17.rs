@@ -13,13 +13,13 @@ struct State {
 }
 
 impl State {
-    fn new(x: i32, y: i32, dx: i32, dy: i32) -> Self {
+    fn default() -> Self {
         Self {
-            x,
-            y,
-            dx,
-            dy,
-            n_blocks: 1,
+            x: -1,
+            y: 0,
+            dx: 1,
+            dy: 0,
+            n_blocks: -1,
         }
     }
 
@@ -63,101 +63,93 @@ fn parse(data: &str) -> Map {
         .collect::<Map>()
 }
 
-fn minimize_heat_loss(map: &Map, end: (i32, i32)) -> Option<usize> {
+fn minimize1(map: &Map, end: &(i32, i32)) -> Option<usize> {
     // start one block outside
-    let start = State {
-        x: -1,
-        y: 0,
-        dx: 1,
-        dy: 0,
-        n_blocks: -1,
-    };
+    let start = State::default();
     let init_cost = *map.get(&(0, 0)).unwrap();
     let mut queue = MinHeap::from([(0, start)]);
     let mut visited = FxHashSet::default(); // from_iter([start]);
 
     while let Some((cost, state)) = queue.pop() {
-        // println!("{} - {:?}", cost, state);
         // end condition
-        if (state.x, state.y) == end {
+        if (state.x, state.y) == *end {
             return Some(cost - init_cost);
         }
 
         // already visited
         if !visited.insert(state) {
-            continue; // return Some(cost);
+            continue;
         }
 
         // move straight
         if state.n_blocks < 3 {
             let next = state.straight();
-            if let Some(&cost_increase) = map.get(&(next.x, next.y)) {
-                queue.push(cost + cost_increase, next);
+
+            if let Some(&delta) = map.get(&(next.x, next.y)) {
+                queue.push(cost + delta, next);
             }
         }
 
         // turn left
         let next = state.left();
-        if let Some(&cost_increase) = map.get(&(next.x, next.y)) {
-            queue.push(cost + cost_increase, next);
+
+        if let Some(&delta) = map.get(&(next.x, next.y)) {
+            queue.push(cost + delta, next);
         }
 
         // turn right
         let next = state.right();
-        if let Some(&cost_increase) = map.get(&(next.x, next.y)) {
-            queue.push(cost + cost_increase, next);
+
+        if let Some(&delta) = map.get(&(next.x, next.y)) {
+            queue.push(cost + delta, next);
         }
     }
 
     None
 }
 
-fn minimize_ultra(map: &Map, end: (i32, i32)) -> Option<usize> {
+fn minimize2(map: &Map, end: &(i32, i32)) -> Option<usize> {
     // start one block outside
-    let start = State {
-        x: -1,
-        y: 0,
-        dx: 1,
-        dy: 0,
-        n_blocks: -1,
-    };
+    let start = State::default();
     let init_cost = *map.get(&(0, 0)).unwrap();
     let mut queue = MinHeap::from([(0, start)]);
     let mut visited = FxHashSet::default(); // from_iter([start]);
 
     while let Some((cost, state)) = queue.pop() {
-        // println!("{} - {:?}", cost, state);
         // end condition
-        if (state.x, state.y) == end && state.n_blocks >= 4 {
+        if (state.x, state.y) == *end && state.n_blocks >= 4 {
             return Some(cost - init_cost);
         }
 
         // already visited
         if !visited.insert(state) {
-            continue; // return Some(cost);
+            continue;
         }
 
         // move straight
         if state.n_blocks < 10 {
             let next = state.straight();
-            if let Some(&cost_increase) = map.get(&(next.x, next.y)) {
-                queue.push(cost + cost_increase, next);
+
+            if let Some(&delta) = map.get(&(next.x, next.y)) {
+                queue.push(cost + delta, next);
             }
         }
 
         // turn left
         if state.n_blocks >= 4 {
             let next = state.left();
-            if let Some(&cost_increase) = map.get(&(next.x, next.y)) {
-                queue.push(cost + cost_increase, next);
+
+            if let Some(&delta) = map.get(&(next.x, next.y)) {
+                queue.push(cost + delta, next);
             }
         }
 
         // turn right
         if state.n_blocks >= 4 {
             let next = state.right();
-            if let Some(&cost_increase) = map.get(&(next.x, next.y)) {
-                queue.push(cost + cost_increase, next);
+
+            if let Some(&delta) = map.get(&(next.x, next.y)) {
+                queue.push(cost + delta, next);
             }
         }
     }
@@ -172,12 +164,12 @@ pub fn main() {
     let end = map.keys().max().unwrap();
 
     // Part I
-    let res = minimize_heat_loss(&map, *end);
-    println!("{:?}", res.unwrap());
+    let cost1 = minimize1(&map, end);
+    println!("{}", cost1.unwrap());
 
     // Part II
-    let res = minimize_ultra(&map, *end);
-    println!("{:?}", res.unwrap());
+    let cost2 = minimize2(&map, end);
+    println!("{}", cost2.unwrap());
 }
 
 #[cfg(test)]
@@ -199,40 +191,18 @@ mod tests {
 4322674655533";
 
     #[test]
-    fn test_state() {
-        let start = State::new(-1, 0, 1, 0);
-        println!("start: {:?}", start);
-        let straight = start.straight();
-        println!("straight: {:?}", straight);
-
-        assert_eq!(straight.x, 0);
-        assert_eq!(straight.y, 0);
-        assert_eq!(straight.dx, 1);
-        assert_eq!(straight.dy, 0);
-
-        let down = straight.right();
-        println!("down: {:?}", down);
-
-        assert_eq!(down.x, 0);
-        assert_eq!(down.y, 1);
-        assert_eq!(down.dx, 0);
-        assert_eq!(down.dy, 1);
-
-        let end = down.left();
-        println!("end: {:?}", end);
-
-        assert_eq!(end.x, 1);
-        assert_eq!(end.y, 1);
-        assert_eq!(end.dx, 1);
-        assert_eq!(end.dy, 0);
-    }
-
-    #[test]
     fn test_part1() {
         let map = parse(EXAMPLE);
         let end = map.keys().max().unwrap();
-        let res = minimize_heat_loss(&map, *end);
-        println!("{:?}", res);
-        assert_eq!(res, Some(102));
+        let cost = minimize1(&map, end);
+        assert_eq!(cost, Some(102));
+    }
+
+    #[test]
+    fn test_part2() {
+        let map = parse(EXAMPLE);
+        let end = map.keys().max().unwrap();
+        let cost = minimize2(&map, end);
+        assert_eq!(cost, Some(94));
     }
 }
