@@ -1,5 +1,5 @@
 use aoc::aoc_input;
-use rustc_hash::{FxHashMap, FxHashSet};
+use rustc_hash::FxHashMap;
 
 type Visits = FxHashMap<(i32, i32), usize>;
 
