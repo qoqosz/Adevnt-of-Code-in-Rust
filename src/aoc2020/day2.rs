@@ -14,7 +14,7 @@ fn main() {
         let char = char.chars().next().unwrap();
         let (min, max) = rng
             .splitn(2, '-')
-            .map(|x: &str| x.parse::<usize>().unwrap())
+            .map(|x| x.parse::<usize>().unwrap())
             .collect_tuple()
             .unwrap();
 
