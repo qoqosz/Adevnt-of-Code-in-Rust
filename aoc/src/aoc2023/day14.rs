@@ -114,7 +114,7 @@ fn solve_cycle(platform: &mut Platform, n: u32) -> Option<u32> {
 #[aoc(2023, 14)]
 pub fn main() {
     let data = aoc_input!(2023, 14).unwrap();
-    let parsed = Platform::from_str(&data).unwrap();
+    let parsed: Platform = data.parse().unwrap();
 
     // Part I
     let mut platform = parsed.clone();

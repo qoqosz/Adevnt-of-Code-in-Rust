@@ -110,8 +110,8 @@ pub fn main() {
 
     // Part II
     let mut nodes = vec![];
-    let left = Node::from_str("[[2]]").unwrap();
-    let right = Node::from_str("[[6]]").unwrap();
+    let left: Node = "[[2]]".parse().unwrap();
+    let right: Node = "[[6]]".parse().unwrap();
     nodes.push(&left);
     nodes.push(&right);
 

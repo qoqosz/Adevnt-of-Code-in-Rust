@@ -53,7 +53,7 @@ fn parse(data: &str) -> (Vec<Schematics>, Vec<Schematics>) {
     let mut locks: Vec<_> = data
         .trim()
         .split("\n\n")
-        .flat_map(|line| Schematics::from_str(line))
+        .flat_map(Schematics::from_str)
         .collect();
 
     locks.retain(|x| match x {

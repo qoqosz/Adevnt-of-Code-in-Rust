@@ -118,7 +118,7 @@ impl FromStr for Map {
 #[aoc(2024, 8)]
 pub fn main() {
     let data = aoc_input!(2024, 8).unwrap();
-    let map = Map::from_str(&data).unwrap();
+    let map: Map = data.parse().unwrap();
 
     // Part I
     println!("{}", map.count_antinodes());
