@@ -1,109 +1,81 @@
 use aoc::{aoc, aoc_input};
 use rustc_hash::FxHashSet;
-use std::rc::Rc;
+
+fn is_abba(txt: &[u8]) -> bool {
+    txt[0] != txt[1] && txt[0] == txt[3] && txt[1] == txt[2]
+}
+
+fn is_tls(txt: &[u8]) -> bool {
+    let mut in_hypernet = false;
+    let mut is_support = false;
+
+    for win in txt.windows(4) {
+        match win[0] {
+            b'[' => in_hypernet = true,
+            b']' => in_hypernet = false,
+            _ => {
+                if is_abba(win) {
+                    if in_hypernet {
+                        return false;
+                    }
+                    is_support = true;
+                }
+            }
+        }
+    }
+
+    is_support
+}
 
 fn is_aba(txt: &[u8]) -> bool {
-    if txt.len() < 3 {
-        return false;
-    }
-    if txt[0] == txt[2] && txt[0] != txt[1] {
-        return true;
-    }
-    false
+    txt[0] != txt[1] && txt[0] == txt[2]
 }
 
-fn is_abba(txt: &str) -> bool {
-    for win in txt.as_bytes().windows(4) {
-        if win[0] == win[3] && win[1] == win[2] && win[0] != win[1] {
-            return true;
-        }
-    }
-    false
-}
+fn is_ssl(txt: &[u8]) -> bool {
+    let mut aba_set = FxHashSet::default();
+    let mut bab_set = FxHashSet::default();
+    let mut in_hypernet = false;
 
-#[derive(Debug)]
-enum End<'a> {
-    Text(&'a str),
-    Address(Rc<Address<'a>>),
-}
+    for win in txt.windows(3) {
+        match win[0] {
+            b'[' => in_hypernet = true,
+            b']' => in_hypernet = false,
+            _ => {
+                if is_aba(win) {
+                    let (a, b) = (win[0], win[1]);
 
-impl<'a> From<&'a str> for End<'a> {
-    fn from(value: &'a str) -> Self {
-        match value.contains('[') {
-            true => End::Address(Rc::new(Address::from(value))),
-            false => Self::Text(value),
-        }
-    }
-}
-
-#[derive(Debug)]
-struct Address<'a> {
-    left: &'a str,
-    mid: &'a str,
-    right: End<'a>,
-}
-
-impl<'a> From<&'a str> for Address<'a> {
-    fn from(value: &'a str) -> Self {
-        let (left, rem) = value.split_once('[').unwrap();
-        let (mid, rest) = rem.split_once(']').unwrap();
-
-        Self {
-            left,
-            mid,
-            right: End::from(rest),
-        }
-    }
-}
-
-impl<'a> Address<'a> {
-    fn is_valid(&self) -> bool {
-        match &self.right {
-            End::Text(_) => !is_abba(self.mid),
-            End::Address(addr) => !is_abba(self.mid) && addr.is_valid(),
+                    if in_hypernet {
+                        bab_set.insert((b, a));
+                    } else {
+                        aba_set.insert((a, b));
+                    }
+                }
+            }
         }
     }
 
-    fn is_tls(&self) -> bool {
-        if !self.is_valid() {
-            return false;
-        }
-
-        let is_left = is_abba(self.left);
-        let is_right = match &self.right {
-            End::Text(right) => is_abba(right),
-            End::Address(addr) => addr.is_tls(), // mid may be invalid
-                                                 // add is_valid?
-        };
-        is_left || is_right
-    }
-
-    fn is_ssl(&self) -> bool {
-        // let mut in_bracket = false;
-        // let mut abas = FxHashSet::default();
-        // let mut babs = FxHashSet::default();
-
-        // for (i, ch) in self.
-        false
-    }
+    aba_set.intersection(&bab_set).count() > 0
 }
 
 #[aoc(2016, 7)]
 pub fn main() {
     let data = aoc_input!(2016, 7).unwrap();
-    let addrs = data
-        .trim()
-        .lines()
-        .map(|line| Address::from(line))
-        .collect::<Vec<_>>();
 
     // Part I
-    let count = addrs.iter().filter(|addr| addr.is_tls()).count();
-    println!("{count}");
+    let n = data
+        .trim()
+        .lines()
+        .filter(|ip| is_tls(ip.as_bytes()))
+        .count();
+    println!("{n}");
 
     // Part II
-    let count = addrs.iter().filter(|addr| addr.is_ssl()).count();
-    println!("{count}");
+    let n = data
+        .trim()
+        .lines()
+        .filter(|ip| is_ssl(ip.as_bytes()))
+        .count();
+    println!("{n}");
 }
 
 #[cfg(test)]
@@ -121,8 +93,17 @@ mod test {
         let expected = [true, false, false, true];
 
         for (case, exp) in examples.iter().zip(expected) {
-            let addr = Address::from(*case);
-            assert_eq!(addr.is_tls(), exp);
+            assert_eq!(is_tls(case.as_bytes()), exp);
+        }
+    }
+
+    #[test]
+    fn test_part2() {
+        let examples = vec!["aba[bab]xyz", "xyx[xyx]xyx", "aaa[kek]eke", "zazbz[bzb]cdb"];
+        let expected = [true, false, true, true];
+
+        for (case, exp) in examples.iter().zip(expected) {
+            assert_eq!(is_ssl(case.as_bytes()), exp);
         }
     }
 }
