@@ -142,7 +142,7 @@ fn longest_path(map: &Map, end: &(i32, i32)) -> Option<usize> {
 #[aoc(2023, 23)]
 pub fn main() {
     let data = aoc_input!(2023, 23).unwrap();
-    let mut map = parse(&data);
+    let map = parse(&data);
 
     // Part I
     println!("{}", longest_path(&map, &(139, 140)).unwrap());
