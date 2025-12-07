@@ -1,5 +1,4 @@
 use aoc::aoc;
-use rayon::prelude::*;
 
 fn hash(secret: &[u8], number: usize) -> md5::Digest {
     let mut data: Vec<u8> = secret.to_vec();
@@ -16,12 +15,7 @@ fn check6(digest: &md5::Digest) -> bool {
 }
 
 fn find(secret: &[u8], f: &(dyn Fn(&md5::Digest) -> bool + Sync)) -> Option<usize> {
-    (0..10000000usize)
-        .into_par_iter()
-        .find_map_first(|i| match f(&hash(secret, i)) {
-            true => Some(i),
-            false => None,
-        })
+    (0..10000000usize).find(|i| f(&hash(secret, *i)))
 }
 
 #[aoc(2015, 4)]
