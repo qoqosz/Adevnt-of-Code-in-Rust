@@ -8,7 +8,7 @@ enum Job<'a> {
     MathOp(&'a str, &'a str, &'a str),
 }
 
-fn parse(data: &str) -> FxHashMap<&str, Job> {
+fn parse(data: &str) -> FxHashMap<&str, Job<'_>> {
     data.trim()
         .lines()
         .map(|line| {

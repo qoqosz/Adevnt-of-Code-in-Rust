@@ -6,7 +6,7 @@ use rustc_hash::FxHashMap;
 
 type Network<'a> = FxHashMap<&'a str, (&'a str, &'a str)>;
 
-fn parse(data: &str) -> (&str, Network) {
+fn parse(data: &str) -> (&str, Network<'_>) {
     let (instruction, mapping) = data.split_once("\n\n").unwrap();
     let network = mapping
         .lines()

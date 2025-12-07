@@ -89,14 +89,3 @@ pub fn main() {
         .unwrap();
     println!("{sector_id}");
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_counts() {
-        let entry = Entry::try_from("aaaaa-bbb-z-y-x-123[abxyz]").unwrap();
-        // println!("{:?}", entry.get_counts());
-    }
-}
