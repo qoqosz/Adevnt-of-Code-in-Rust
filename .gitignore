@@ -5,3 +5,4 @@ session.cookie
 /data
 rust-analyzer
 .vscode/
+.DS_Store
