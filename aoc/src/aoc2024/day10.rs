@@ -41,8 +41,8 @@ fn find_trails(map: &FxHashMap<(i8, i8), i8>, start: &(i8, i8)) -> FxHashSet<Vec
                 }
 
                 for n in neighbors(pos) {
-                    if let Some(next) = map.get(&n) {
-                        if *next == height + 1 {
+                    if let Some(&next) = map.get(&n) {
+                        if next == height + 1 {
                             let mut next_path = path.clone();
                             next_path.push(n);
                             queue.push_back(next_path);
