@@ -1,14 +1,15 @@
-use aoc::interval::Interval;
 use aoc::{aoc, aoc_input};
 
+type Interval = aoc::interval::Interval<u8>;
+
 #[inline(always)]
-fn parse_line(line: &str) -> (Interval<u8>, Interval<u8>) {
+fn parse_line(line: &str) -> (Interval, Interval) {
     let (sec1, sec2) = line.split_once(',').unwrap();
     let int1 = sec1.split_once('-').unwrap();
     let int2 = sec2.split_once('-').unwrap();
     (
-        Interval::<u8>::new(int1.0.parse::<u8>().unwrap(), int1.1.parse::<u8>().unwrap()),
-        Interval::<u8>::new(int2.0.parse::<u8>().unwrap(), int2.1.parse::<u8>().unwrap()),
+        Interval::new(int1.0.parse::<u8>().unwrap(), int1.1.parse::<u8>().unwrap()),
+        Interval::new(int2.0.parse::<u8>().unwrap(), int2.1.parse::<u8>().unwrap()),
     )
 }
 
@@ -23,7 +24,7 @@ pub fn main() {
         if int1.contains(&int2) || int2.contains(&int1) {
             n1 += 1;
         }
-        if int1.overlaps(&int2) {
+        if int1.intersects(&int2) {
             n2 += 1;
         }
     }

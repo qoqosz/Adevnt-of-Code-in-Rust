@@ -58,6 +58,7 @@ dependencies = [
  "rustworkx-core",
  "serde_json",
  "shellexpand",
+ "tinyvec",
  "ureq",
 ]
 

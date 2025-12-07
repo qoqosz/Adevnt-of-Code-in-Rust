@@ -63,18 +63,20 @@ where
     }
 
     #[inline]
-    pub fn overlaps(&self, other: &Self) -> bool {
+    pub fn intersects(&self, other: &Self) -> bool {
         max(self.start, other.start) <= min(self.end, other.end)
     }
 
-    pub fn union_parts(&self, other: &Self) -> UnionParts<T> {
-        let (x0, y0) = self.into();
-        let (x1, y1) = other.into();
+    #[inline]
+    pub fn intersect(&self, other: &Self) -> Option<Self> {
+        Interval::try_from((max(self.start, other.start), min(self.end, other.end))).ok()
+    }
 
-        let a0 = min(x0, x1);
-        let a1 = max(x0, x1);
-        let b0 = min(y0, y1);
-        let b1 = max(y0, y1);
+    pub fn union_parts(&self, other: &Self) -> UnionParts<T> {
+        let a0 = min(self.start, other.start);
+        let a1 = max(self.start, other.start);
+        let b0 = min(self.end, other.end);
+        let b1 = max(self.end, other.end);
 
         let left = Interval::try_from((a0, a1)).ok();
         let center = Interval::try_from((a1, b0)).ok();
@@ -85,14 +87,6 @@ where
             center,
             right,
         }
-    }
-
-    pub fn intersect(&self, other: &Self) -> Option<Self> {
-        let (x0, y0) = self.into();
-        let (x1, y1) = other.into();
-        let (x, y) = (max(x0, x1), min(y0, y1));
-
-        Interval::try_from((x, y)).ok()
     }
 }
 
