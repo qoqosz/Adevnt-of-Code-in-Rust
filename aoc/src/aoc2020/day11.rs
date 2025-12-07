@@ -16,11 +16,14 @@ impl Layout {
         Self { grid, max_x, max_y }
     }
 
-    fn adj<'a>(&'a self, key: &'a (i32, i32)) -> impl Iterator<Item = (i32, i32)> + 'a {
+    fn adj_dir(&self) -> impl Iterator<Item = (i32, i32)> {
         (-1..=1)
             .cartesian_product(-1..=1)
             .filter(|(dx, dy)| *dx != 0 || *dy != 0)
-            .map(|(dx, dy)| (key.0 + dx, key.1 + dy))
+    }
+
+    fn adj<'a>(&'a self, key: &'a (i32, i32)) -> impl Iterator<Item = (i32, i32)> + 'a {
+        self.adj_dir().map(|(dx, dy)| (key.0 + dx, key.1 + dy))
     }
 
     fn simulate(&mut self) {
