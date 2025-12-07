@@ -2,6 +2,7 @@ pub mod cli;
 pub mod date;
 pub mod graph;
 pub mod heap;
+pub mod intcode;
 pub mod interval;
 pub mod io;
 pub mod macros;
