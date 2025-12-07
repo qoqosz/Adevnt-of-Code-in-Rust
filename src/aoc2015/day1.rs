@@ -1,5 +1,4 @@
 use aoc::aoc_input;
-use itertools::Itertools;
 
 fn step(c: char, lvl: i32) -> i32 {
     match c {
@@ -21,8 +20,8 @@ fn reach_basement(instructions: &str) -> Option<usize> {
             *pos = step(c, *pos);
             Some(*pos)
         })
-        .find_position(|pos| *pos == -1)
-        .map(|(i, _)| i + 1)
+        .position(|pos| pos == -1)
+        .map(|i| i + 1)
 }
 
 fn main() {
