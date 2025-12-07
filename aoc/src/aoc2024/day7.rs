@@ -29,6 +29,7 @@ impl Equation {
         check2(self.value, self.numbers[0], &self.numbers[1..])
     }
 }
+
 fn check1(value: u64, left: u64, rem: &[u64]) -> bool {
     let sum = left + rem[0];
     let prod = left * rem[0];
