@@ -1,58 +1,105 @@
 use aoc::{aoc, aoc_input};
-use std::str::FromStr;
+use itertools::{Itertools, MultiProduct};
+use rustc_hash::FxHashMap;
+use std::{num::ParseIntError, str::FromStr};
 
+pub trait ProductRepeat: Iterator + Clone
+where
+    Self::Item: Clone,
+{
+    fn product_repeat(self, repeat: usize) -> MultiProduct<Self> {
+        std::iter::repeat(self)
+            .take(repeat)
+            .multi_cartesian_product()
+    }
+}
+
+impl<T: Iterator + Clone> ProductRepeat for T where T::Item: Clone {}
+
+#[derive(Debug)]
+struct Program {
+    value: u64,
+    address: u64,
+}
+
+#[derive(Debug, Default)]
 struct BitMask {
     ones: u64,
     zeros: u64,
 }
 
 impl FromStr for BitMask {
-    type Err = ();
+    type Err = ParseIntError;
 
     fn from_str(value: &str) -> Result<Self, Self::Err> {
-        let ones: u64 = value
-            .chars()
-            .rev()
-            .enumerate()
-            .filter(|(_, ch)| *ch == '1')
-            .map(|(i, _)| 1 << i)
-            .sum();
-        let zeros: u64 = value
-            .chars()
-            .rev()
-            .enumerate()
-            .filter(|(_, ch)| *ch == '0')
-            .map(|(i, _)| 1 << i)
-            .sum();
-
-        println!("{ones:#036b}, {zeros:#036b}");
+        let zeros = value.replace("X", "0");
+        let zeros = u64::from_str_radix(&zeros, 2)?;
+        let ones = value.replace("X", "1");
+        let ones = u64::from_str_radix(&ones, 2)?;
 
         Ok(Self { ones, zeros })
     }
 }
 
 impl BitMask {
+    #[inline(always)]
     fn apply(&self, other: u64) -> u64 {
-        let tmp = other | self.ones;
-        !(tmp ^ !self.zeros)
+        (other | self.zeros) & self.ones
+    }
+}
+
+#[derive(Debug)]
+enum InputLine {
+    MASK(BitMask),
+    PROG(Program),
+}
+
+impl FromStr for InputLine {
+    type Err = ParseIntError;
+
+    fn from_str(line: &str) -> Result<Self, Self::Err> {
+        if line.starts_with("mask") {
+            let (_, bit_mask) = line.split_once(" = ").unwrap();
+            Ok(InputLine::MASK(BitMask::from_str(bit_mask).unwrap()))
+        } else {
+            let (addr, val) = line.split_once(" = ").unwrap();
+            let addr: u64 = addr
+                .trim_start_matches("mem[")
+                .trim_end_matches("]")
+                .parse()?;
+            let val = val.parse()?;
+            Ok(InputLine::PROG(Program {
+                value: val,
+                address: addr,
+            }))
+        }
     }
 }
 
 #[aoc(2020, 14)]
 pub fn main() {
     let data = aoc_input!(2020, 14).unwrap();
-    let mask = BitMask::from_str("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X").unwrap();
-    println!("{} {:#036b}", mask.apply(11), mask.apply(11));
-    println!("{} {:#036b} {:#036b}", 11, 11, (!11));
-}
+    let instructions = data
+        .trim()
+        .lines()
+        .flat_map(|line| InputLine::from_str(line))
+        .collect::<Vec<_>>();
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    // Part I
+    let mut mask = &BitMask::default();
+    let mut memory = FxHashMap::default();
 
-    static EXAMPLE: &str = "939
-7,13,x,x,59,x,31,19";
+    for instruction in instructions.iter() {
+        match instruction {
+            InputLine::MASK(m) => mask = m,
+            InputLine::PROG(prog) => {
+                let val = mask.apply(prog.value);
+                memory.insert(prog.address, val);
+            }
+        }
+    }
 
-    #[test]
-    fn test_part1() {}
+    println!("{}", memory.values().sum::<u64>())
+
+    // Part II
 }

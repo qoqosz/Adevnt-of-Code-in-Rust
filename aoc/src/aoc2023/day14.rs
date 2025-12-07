@@ -90,7 +90,7 @@ impl Display for Platform {
 impl Hash for Platform {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         state.write(self.to_string().as_bytes());
-        state.finish();
+        let _ = state.finish();
     }
 }
 
