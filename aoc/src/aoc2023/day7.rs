@@ -13,15 +13,15 @@ struct JokerGame {}
 
 trait GameType {
     /// Joker strength for cards ordering.
-    fn joker_strength() -> usize;
+    fn joker_strength() -> u8;
 
     /// Count cards of the same type to determine HandType.
     fn count(hand: &str) -> FxHashMap<char, usize>;
 }
 
 impl GameType for RegularGame {
-    fn joker_strength() -> usize {
-        1_000
+    fn joker_strength() -> u8 {
+        100
     }
 
     fn count(hand: &str) -> FxHashMap<char, usize> {
@@ -33,7 +33,7 @@ impl GameType for RegularGame {
     }
 }
 impl GameType for JokerGame {
-    fn joker_strength() -> usize {
+    fn joker_strength() -> u8 {
         1
     }
 
@@ -56,27 +56,26 @@ impl GameType for JokerGame {
     }
 }
 
-trait CardStrength<G = RegularGame>
-where
-    G: GameType,
-{
+trait CardStrength {
     /// Helper function for card ordering.
-    fn card_strength(&self) -> usize;
+    fn card_strength<G>(&self) -> u8
+    where
+        G: GameType;
 }
 
-impl<G> CardStrength<G> for char
-where
-    G: GameType,
-{
-    fn card_strength(&self) -> usize {
+impl CardStrength for char {
+    fn card_strength<G>(&self) -> u8
+    where
+        G: GameType,
+    {
         match self {
-            'A' => 1_000_000,
-            'K' => 100_000,
-            'Q' => 10_000,
+            'A' => 200,
+            'K' => 190,
+            'Q' => 180,
             'J' => G::joker_strength(),
-            'T' => 100,
-            ch @ '2'..='9' => *ch as usize,
-            _ => 0,
+            'T' => 90,
+            ch @ '2'..='9' => *ch as u8,
+            _ => unreachable!(),
         }
     }
 }
@@ -107,6 +106,10 @@ impl<'a, G> Hand<'a, G>
 where
     G: GameType,
 {
+    fn as_vec(&self) -> Vec<u8> {
+        self.cards.chars().map(|c| c.card_strength::<G>()).collect()
+    }
+
     fn count(&self) -> FxHashMap<char, usize> {
         G::count(self.cards)
     }
@@ -149,17 +152,7 @@ where
 {
     fn cmp(&self, other: &Self) -> Ordering {
         match self.hand_type().cmp(&other.hand_type()) {
-            Ordering::Equal => {
-                for (lhs, rhs) in self.cards.chars().zip(other.cards.chars()) {
-                    match <char as CardStrength<G>>::card_strength(&lhs)
-                        .cmp(&<char as CardStrength<G>>::card_strength(&rhs))
-                    {
-                        Ordering::Equal => continue,
-                        cmp => return cmp,
-                    }
-                }
-                Ordering::Equal
-            }
+            Ordering::Equal => self.as_vec().cmp(&other.as_vec()),
             cmp => cmp,
         }
     }
@@ -274,7 +267,7 @@ JJJJ2 41";
         let mut cards = [
             '9', '8', '7', '6', '5', '4', '3', '2', 'A', 'T', 'K', 'Q', 'J',
         ];
-        cards.sort_by_key(CardStrength::<RegularGame>::card_strength);
+        cards.sort_by_key(|c| c.card_strength::<RegularGame>());
         let expected = [
             '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
         ];
