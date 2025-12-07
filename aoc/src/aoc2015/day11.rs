@@ -1,3 +1,4 @@
+use aoc::aoc;
 use itertools::Itertools;
 
 fn increment(password: impl Into<String>) -> String {
@@ -75,6 +76,7 @@ fn next_password(password: impl Into<String>) -> String {
     next_password
 }
 
+#[aoc(2015, 11)]
 pub fn main() {
     let data = "hepxcrrq";
 

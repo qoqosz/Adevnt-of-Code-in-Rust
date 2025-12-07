@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 
 pub trait InMemorySize {
     fn in_mem_size(&self) -> usize;
@@ -39,6 +39,7 @@ fn encoded_len<T: Into<String>>(text: T) -> usize {
     })
 }
 
+#[aoc(2015, 8)]
 pub fn main() {
     let data = aoc_input!(2015, 8).unwrap();
     let lines: Vec<_> = data.lines().filter(|&x| !x.is_empty()).collect();

@@ -19,10 +19,13 @@ pub fn aoc(_attr: TokenStream, item: TokenStream) -> TokenStream {
             let ret = #block;
             let duration = #start.elapsed();
 
-            if duration.as_millis() > 0 {
-                ::std::println!("Elapsed: \x1b[1m{:0.2}ms\x1b[0m", duration.as_millis());
+            if duration.as_secs() > 0 {
+                ::std::println!("Elapsed: \x1b[1m{}s\x1b[0m", duration.as_secs());
+            }
+            else if duration.as_millis() > 0 {
+                ::std::println!("Elapsed: \x1b[1m{}ms\x1b[0m", duration.as_millis());
             } else {
-                ::std::println!("Elapsed: \x1b[1m{:0.2}μs\x1b[0m", duration.as_micros());
+                ::std::println!("Elapsed: \x1b[1m{}μs\x1b[0m", duration.as_micros());
             }
 
             ret

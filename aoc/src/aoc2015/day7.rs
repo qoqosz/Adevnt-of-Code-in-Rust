@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use std::collections::{HashMap, VecDeque};
 use std::iter::Peekable;
 use std::mem::discriminant;
@@ -463,6 +463,7 @@ impl Executor {
     }
 }
 
+#[aoc(2015, 7)]
 pub fn main() {
     let data = aoc_input!(2015, 7).unwrap();
     let lines: Vec<_> = data.split('\n').filter(|&x| !x.is_empty()).collect();

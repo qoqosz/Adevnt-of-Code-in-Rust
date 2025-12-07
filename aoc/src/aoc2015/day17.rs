@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use std::collections::HashSet;
 
 struct Containers {
@@ -66,6 +66,7 @@ impl<'a> Iterator for ContainersPartitionsIter<'a> {
     }
 }
 
+#[aoc(2015, 17)]
 pub fn main() {
     let data = aoc_input!(2015, 17).unwrap();
     let containers = Containers::from(

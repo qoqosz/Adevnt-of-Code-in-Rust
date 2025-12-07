@@ -1,3 +1,4 @@
+use aoc::aoc;
 use rayon::prelude::*;
 
 fn hash(secret: &[u8], number: usize) -> md5::Digest {
@@ -23,6 +24,7 @@ fn find(secret: &[u8], f: &(dyn Fn(&md5::Digest) -> bool + Sync)) -> Option<usiz
         })
 }
 
+#[aoc(2015, 4)]
 pub fn main() {
     // Problem 1
     let secret_key = "yzbqklnj".as_bytes();

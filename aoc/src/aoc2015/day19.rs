@@ -1,7 +1,6 @@
-use std::collections::HashSet;
-
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
+use std::collections::HashSet;
 
 fn generate_molecultes(rules: &Vec<(&str, &str)>, molecule: &str) -> HashSet<String> {
     let mut molecules = HashSet::new();
@@ -62,6 +61,7 @@ fn search(start: &str, end: &str, rules: &[(&str, &str)]) -> usize {
     }
 }
 
+#[aoc(2015, 19)]
 pub fn main() {
     let data = aoc_input!(2015, 19).unwrap();
     let lines = data.lines().filter(|x| !x.is_empty()).collect::<Vec<_>>();

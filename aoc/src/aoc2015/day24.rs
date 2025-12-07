@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 
 fn min_qe(packages: &Vec<i64>, n: i64) -> Option<i64> {
@@ -19,6 +19,7 @@ fn min_qe(packages: &Vec<i64>, n: i64) -> Option<i64> {
     None
 }
 
+#[aoc(2015, 24)]
 pub fn main() {
     let data = aoc_input!(2015, 24).unwrap();
     let packages = data
