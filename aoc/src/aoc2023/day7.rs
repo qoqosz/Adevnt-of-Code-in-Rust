@@ -1,19 +1,79 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
-use std::cmp::Ordering;
+use std::{cmp::Ordering, marker::PhantomData};
 
-trait CardStrength {
+/// Part I type of game.
+#[derive(Debug, Clone)]
+struct RegularGame {}
+
+/// Part II type of game.
+#[derive(Debug, Clone)]
+struct JokerGame {}
+
+trait GameType {
+    /// Joker strength for cards ordering.
+    fn joker_strength() -> usize;
+
+    /// Count cards of the same type to determine HandType.
+    fn count(hand: &str) -> FxHashMap<char, usize>;
+}
+
+impl GameType for RegularGame {
+    fn joker_strength() -> usize {
+        1_000
+    }
+
+    fn count(hand: &str) -> FxHashMap<char, usize> {
+        hand.chars()
+            .fold(FxHashMap::default(), |mut counter, card| {
+                *counter.entry(card).or_insert(0) += 1;
+                counter
+            })
+    }
+}
+impl GameType for JokerGame {
+    fn joker_strength() -> usize {
+        1
+    }
+
+    fn count(hand: &str) -> FxHashMap<char, usize> {
+        let mut counter = hand
+            .chars()
+            .fold(FxHashMap::default(), |mut counter, card| {
+                *counter.entry(card).or_insert(0) += 1;
+                counter
+            });
+        if let Some(n_jokers) = counter.remove(&'J') {
+            let max_key = counter
+                .iter()
+                .max_by(|a, b| a.1.cmp(b.1))
+                .map(|(k, _)| k)
+                .unwrap_or(&'J');
+            *counter.entry(*max_key).or_insert(0) += n_jokers;
+        }
+        counter
+    }
+}
+
+trait CardStrength<G = RegularGame>
+where
+    G: GameType,
+{
+    /// Helper function for card ordering.
     fn card_strength(&self) -> usize;
 }
 
-impl CardStrength for char {
+impl<G> CardStrength<G> for char
+where
+    G: GameType,
+{
     fn card_strength(&self) -> usize {
         match self {
             'A' => 1_000_000,
             'K' => 100_000,
             'Q' => 10_000,
-            'J' => 1_000,
+            'J' => G::joker_strength(),
             'T' => 100,
             ch @ '2'..='9' => *ch as usize,
             _ => 0,
@@ -22,24 +82,33 @@ impl CardStrength for char {
 }
 
 #[derive(Debug, Clone)]
-struct Hand<'a> {
+struct Hand<'a, G = RegularGame>
+where
+    G: GameType,
+{
     cards: &'a str,
+    typ: PhantomData<G>,
 }
 
-impl<'a> From<&'a str> for Hand<'a> {
-    fn from(cards: &'a str) -> Hand<'a> {
-        Hand { cards }
+impl<'a, G> From<&'a str> for Hand<'a, G>
+where
+    G: GameType,
+{
+    fn from(cards: &'a str) -> Self {
+        assert_eq!(cards.len(), 5);
+        Hand {
+            cards,
+            typ: PhantomData,
+        }
     }
 }
 
-impl<'a> Hand<'a> {
+impl<'a, G> Hand<'a, G>
+where
+    G: GameType,
+{
     fn count(&self) -> FxHashMap<char, usize> {
-        self.cards
-            .chars()
-            .fold(FxHashMap::default(), |mut counter, card| {
-                *counter.entry(card).or_insert(0) += 1;
-                counter
-            })
+        G::count(self.cards)
     }
 
     fn hand_type(&self) -> HandType {
@@ -51,36 +120,40 @@ impl<'a> Hand<'a> {
             .copied()
             .collect::<Vec<_>>();
 
-        match counts.len() {
-            1 => HandType::FiveOfAKind,
-            2 => match (counts[0], counts[1]) {
-                (4, 1) => HandType::FourOfAKind,
-                _ => HandType::FullHouse,
-            },
-            3 => match (counts[0], counts[1], counts[2]) {
-                (3, 1, 1) => HandType::ThreeOfAKind,
-                _ => HandType::TwoPair,
-            },
-            4 => HandType::OnePair,
+        match counts.as_slice() {
+            [5] => HandType::FiveOfAKind,
+            [4, 1] => HandType::FourOfAKind,
+            [3, 2] => HandType::FullHouse,
+            [3, 1, 1] => HandType::ThreeOfAKind,
+            [2, 2, 1] => HandType::TwoPair,
+            [2, 1, 1, 1] => HandType::OnePair,
             _ => HandType::HighCard,
         }
     }
 }
 
-impl<'a> PartialEq for Hand<'a> {
+impl<'a, G> PartialEq for Hand<'a, G>
+where
+    G: GameType,
+{
     fn eq(&self, other: &Self) -> bool {
         self.cards.eq(other.cards)
     }
 }
 
-impl<'a> Eq for Hand<'a> {}
+impl<'a, G> Eq for Hand<'a, G> where G: GameType {}
 
-impl<'a> Ord for Hand<'a> {
+impl<'a, G> Ord for Hand<'a, G>
+where
+    G: GameType,
+{
     fn cmp(&self, other: &Self) -> Ordering {
         match self.hand_type().cmp(&other.hand_type()) {
             Ordering::Equal => {
-                for (lhs, rhs) in std::iter::zip(self.cards.chars(), other.cards.chars()) {
-                    match lhs.card_strength().cmp(&rhs.card_strength()) {
+                for (lhs, rhs) in self.cards.chars().zip(other.cards.chars()) {
+                    match <char as CardStrength<G>>::card_strength(&lhs)
+                        .cmp(&<char as CardStrength<G>>::card_strength(&rhs))
+                    {
                         Ordering::Equal => continue,
                         cmp => return cmp,
                     }
@@ -92,62 +165,34 @@ impl<'a> Ord for Hand<'a> {
     }
 }
 
-impl<'a> PartialOrd for Hand<'a> {
+impl<'a, G> PartialOrd for Hand<'a, G>
+where
+    G: GameType,
+{
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum HandType {
-    FiveOfAKind,
-    FourOfAKind,
-    FullHouse,
-    ThreeOfAKind,
-    TwoPair,
-    OnePair,
-    HighCard,
+    FiveOfAKind = 6,
+    FourOfAKind = 5,
+    FullHouse = 4,
+    ThreeOfAKind = 3,
+    TwoPair = 2,
+    OnePair = 1,
+    HighCard = 0,
 }
 
-impl HandType {
-    fn index(&self) -> u8 {
-        match self {
-            HandType::FiveOfAKind => 7,
-            HandType::FourOfAKind => 6,
-            HandType::FullHouse => 5,
-            HandType::ThreeOfAKind => 4,
-            HandType::TwoPair => 3,
-            HandType::OnePair => 2,
-            HandType::HighCard => 1,
-        }
-    }
-}
-
-impl PartialEq for HandType {
-    fn eq(&self, other: &Self) -> bool {
-        self.index() == other.index()
-    }
-}
-
-impl Eq for HandType {}
-
-impl Ord for HandType {
-    fn cmp(&self, other: &Self) -> Ordering {
-        self.index().cmp(&other.index())
-    }
-}
-
-impl PartialOrd for HandType {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-fn parse<'a>(data: &'a str) -> (Vec<Hand<'a>>, Vec<u64>) {
+fn parse<G>(data: &str) -> (Vec<Hand<'_, G>>, Vec<u64>)
+where
+    G: GameType,
+{
     let (mut hands, mut bids) = (vec![], vec![]);
 
     for line in data.lines().filter(|x| !x.is_empty()) {
-        let (hand, bid) = line.split_once(" ").unwrap();
+        let (hand, bid) = line.split_once(' ').unwrap();
         hands.push(Hand::from(hand));
         bids.push(bid.parse::<u64>().unwrap())
     }
@@ -155,21 +200,28 @@ fn parse<'a>(data: &'a str) -> (Vec<Hand<'a>>, Vec<u64>) {
     (hands, bids)
 }
 
-#[aoc(2023, 7)]
-pub fn main() {
-    let data = aoc_input!(2023, 7).unwrap();
-    let (hands, bids) = parse(&data);
-
-    // Part I
-    let res = std::iter::zip(hands, bids)
+fn score<G>(hands: &[Hand<'_, G>], bids: &[u64]) -> u64
+where
+    G: GameType,
+{
+    std::iter::zip(hands, bids)
         .sorted_by(|(lhs, _), (rhs, _)| lhs.cmp(rhs))
         .enumerate()
         .map(|(rank, (_, bid))| (rank as u64 + 1) * bid)
-        .sum::<u64>();
+        .sum::<u64>()
+}
 
-    println!("{res}");
+#[aoc(2023, 7)]
+pub fn main() {
+    let data = aoc_input!(2023, 7).unwrap();
+
+    // Part I
+    let (hands, bids) = parse::<RegularGame>(&data);
+    println!("{}", score(&hands, &bids));
 
     // Part II
+    let (hands, bids) = parse::<JokerGame>(&data);
+    println!("{}", score(&hands, &bids));
 }
 
 #[cfg(test)]
@@ -204,7 +256,7 @@ JJJJ2 41";
 
     #[test]
     fn test_hand_types() {
-        let (hands, _) = parse(EXAMPLE1);
+        let (hands, _) = parse::<RegularGame>(EXAMPLE1);
         let hand_types = hands.iter().map(|h| h.hand_type()).collect::<Vec<_>>();
         let expected = vec![
             HandType::OnePair,
@@ -222,7 +274,7 @@ JJJJ2 41";
         let mut cards = [
             '9', '8', '7', '6', '5', '4', '3', '2', 'A', 'T', 'K', 'Q', 'J',
         ];
-        cards.sort_by_key(|c| c.card_strength());
+        cards.sort_by_key(CardStrength::<RegularGame>::card_strength);
         let expected = [
             '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
         ];
@@ -231,7 +283,7 @@ JJJJ2 41";
 
     #[test]
     fn test_strength_order() {
-        let (hands, _) = parse(EXAMPLE1);
+        let (hands, _) = parse::<RegularGame>(EXAMPLE1);
         let sorted = hands.iter().sorted().cloned().collect::<Vec<_>>();
         let expected = vec![
             Hand::from("32T3K"),
@@ -255,7 +307,7 @@ JJJJ2 41";
 
     #[test]
     fn test_edge_case() {
-        let lhs = Hand::from("2345A");
+        let lhs: Hand<'_, RegularGame> = Hand::from("2345A");
         let rhs = Hand::from("2345J");
         assert!(lhs > rhs);
     }
@@ -266,7 +318,10 @@ JJJJ2 41";
         let cards = &["2345A", "Q2KJJ", "2345J", "32T3K", "J345A"];
 
         assert_eq!(
-            expected.iter().map(|c| Hand::from(*c)).collect::<Vec<_>>(),
+            expected
+                .iter()
+                .map(|c| Hand::from(*c))
+                .collect::<Vec<Hand<'_, RegularGame>>>(),
             cards
                 .iter()
                 .map(|c| Hand::from(*c))
@@ -283,12 +338,17 @@ JJJJ2 41";
             println!("{:?}", h);
         }
 
-        for (h, b) in std::iter::zip(hands, bids).sorted_by(|a, b| a.1.cmp(&b.1)) {
-            println!(">> {:?}, {}", h, b);
+        assert_eq!(score(&hands, &bids), 6592);
+    }
+
+    #[test]
+    fn test_part2() {
+        let (hands, bids): (Vec<Hand<'static, JokerGame>>, _) = parse(EXAMPLE2);
+
+        for h in hands.iter().sorted() {
+            println!("{:?} {:?}", h, h.hand_type());
         }
 
-        let mut res = 0;
-
-        assert_eq!(res, 6592);
+        assert_eq!(score(&hands, &bids), 6839);
     }
 }
