@@ -8,6 +8,10 @@ readme = "../README.md"
 edition = "2021"
 default-run = "aoc"
 
+[lints.rust]
+unresolved-proc-macro = "deny"
+unresolved_proc_macro = "deny"
+
 [lib]
 name = "aoc"
 path = "src/lib/lib.rs"

@@ -12,7 +12,7 @@ export AOC_SESSION=531ab...
 Run a solution for a given `YEAR` and `DAY`:
 
 ```
-cargo run --bin aoc -y YEAR -d DAY
+cargo run -- -y YEAR -d DAY
 ```
 
 ## Structure
