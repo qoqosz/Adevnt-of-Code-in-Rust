@@ -1,0 +1,11 @@
+[package]
+name = "aoc_core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "aoc_core"
+path = "src/lib.rs"
+
+[dependencies]
+inventory = "0.3.13"

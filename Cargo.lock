@@ -12,7 +12,9 @@ checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 name = "aoc"
 version = "0.2.0"
 dependencies = [
+ "aoc_core",
  "aoc_derive",
+ "inventory",
  "itertools",
  "lazy_static",
  "md5",
@@ -27,9 +29,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "aoc_core"
+version = "0.1.0"
+dependencies = [
+ "inventory",
+]
+
+[[package]]
 name = "aoc_derive"
 version = "0.1.0"
 dependencies = [
+ "aoc_core",
  "quote",
  "syn",
 ]
@@ -176,6 +186,12 @@ dependencies = [
  "equivalent",
  "hashbrown",
 ]
+
+[[package]]
+name = "inventory"
+version = "0.3.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0508c56cfe9bfd5dfeb0c22ab9a6abfda2f27bdca422132e494266351ed8d83c"
 
 [[package]]
 name = "itertools"
