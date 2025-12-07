@@ -74,11 +74,12 @@ dependencies = [
 
 [[package]]
 name = "aoc_core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "inventory",
  "petgraph",
  "pico-args",
+ "rustc-hash",
  "shellexpand",
  "ureq",
 ]

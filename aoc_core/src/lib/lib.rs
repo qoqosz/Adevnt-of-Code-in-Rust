@@ -1,4 +1,5 @@
 pub mod cli;
+pub mod counter;
 pub mod date;
 pub mod graph;
 pub mod heap;
