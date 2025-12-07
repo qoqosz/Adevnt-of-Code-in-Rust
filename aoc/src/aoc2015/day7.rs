@@ -360,7 +360,7 @@ impl<'a> Interpreter<'a> {
 
     pub fn visit_sym(&mut self, node: &SymbolNode) -> Result<Token, String> {
         match &node.token {
-            Token::Symbol(ref sym) => match self.globals.get(sym) {
+            Token::Symbol(sym) => match self.globals.get(sym) {
                 Some(val) => Ok(Token::Number(*val)),
                 _ => Ok(Token::Symbol(sym.clone())),
             },

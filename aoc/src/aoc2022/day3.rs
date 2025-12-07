@@ -34,11 +34,18 @@ pub fn main() {
         .lines()
         .chunks(3)
         .into_iter()
-        .flat_map(|mut lines| {
-            let mut first = lines.next().unwrap().chars();
-            // let mut first = lines.next().unwrap().chars().collect::<Vec<_>>();
-            first.find(|ch| lines.all(|l| l.contains(*ch)));
-            first.map(priority)
+        .map(|mut lines| {
+            let mut first = lines.next().unwrap().chars().collect::<Vec<_>>();
+
+            for line in lines {
+                first.retain(|ch| line.contains(*ch));
+            }
+
+            if let Some(ch) = first.get(0) {
+                priority(ch)
+            } else {
+                0
+            }
         })
         .sum();
     println!("{sum_priorities}");
