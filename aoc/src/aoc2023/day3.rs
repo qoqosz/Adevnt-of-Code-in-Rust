@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 use lazy_static::lazy_static;
 use regex_lite::{Match, Regex};
 
@@ -105,6 +105,7 @@ fn parse(data: &str) -> Vec<&str> {
     data.lines().filter(|x| !x.is_empty()).collect()
 }
 
+#[aoc(2023, 3)]
 pub fn main() {
     let data = aoc_input!(2023, 3).unwrap();
     let lines = parse(&data);

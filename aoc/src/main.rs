@@ -6,7 +6,6 @@ mod aoc2023;
 
 use aoc::cli::{Args, ArgsError};
 use std::process::ExitCode;
-use std::time::Instant;
 
 fn main() -> ExitCode {
     let pargs = pico_args::Arguments::from_env();
@@ -21,8 +20,6 @@ fn main() -> ExitCode {
             return ExitCode::FAILURE;
         }
     };
-
-    let time = Instant::now();
 
     match (args.year, args.day) {
         // 2015
@@ -77,10 +74,6 @@ fn main() -> ExitCode {
             unimplemented!()
         }
     };
-
-    let duration = time.elapsed().as_micros() as f64 / 1000.0;
-
-    println!("Elapsed: {duration:0.2} ms");
 
     ExitCode::SUCCESS
 }

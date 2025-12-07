@@ -1,4 +1,4 @@
-use aoc::aoc_input;
+use aoc::{aoc, aoc_input};
 
 static NUMS: [&str; 10] = [
     ".", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
@@ -32,6 +32,7 @@ fn enumerate_words(line: impl Into<String> + Clone) -> Vec<(usize, u32)> {
         .collect()
 }
 
+#[aoc(2023, 1)]
 pub fn main() {
     let data = aoc_input!(2023, 1).unwrap();
     let lines = data.lines().filter(|x| !x.is_empty()).collect::<Vec<_>>();
