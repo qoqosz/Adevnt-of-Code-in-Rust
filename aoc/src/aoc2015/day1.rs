@@ -36,7 +36,3 @@ pub fn main() {
     let ans2 = reach_basement(&data);
     println!("{}", ans2.unwrap());
 }
-
-// inventory::submit! {
-//     aoc::registry::Registry::new(2015, 1, main)
-// }
