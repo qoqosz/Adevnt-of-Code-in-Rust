@@ -3,7 +3,7 @@ use itertools::Itertools;
 use rustc_hash::{FxHashMap, FxHashSet};
 use std::collections::VecDeque;
 
-type State = (i32, i32, i32, i32);
+type State = ((i32, i32), i32, i32);
 
 fn parse(data: &str) -> FxHashMap<(i32, i32), char> {
     data.trim()
@@ -28,50 +28,37 @@ fn solve(contraption: &FxHashMap<(i32, i32), char>, init: &State) -> usize {
             continue;
         }
 
-        let (x, y, dx, dy) = state;
+        let ((x, y), dx, dy) = state;
+        let next = (x + dx, y + dy);
 
-        if let Some(&ch) = contraption.get(&(x + dx, y + dy)) {
+        if let Some(&ch) = contraption.get(&next) {
             match (dx, dy, ch) {
-                // continue in the same direction}
-                (_, _, '.') => {
-                    queue.push_back((x + dx, y + dy, dx, dy));
-                }
-                // passes through the splitter as if the splitter were empty space
-                (_, 1, '|') | (_, -1, '|') => {
-                    queue.push_back((x + dx, y + dy, dx, dy));
-                }
                 // the beam is split into two beams going in each of the two directions
                 (1, _, '|') | (-1, _, '|') => {
-                    queue.push_back((x + dx, y + dy, 0, 1));
-                    queue.push_back((x + dx, y + dy, 0, -1));
-                }
-                // passes through the splitter as if the splitter were empty space
-                (1, _, '-') | (-1, _, '-') => {
-                    queue.push_back((x + dx, y + dy, dx, dy));
+                    queue.push_back((next, 0, 1));
+                    queue.push_back((next, 0, -1));
                 }
                 // the beam is split into two beams going in each of the two directions
                 (_, 1, '-') | (_, -1, '-') => {
-                    queue.push_back((x + dx, y + dy, 1, 0));
-                    queue.push_back((x + dx, y + dy, -1, 0));
+                    queue.push_back((next, 1, 0));
+                    queue.push_back((next, -1, 0));
                 }
                 // the beam is reflected 90 degrees
                 (_, _, '\\') => {
-                    queue.push_back((x + dx, y + dy, dy, dx));
+                    queue.push_back((next, dy, dx));
                 }
                 // the beam is reflected 90 degrees
                 (_, _, '/') => {
-                    queue.push_back((x + dx, y + dy, -dy, -dx));
+                    queue.push_back((next, -dy, -dx));
                 }
-                _ => unreachable!(),
+                // continue in the same direction}
+                _ => {
+                    queue.push_back((next, dx, dy));
+                }
             }
         }
     }
-    visited
-        .iter()
-        .map(|state| (state.0, state.1))
-        .unique()
-        .count()
-        - 1
+    visited.iter().map(|state| state.0).unique().count() - 1
 }
 
 fn maximize(contraption: &FxHashMap<(i32, i32), char>, width: i32, height: i32) -> Option<usize> {
@@ -79,18 +66,18 @@ fn maximize(contraption: &FxHashMap<(i32, i32), char>, width: i32, height: i32) 
 
     for x in 0..width {
         // top row
-        inits.push((x, -1, 0, 1));
+        inits.push(((x, -1), 0, 1));
 
         // bottom row
-        inits.push((x, height, 0, -1));
+        inits.push(((x, height), 0, -1));
     }
 
     for y in 0..height {
         // leftmost column
-        inits.push((-1, y, 1, 0));
+        inits.push(((-1, y), 1, 0));
 
         // rightmost column
-        inits.push((width, y, -1, 0));
+        inits.push(((width, y), -1, 0));
     }
 
     inits.iter().map(|init| solve(contraption, init)).max()
@@ -102,7 +89,7 @@ pub fn main() {
     let contraption = parse(&data);
 
     // Part I
-    let init = (-1, 0, 1, 0);
+    let init = ((-1, 0), 1, 0);
     println!("{}", solve(&contraption, &init));
 
     // Part II
@@ -128,7 +115,7 @@ mod tests {
     #[test]
     fn test_part1() {
         let contraption = parse(EXAMPLE);
-        let init = (-1, 0, 1, 0);
+        let init = ((-1, 0), 1, 0);
         let n = solve(&contraption, &init);
         assert_eq!(n, 46);
     }
