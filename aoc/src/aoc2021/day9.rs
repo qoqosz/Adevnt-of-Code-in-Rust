@@ -21,7 +21,7 @@ impl HeightMap {
 
     fn is_low_point(&self, p: &Point) -> bool {
         match self.0.get(p) {
-            Some(h) => self.adj_heights(p).all(|n| *n > *h),
+            Some(&h) => self.adj_heights(p).all(|&n| n > h),
             _ => false,
         }
     }
@@ -33,32 +33,25 @@ impl HeightMap {
     fn total_risk_level(&self) -> usize {
         self.low_points()
             .flat_map(|p| self.0.get(p))
-            .map(|h| 1 + *h as usize)
+            .map(|&h| 1 + h as usize)
             .sum()
     }
 
-    fn basin_size(&self, p: &Point) -> Option<usize> {
-        if self.0.get(p).is_none() {
-            return None;
-        }
-
-        let mut queue = VecDeque::from([*p]);
+    fn basin_size(&self, x: &Point) -> usize {
+        let mut queue = VecDeque::from([*x]);
         let mut visited = FxHashSet::default();
         let mut count = 0;
 
-        while let Some(q) = queue.pop_front() {
-            if !visited.insert(q) {
-                continue;
-            }
-            if self.0.get(&q) == Some(&9) {
+        while let Some(p) = queue.pop_front() {
+            if !visited.insert(p) || self.0.get(&p) == Some(&9) {
                 continue;
             }
 
             count += 1;
-            queue.extend(self.adj(&q));
+            queue.extend(self.adj(&p));
         }
 
-        Some(count)
+        count
     }
 }
 
@@ -91,7 +84,7 @@ pub fn main() {
     // Part II
     let ans = height_map
         .low_points()
-        .flat_map(|p| height_map.basin_size(p))
+        .map(|p| height_map.basin_size(p))
         .k_largest(3)
         .product::<usize>();
     println!("{ans}");
