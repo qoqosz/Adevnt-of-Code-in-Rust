@@ -17,4 +17,5 @@ cargo run -- -y YEAR -d DAY
 
 ## Structure
 - aoc_derive - proc macro
-- aoc - solutions and helper utilities
+- aoc_core - extracted common utilities
+- aoc - solutions
