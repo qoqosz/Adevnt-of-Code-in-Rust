@@ -135,10 +135,10 @@ impl Strategy {
                     .map(|((id, _), cnt)| (*id, *cnt))
                     .collect::<Counter<usize>>();
 
-                if let Some((guard_id, _)) = guards.into_iter().max_by_key(|(_, cnt)| **cnt) {
+                if let Some((guard_id, _)) = guards.into_iter().max_by_key(|(_, cnt)| *cnt) {
                     return freqs
                         .into_iter()
-                        .filter(|((id, _), _)| id == guard_id)
+                        .filter(|((id, _), _)| *id == guard_id)
                         .max_by_key(|((_, _), cnt)| **cnt)
                         .map(|((_, minute), _)| guard_id * minute);
                 }

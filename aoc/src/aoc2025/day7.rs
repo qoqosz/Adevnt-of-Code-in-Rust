@@ -1,28 +1,22 @@
-use aoc::{aoc, aoc_input};
-use rustc_hash::FxHashMap;
-
-/// Add `value` to an existing one in a `map` at `key` or insert it.
-fn increment(map: &mut FxHashMap<usize, usize>, key: usize, value: usize) {
-    map.entry(key).and_modify(|v| *v += value).or_insert(value);
-}
+use aoc::{aoc, aoc_input, counter::Counter};
 
 /// Run both part I and part II simulations.
 fn simulate(manifold: &Vec<Vec<u8>>) -> (usize, usize) {
     let start = manifold[0].iter().position(|x| *x == b'S').unwrap();
-    let mut beams = FxHashMap::from_iter([(start, 1)]);
+    let mut beams: Counter<usize> = Counter::from_iter([(start, 1)]);
     let mut n_splits = 0;
 
     for row in manifold.iter().step_by(2) {
-        let mut new_beams = FxHashMap::default();
+        let mut new_beams = Counter::default();
 
         for (beam, count) in beams {
             match row[beam] {
                 b'^' => {
-                    increment(&mut new_beams, beam - 1, count);
-                    increment(&mut new_beams, beam + 1, count);
+                    new_beams.increment_by(beam - 1, count);
+                    new_beams.increment_by(beam + 1, count);
                     n_splits += 1;
                 }
-                _ => increment(&mut new_beams, beam, count),
+                _ => new_beams.increment_by(beam, count),
             }
         }
 

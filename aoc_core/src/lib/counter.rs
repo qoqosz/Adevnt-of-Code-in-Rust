@@ -55,6 +55,15 @@ where
     }
 }
 
+impl<K> IntoIterator for Counter<K> {
+    type Item = (K, usize);
+    type IntoIter = std::collections::hash_map::IntoIter<K, usize>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.data.into_iter()
+    }
+}
+
 impl<'a, K> IntoIterator for &'a Counter<K> {
     type Item = (&'a K, &'a usize);
     type IntoIter = std::collections::hash_map::Iter<'a, K, usize>;
