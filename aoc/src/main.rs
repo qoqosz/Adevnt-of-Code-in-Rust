@@ -28,7 +28,7 @@ fn main() -> ExitCode {
         }
     };
 
-    for solution in inventory::iter::<Solution>()
+    let mut solutions = inventory::iter::<Solution>()
         .filter(|sol| {
             let is_year = sol.year == args.year;
             let is_day = match args.day {
@@ -37,10 +37,15 @@ fn main() -> ExitCode {
             };
             is_day && is_year
         })
-        .collect::<Vec<_>>()
-        .iter()
         .sorted_by_key(|sol| (sol.year, sol.day))
-    {
+        .peekable();
+
+    if solutions.peek().is_none() {
+        eprintln!("No solution found");
+        return ExitCode::FAILURE;
+    }
+
+    for solution in solutions {
         println!("Day {}, {}", solution.day, solution.year);
         solution.run();
         println!();
