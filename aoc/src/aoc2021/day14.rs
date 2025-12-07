@@ -1,5 +1,4 @@
-use aoc::{aoc, aoc_input};
-use aoc_core::counter::Counter;
+use aoc::{aoc, aoc_input, counter::Counter};
 use itertools::Itertools;
 use rustc_hash::FxHashMap;
 
