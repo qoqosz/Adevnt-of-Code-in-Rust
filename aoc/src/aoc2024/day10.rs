@@ -17,7 +17,7 @@ fn parse(data: &str) -> FxHashMap<(i8, i8), i8> {
         .collect()
 }
 
-fn neighbors(point: (i8, i8)) -> impl Iterator<Item = (i8, i8)> {
+fn neighbors<'a>(point: &'a (i8, i8)) -> impl Iterator<Item = (i8, i8)> + 'a {
     DIRS.iter().map(move |d| (point.0 + d.0, point.1 + d.1))
 }
 
@@ -33,18 +33,20 @@ fn find_trails(map: &FxHashMap<(i8, i8), i8>, start: &(i8, i8)) -> FxHashSet<Vec
             continue;
         }
 
-        if let Some(&last) = map.get(path.last().unwrap()) {
-            if last == 9 {
-                hiking_trails.insert(path);
-                continue;
-            }
+        if let Some(pos) = path.last() {
+            if let Some(&height) = map.get(pos) {
+                if height == 9 {
+                    hiking_trails.insert(path);
+                    continue;
+                }
 
-            for n in neighbors(*path.last().unwrap()) {
-                if let Some(next) = map.get(&n) {
-                    if *next == last + 1 {
-                        let mut next_path = path.clone();
-                        next_path.push(n);
-                        queue.push_back(next_path);
+                for n in neighbors(pos) {
+                    if let Some(next) = map.get(&n) {
+                        if *next == height + 1 {
+                            let mut next_path = path.clone();
+                            next_path.push(n);
+                            queue.push_back(next_path);
+                        }
                     }
                 }
             }
