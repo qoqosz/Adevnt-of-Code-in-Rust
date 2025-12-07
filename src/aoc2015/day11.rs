@@ -52,10 +52,8 @@ fn has_pairs(password: impl Into<String>) -> bool {
             if idx == usize::MAX {
                 idx = i;
                 ch = win[0];
-            } else {
-                if (i != idx + 1) && win[0] != ch {
-                    return true;
-                }
+            } else if (i != idx + 1) && win[0] != ch {
+                return true;
             }
         }
     }
@@ -63,20 +61,18 @@ fn has_pairs(password: impl Into<String>) -> bool {
 }
 
 fn validate(password: impl Into<String>) -> bool {
-    let txt = password.into().clone();
+    let txt = password.into();
     is_inc(&txt) && !is_forbidden(&txt) && has_pairs(&txt)
 }
 
 fn next_password(password: impl Into<String>) -> String {
-    let mut next_password = password.into();
+    let mut next_password = increment(password);
 
-    loop {
+    while !validate(&next_password) {
         next_password = increment(&next_password);
-
-        if validate(&next_password) {
-            return next_password;
-        }
     }
+
+    next_password
 }
 
 fn main() {

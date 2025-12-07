@@ -5,22 +5,16 @@ use serde_json::{json, Value};
 fn find_sum(data: &str) -> i64 {
     let re: Regex = Regex::new(r"([-]*[[:digit:]]+)").unwrap();
     re.captures_iter(data)
-        .filter_map(|cap| match cap.get(1) {
-            Some(n) => Some(n.as_str().parse::<i64>().unwrap()),
-            _ => None,
-        })
+        .filter_map(|cap| cap.get(1).map(|n| n.as_str().parse::<i64>().unwrap()))
         .sum()
 }
 
 fn has_red(val: &Value) -> bool {
     for (_, v) in val.as_object().unwrap_or(json!({}).as_object().unwrap()) {
-        match v {
-            Value::String(s) => {
-                if s == "red" {
-                    return true;
-                }
+        if let Value::String(s) = v {
+            if s == "red" {
+                return true;
             }
-            _ => {}
         }
     }
     false

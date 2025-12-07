@@ -1,7 +1,7 @@
 use aoc::aoc_input;
 use itertools::Itertools;
 use regex::Regex;
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 #[derive(Debug)]
 struct Reindeer {
@@ -39,11 +39,11 @@ impl From<&str> for Reindeer {
 
 fn main() {
     let data = aoc_input!(2015, 14).unwrap();
-    let mut reindeers = vec![];
-
-    for line in data.split('\n').filter(|x| !x.is_empty()) {
-        reindeers.push(Reindeer::from(line));
-    }
+    let reindeers = data
+        .lines()
+        .filter(|x| !x.is_empty())
+        .map(Reindeer::from)
+        .collect::<Vec<_>>();
 
     // Part I
     let t = 2503;
@@ -51,7 +51,7 @@ fn main() {
     println!("{}", max_dist);
 
     // Part II
-    let mut scores: HashMap<&String, u32> = HashMap::new();
+    let mut scores: FxHashMap<&String, u32> = FxHashMap::default();
 
     for t in 1..=t {
         let leaders = reindeers

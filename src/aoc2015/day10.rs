@@ -1,5 +1,5 @@
-fn look_and_say(text: &String) -> String {
-    let mut out: Vec<String> = Vec::new();
+fn look_and_say(text: &str) -> String {
+    let mut out: Vec<String> = Vec::with_capacity(text.len() * 2);
     let mut count = 0;
     let mut current = text.chars().next().unwrap();
 
@@ -16,21 +16,18 @@ fn look_and_say(text: &String) -> String {
     out.join("")
 }
 
-fn play(text: &String, n: usize) -> usize {
-    let mut text = text.clone();
-
-    for i in 0..n {
-        text = look_and_say(&text);
-    }
-    text.len()
+fn play(text: &str, n: usize) -> usize {
+    (0..n)
+        .fold(text.to_owned(), |txt, _| look_and_say(&txt))
+        .len()
 }
 
 fn main() {
-    let data = "1321131112".to_string();
+    let data = "1321131112";
 
     // Part I
-    println!("{}", play(&data, 40));
+    println!("{}", play(data, 40));
 
     // Part II
-    println!("{}", play(&data, 50));
+    println!("{}", play(data, 50));
 }

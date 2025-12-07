@@ -1,4 +1,5 @@
 use aoc::aoc_input;
+use itertools::Itertools;
 
 #[derive(Debug, Default)]
 struct Compounds {
@@ -126,12 +127,11 @@ fn main() {
     // Part I
     let i = sues
         .iter()
-        .enumerate()
-        .find_map(|(i, sue)| match message.contains(sue) {
-            true => Some(i + 1),
-            _ => None,
-        })
-        .unwrap();
+        .find_position(|sue| message.contains(sue))
+        .unwrap()
+        .0
+        + 1;
+
     println!("{}", i);
 
     // Part II

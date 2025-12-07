@@ -1,7 +1,7 @@
 use aoc::aoc_input;
-use std::collections::{hash_map::Keys, HashMap, HashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 
-type Visits = HashMap<(i32, i32), usize>;
+type Visits = FxHashMap<(i32, i32), usize>;
 
 #[derive(Debug)]
 struct Santa {
@@ -19,9 +19,9 @@ impl Default for Santa {
 impl Santa {
     fn new(x: i32, y: i32) -> Self {
         let mut santa = Santa {
-            x: x,
-            y: y,
-            visited: HashMap::new(),
+            x,
+            y,
+            visited: FxHashMap::default(),
         };
         santa.increment(x, y);
         santa
@@ -50,17 +50,13 @@ impl Santa {
             self.visit(c);
         }
     }
-
-    fn unique_visits(&self) -> Keys<(i32, i32), usize> {
-        self.visited.keys()
-    }
 }
 
 fn at_least_one_present(path: &str) -> usize {
     // Solution for part I
     let mut santa = Santa::default();
     santa.visit_path(path);
-    santa.unique_visits().count()
+    santa.visited.len()
 }
 
 fn work_with_robo_santa(path: &str) -> usize {
@@ -69,17 +65,14 @@ fn work_with_robo_santa(path: &str) -> usize {
     let mut robo_santa = Santa::default();
 
     for (i, c) in path.chars().enumerate() {
-        if i % 2 == 0 {
-            santa.visit(c)
-        } else {
-            robo_santa.visit(c)
+        match i % 2 {
+            0 => santa.visit(c),
+            _ => robo_santa.visit(c),
         }
     }
-    let mut santa_keys = santa.unique_visits().collect::<HashSet<&(i32, i32)>>();
-    let robo_keys = robo_santa.unique_visits().collect::<HashSet<&(i32, i32)>>();
 
-    santa_keys.extend(&robo_keys);
-    santa_keys.iter().count()
+    santa.visited.extend(&robo_santa.visited);
+    santa.visited.len()
 }
 
 fn main() {
