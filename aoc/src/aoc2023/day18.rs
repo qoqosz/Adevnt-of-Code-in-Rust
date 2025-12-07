@@ -1,5 +1,5 @@
 use aoc::{aoc, aoc_input};
-use rustc_hash::{FxHashMap, FxHashSet};
+use itertools::Itertools;
 
 type Plan<'a> = Vec<(char, i64)>;
 
@@ -35,9 +35,8 @@ fn parse_hex(data: &str) -> Plan {
 }
 
 fn dig(plan: &Plan) -> Vec<(i64, i64)> {
-    let mut hole = vec![];
     let (mut x, mut y) = (0, 0);
-    hole.push((x, y));
+    let mut hole = vec![(x, y)];
 
     for (dir, step) in plan {
         let (dx, dy) = match dir {
@@ -55,26 +54,20 @@ fn dig(plan: &Plan) -> Vec<(i64, i64)> {
     hole
 }
 
-fn shoelace(hole: &Vec<(i64, i64)>) -> i64 {
-    let mut points = Vec::from_iter(hole.iter());
-    let n = points.len();
-    let mut area = 0;
+fn shoelace(hole: &[(i64, i64)]) -> u64 {
+    let area: i64 = hole
+        .iter()
+        .circular_tuple_windows::<(_, _, _)>()
+        .map(|(w0, w1, w2)| w1.1 * (w0.0 - w2.0))
+        .sum();
 
-    for i in 1..n - 1 {
-        area += points[i].1 * (points[i - 1].0 - points[i + 1].0);
-    }
+    let border: u64 = hole
+        .iter()
+        .circular_tuple_windows()
+        .map(|(w0, w1)| w0.0.abs_diff(w1.0) + w0.1.abs_diff(w1.1))
+        .sum();
 
-    area += points[0].1 * (points[n - 1].0 - points[1].0);
-    area += points[n - 1].1 * (points[n - 2].0 - points[0].0);
-
-    points.push(points[0]);
-    let adj = points
-        .windows(2)
-        .map(|w| w[0].0.abs_diff(w[1].0) + w[0].1.abs_diff(w[1].1))
-        .map(|x| x as i64)
-        .sum::<i64>();
-
-    (area + adj) / 2 + 1
+    (area as u64 + border) / 2 + 1
 }
 
 #[aoc(2023, 18)]
@@ -84,14 +77,12 @@ pub fn main() {
     // Part I
     let plan = parse(&data);
     let hole = dig(&plan);
-    let n = shoelace(&hole);
-    println!("{n}");
+    println!("{}", shoelace(&hole));
 
     // Part II
     let plan = parse_hex(&data);
     let hole = dig(&plan);
-    let n = shoelace(&hole);
-    println!("{n}");
+    println!("{}", shoelace(&hole));
 }
 
 #[cfg(test)]
