@@ -1,4 +1,4 @@
-use aoc::load_input;
+use aoc::aoc_input;
 use itertools::Itertools;
 use petgraph::prelude::*;
 use std::collections::HashMap;
@@ -27,7 +27,7 @@ fn shortest_path(graph: &Graph<&str, i32, Undirected>) -> Option<i32> {
 }
 
 fn main() {
-    let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day9.txt");
+    let data = aoc_input!(2015, 9).unwrap();
     let mut graph = Graph::<&str, i32, Undirected>::new_undirected();
     let mut map: HashMap<&str, NodeIndex> = HashMap::new();
 

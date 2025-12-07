@@ -1,4 +1,4 @@
-use aoc::load_input;
+use aoc::aoc_input;
 use std::collections::{HashMap, VecDeque};
 use std::iter::Peekable;
 use std::mem::discriminant;
@@ -476,7 +476,7 @@ impl Executor {
 }
 
 fn main() {
-    let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day7.txt");
+    let data = aoc_input!(2015, 7).unwrap();
     let lines: Vec<_> = data.split('\n').filter(|&x| !x.is_empty()).collect();
     let mut executor = Executor::new();
 

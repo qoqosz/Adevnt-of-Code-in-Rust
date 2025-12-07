@@ -1,5 +1,3 @@
-use aoc::load_input;
-
 fn look_and_say(text: &String) -> String {
     let mut out: Vec<String> = Vec::new();
     let mut count = 0;

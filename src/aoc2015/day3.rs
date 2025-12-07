@@ -1,4 +1,4 @@
-use aoc::load_input;
+use aoc::aoc_input;
 use std::collections::{hash_map::Keys, HashMap, HashSet};
 
 type Visits = HashMap<(i32, i32), usize>;
@@ -83,7 +83,7 @@ fn work_with_robo_santa(path: &str) -> usize {
 }
 
 fn main() {
-    let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day3.txt");
+    let data = aoc_input!(2015, 3).unwrap();
 
     // Part I
     println!("{}", at_least_one_present(&data));

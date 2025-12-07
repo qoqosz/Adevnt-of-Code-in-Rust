@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use aoc::load_input;
+use aoc::aoc_input;
 
 static VOWELS: &str = "aeiou";
 
@@ -78,7 +78,7 @@ fn ans2(data: &Vec<&str>) -> usize {
 }
 
 fn main() {
-    let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day5.txt");
+    let data = aoc_input!(2015, 5).unwrap();
     let data = data
         .split('\n')
         .filter(|x| !x.is_empty())

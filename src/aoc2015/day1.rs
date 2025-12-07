@@ -1,4 +1,4 @@
-use aoc::load_input;
+use aoc::aoc_input;
 
 fn step(c: char, lvl: i32) -> i32 {
     match c {
@@ -30,7 +30,7 @@ fn reach_basement(instructions: &str) -> Option<usize> {
 }
 
 fn main() {
-    let data = load_input!("/Users/qoqosz/Documents/Coding/Rust/Advent of Code/data/2015/day1.txt");
+    let data = aoc_input!(2015, 1).unwrap();
 
     // Part I
     let ans1 = dest_floor(&data);
