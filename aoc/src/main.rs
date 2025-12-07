@@ -22,10 +22,9 @@ fn main() -> ExitCode {
         }
     };
 
-    if let Some(f) =
-        inventory::iter::<Solution>().find(|f| (f.year, f.day) == (args.year, args.day))
+    if let Some(solution) = inventory::iter::<Solution>().find(|sol| **sol == (args.year, args.day))
     {
-        f.run();
+        solution.run();
     } else {
         unimplemented!()
     }
