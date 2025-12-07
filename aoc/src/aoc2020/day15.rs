@@ -10,12 +10,10 @@ enum Occurrence {
 fn observe(cache: &mut FxHashMap<usize, Occurrence>, value: usize, i: usize) {
     cache
         .entry(value)
-        .and_modify(
-            |x| match *x {
-                Occurrence::First(j) => *x = Occurrence::SeenBefore(i, j),
-                Occurrence::SeenBefore(j, _) => *x = Occurrence::SeenBefore(i, j),
-            }, //*x = Occurrence::SeenBefore(i))
-        )
+        .and_modify(|x| match *x {
+            Occurrence::First(j) => *x = Occurrence::SeenBefore(i, j),
+            Occurrence::SeenBefore(j, _) => *x = Occurrence::SeenBefore(i, j),
+        })
         .or_insert(Occurrence::First(i));
 }
 
