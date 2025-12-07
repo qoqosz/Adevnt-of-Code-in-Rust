@@ -6,6 +6,7 @@ pub mod aoc2023;
 
 use aoc::cli::{Args, ArgsError};
 use aoc_core::Solution;
+use itertools::Itertools;
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
@@ -22,20 +23,22 @@ fn main() -> ExitCode {
         }
     };
 
-    if args.day != 0 {
-        if let Some(solution) =
-            inventory::iter::<Solution>().find(|sol| **sol == (args.year, args.day))
-        {
-            solution.run();
-        } else {
-            unimplemented!()
-        }
-    } else {
-        for solution in
-            inventory::iter::<Solution>().filter(|sol| sol.year == args.year && sol.day < 18)
-        {
-            solution.run();
-        }
+    for solution in inventory::iter::<Solution>()
+        .filter(|sol| {
+            let is_year = sol.year == args.year;
+            let is_day = match args.day {
+                Some(d) => sol.day == d,
+                _ => true,
+            };
+            is_day && is_year
+        })
+        .collect::<Vec<_>>()
+        .iter()
+        .sorted_by_key(|sol| (sol.year, sol.day))
+    {
+        println!("Day {}, {}", solution.day, solution.year);
+        solution.run();
+        println!();
     }
 
     ExitCode::SUCCESS

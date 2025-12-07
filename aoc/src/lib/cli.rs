@@ -1,14 +1,14 @@
 use crate::date::get_current_year;
 
 pub const HELP: &str = "\
-USAGE: {} [FLAGS] [OPTIONS] -d <DAY>
+USAGE: {} [FLAGS] [OPTIONS] -y <YEAR>
 
 FLAGS:
   -h, --help    Prints help information
 
 OPTIONS:
   -y YEAR       Sets AoC year; use current year if not provided
-  -d DAY        Sets AoC day
+  -d DAY        Sets AoC day; if not present - iterate over 1..=25
 ";
 
 fn prog() -> Option<String> {
@@ -44,7 +44,7 @@ impl std::fmt::Display for ArgsError {
 
 #[derive(Debug, Clone)]
 pub struct Args {
-    pub day: u16,
+    pub day: Option<u16>,
     pub year: u16,
 }
 
@@ -57,15 +57,16 @@ impl TryFrom<pico_args::Arguments> for Args {
         }
 
         let day = args
-            .value_from_str("-d")
+            .opt_value_from_str("-d")
             .map_err(|e| ArgsError::Error(format!("{e}")))?;
         let year = args
             .value_from_str("-y")
             .unwrap_or_else(|_| get_current_year());
 
-        // TODO: either make it optional or add a flag to run for all days in a year
-        if !(0..=25).contains(&(day as i32)) {
-            return Err(ArgsError::InvalidDay);
+        if let Some(d) = day {
+            if !(0..=25).contains(&(d as i32)) {
+                return Err(ArgsError::InvalidDay);
+            }
         }
         if year < 2015 {
             return Err(ArgsError::InvalidYear);
