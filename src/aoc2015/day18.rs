@@ -57,22 +57,22 @@ impl Grid {
 
     /// 1D indices of neighbors
     fn neighbors(&self, x: usize, y: usize) -> Vec<usize> {
-        let ns = vec![
-            (x.checked_sub(1), y.checked_sub(1)),
-            (x.checked_sub(1), Some(y)),
-            (x.checked_sub(1), Some(y + 1)),
-            (Some(x), y.checked_sub(1)),
-            (Some(x), Some(y + 1)),
-            (Some(x + 1), y.checked_sub(1)),
-            (Some(x + 1), Some(y)),
-            (Some(x + 1), Some(y + 1)),
-        ];
+        let mut ns = vec![];
+
+        for i in [-1, 0, 1] {
+            for j in [-1, 0, 1] {
+                if i == 0 && j == 0 {
+                    continue;
+                }
+                ns.push((x as i32 + i, y as i32 + j))
+            }
+        }
+
         ns.iter()
-            .filter(|p| match p {
-                (Some(x), Some(y)) => *x < self.size_x && *y < self.size_y,
-                _ => false,
+            .filter(|&p| {
+                p.0 >= 0 && p.0 < self.size_x as i32 && p.1 >= 0 && p.1 < self.size_y as i32
             })
-            .map(|p| self.idx(p.0.unwrap(), p.1.unwrap()))
+            .map(|p| self.idx(p.0 as usize, p.1 as usize))
             .collect::<Vec<_>>()
     }
 
