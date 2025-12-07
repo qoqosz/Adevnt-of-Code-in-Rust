@@ -54,89 +54,120 @@ impl State {
     fn is_alive(&self) -> bool {
         self.player_hp > 0 && self.player_mana >= 53
     }
+
+    fn lose_hp(&mut self) -> Self {
+        self.player_hp -= 1;
+        *self
+    }
+
+    fn cast(&self, spell: &Spell) -> Option<Self> {
+        spell.apply(self)
+    }
+}
+
+enum Spell {
+    MagicMissile(i16, i16),
+    Drain(i16, i16, i16),
+    Shield(i16, u8),
+    Poison(i16, u8),
+    Recharge(i16, u8),
+}
+
+impl Spell {
+    fn apply(&self, state: &State) -> Option<State> {
+        match self {
+            Spell::MagicMissile(mana_cost, damage) => state.magic_missile(*mana_cost, *damage),
+            Spell::Drain(mana_cost, damage, heal) => state.drain(*mana_cost, *damage, *heal),
+            Spell::Shield(mana_cost, shield_effect) => state.shield(*mana_cost, *shield_effect),
+            Spell::Poison(mana_cost, poison_effect) => state.poison(*mana_cost, *poison_effect),
+            Spell::Recharge(mana_cost, recharge_effect) => {
+                state.recharge(*mana_cost, *recharge_effect)
+            }
+        }
+    }
 }
 
 trait MagicMissile: Sized {
-    fn magic_missile(&self) -> Option<Self>;
+    fn magic_missile(&self, mana_cost: i16, damage: i16) -> Option<Self>;
 }
 
 impl MagicMissile for State {
-    fn magic_missile(&self) -> Option<Self> {
-        if self.player_mana < 53 {
+    fn magic_missile(&self, mana_cost: i16, damage: i16) -> Option<Self> {
+        if self.player_mana < mana_cost {
             return None;
         }
         Some(Self {
-            boss_hp: self.boss_hp - 4,
-            player_mana: self.player_mana - 53,
+            boss_hp: self.boss_hp - damage,
+            player_mana: self.player_mana - mana_cost,
             ..*self
         })
     }
 }
 
 trait Drain: Sized {
-    fn drain(&self) -> Option<Self>;
+    fn drain(&self, mana_cost: i16, damage: i16, heal: i16) -> Option<Self>;
 }
 
 impl Drain for State {
-    fn drain(&self) -> Option<Self> {
-        if self.player_mana < 73 {
+    fn drain(&self, mana_cost: i16, damage: i16, heal: i16) -> Option<Self> {
+        if self.player_mana < mana_cost {
             return None;
         }
         Some(Self {
-            boss_hp: self.boss_hp - 2,
-            player_hp: self.player_hp + 2,
-            player_mana: self.player_mana - 73,
+            boss_hp: self.boss_hp - damage,
+            player_hp: self.player_hp + heal,
+            player_mana: self.player_mana - mana_cost,
             ..*self
         })
     }
 }
 
 trait Shield: Sized {
-    fn shield(&self) -> Option<Self>;
+    fn shield(&self, mana_cost: i16, shield_effect: u8) -> Option<Self>;
 }
 
 impl Shield for State {
-    fn shield(&self) -> Option<Self> {
-        if self.player_mana < 113 || self.shield_effect != 0 {
+    fn shield(&self, mana_cost: i16, shield_effect: u8) -> Option<Self> {
+        if self.player_mana < mana_cost || self.shield_effect != 0 {
             return None;
         }
         Some(Self {
-            player_mana: self.player_mana - 113,
-            shield_effect: 6,
+            player_mana: self.player_mana - mana_cost,
+            shield_effect,
             ..*self
         })
     }
 }
 
 trait Poison: Sized {
-    fn poison(&self) -> Option<Self>;
+    fn poison(&self, mana_cost: i16, poison_effect: u8) -> Option<Self>;
 }
 
 impl Poison for State {
-    fn poison(&self) -> Option<Self> {
-        if self.player_mana < 173 || self.poison_effect != 0 {
+    fn poison(&self, mana_cost: i16, poison_effect: u8) -> Option<Self> {
+        if self.player_mana < mana_cost || self.poison_effect != 0 {
             return None;
         }
         Some(Self {
-            player_mana: self.player_mana - 173,
-            poison_effect: 6,
+            player_mana: self.player_mana - mana_cost,
+            poison_effect,
             ..*self
         })
     }
 }
 
 trait Recharge: Sized {
-    fn recharge(&self) -> Option<Self>;
+    fn recharge(&self, mana_cost: i16, recharge_effect: u8) -> Option<Self>;
 }
 
 impl Recharge for State {
-    fn recharge(&self) -> Option<Self> {
-        if self.player_mana < 229 || self.recharge_effect != 0 {
+    fn recharge(&self, mana_cost: i16, recharge_effect: u8) -> Option<Self> {
+        if self.player_mana < mana_cost || self.recharge_effect != 0 {
             return None;
         }
         Some(Self {
-            player_mana: self.player_mana - 229,
-            recharge_effect: 5,
+            player_mana: self.player_mana - mana_cost,
+            recharge_effect,
             ..*self
         })
     }
@@ -155,51 +186,34 @@ fn play(boss_hp: i16, damage: i16, hard_mode: bool) -> i16 {
             return spent;
         }
 
-        if hard_mode {
-            if state.player_hp > 1 {
-                state.player_hp -= 1;
-            } else {
-                continue;
-            }
+        if hard_mode && !state.lose_hp().is_alive() {
+            continue;
         }
 
-        let mut cast_spell = |effect: Option<State>| {
-            if let Some(mut next) = effect {
+        for spell in &SPELLS {
+            if let Some(mut next) = state.cast(spell) {
                 let cost = state.player_mana - next.player_mana;
+
                 if next.apply_spell_effects().is_win() {
-                    return Some(spent + cost);
+                    return spent + cost;
                 }
                 if next.boss_turn(damage).is_alive() && cache.insert(next) {
                     queue.push(spent + cost, next);
                 }
             }
-            None
-        };
-
-        // Magic Missile
-        if let Some(spent) = cast_spell(state.magic_missile()) {
-            return spent;
-        }
-        // Drain
-        if let Some(spent) = cast_spell(state.drain()) {
-            return spent;
-        }
-        // Shield
-        if let Some(spent) = cast_spell(state.shield()) {
-            return spent;
-        }
-        // Poison
-        if let Some(spent) = cast_spell(state.poison()) {
-            return spent;
-        }
-        // Recharge
-        if let Some(spent) = cast_spell(state.recharge()) {
-            return spent;
         }
     }
 
     unreachable!()
 }
+
+static SPELLS: [Spell; 5] = [
+    Spell::MagicMissile(53, 4),
+    Spell::Drain(73, 2, 2),
+    Spell::Shield(113, 6),
+    Spell::Poison(173, 6),
+    Spell::Recharge(229, 5),
+];
 
 pub fn main() {
     let (boss_hp, damage): (i16, i16) = (58, 9);
