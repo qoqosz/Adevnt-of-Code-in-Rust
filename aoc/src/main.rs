@@ -22,11 +22,20 @@ fn main() -> ExitCode {
         }
     };
 
-    if let Some(solution) = inventory::iter::<Solution>().find(|sol| **sol == (args.year, args.day))
-    {
-        solution.run();
+    if args.day != 0 {
+        if let Some(solution) =
+            inventory::iter::<Solution>().find(|sol| **sol == (args.year, args.day))
+        {
+            solution.run();
+        } else {
+            unimplemented!()
+        }
     } else {
-        unimplemented!()
+        for solution in
+            inventory::iter::<Solution>().filter(|sol| sol.year == args.year && sol.day < 18)
+        {
+            solution.run();
+        }
     }
 
     ExitCode::SUCCESS

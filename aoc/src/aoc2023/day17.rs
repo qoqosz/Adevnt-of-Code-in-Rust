@@ -68,7 +68,7 @@ fn minimize1(map: &Map, end: &(i32, i32)) -> Option<usize> {
     let start = State::default();
     let init_cost = *map.get(&(0, 0)).unwrap();
     let mut queue = MinHeap::from([(0, start)]);
-    let mut visited = FxHashSet::default(); // from_iter([start]);
+    let mut visited = FxHashSet::default();
 
     while let Some((cost, state)) = queue.pop() {
         // end condition
@@ -113,7 +113,7 @@ fn minimize2(map: &Map, end: &(i32, i32)) -> Option<usize> {
     let start = State::default();
     let init_cost = *map.get(&(0, 0)).unwrap();
     let mut queue = MinHeap::from([(0, start)]);
-    let mut visited = FxHashSet::default(); // from_iter([start]);
+    let mut visited = FxHashSet::default();
 
     while let Some((cost, state)) = queue.pop() {
         // end condition
