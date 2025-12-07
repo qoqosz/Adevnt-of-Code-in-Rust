@@ -74,23 +74,31 @@ impl<'h> Symbol<'h> {
 }
 
 fn read_schema<'h>(lines: &'h [&str]) -> (Vec<Number>, Vec<Symbol<'h>>) {
-    let mut numbers = vec![];
-    let mut symbols = vec![];
+    let mut numbers: Vec<Number> = vec![];
+    let mut symbols: Vec<Symbol<'h>> = vec![];
 
     for (i, line) in lines.iter().enumerate() {
-        for captures in RE_NUMBER.captures_iter(line) {
-            let mut number = Number::try_from(&captures.get(0).unwrap()).unwrap();
-            number.y = i;
-            numbers.push(number);
-        }
-        for captures in RE_SYMBOL.captures_iter(line) {
-            let mut symbol = Symbol::from(&captures.get(0).unwrap());
-            symbol.y = i;
-            symbols.push(symbol);
-        }
+        numbers.extend(iter_line_numbers(line, i));
+        symbols.extend(iter_line_symbols(line, i));
     }
 
     (numbers, symbols)
+}
+
+fn iter_line_numbers(line: &str, i: usize) -> impl Iterator<Item = Number> + '_ {
+    RE_NUMBER.captures_iter(line).map(move |captures| {
+        let mut number = Number::try_from(&captures.get(0).unwrap()).unwrap();
+        number.y = i;
+        number
+    })
+}
+
+fn iter_line_symbols(line: &str, i: usize) -> impl Iterator<Item = Symbol> + '_ {
+    RE_SYMBOL.captures_iter(line).map(move |captures| {
+        let mut symbol = Symbol::from(&captures.get(0).unwrap());
+        symbol.y = i;
+        symbol
+    })
 }
 
 fn parse(data: &str) -> Vec<&str> {
