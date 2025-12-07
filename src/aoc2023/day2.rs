@@ -15,24 +15,31 @@ impl FromStr for Set {
     type Err = ParseSetError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut game = Self::default();
+        let mut set = Self::default();
+        let colors = ["green", "blue", "red"];
 
-        for color in s.trim().split(',') {
-            if color.contains(" green") {
-                game.green = color.trim().replace(" green", "").parse::<u32>().unwrap();
-            }
-            if color.contains(" blue") {
-                game.blue = color.trim().replace(" blue", "").parse::<u32>().unwrap();
-            }
-            if color.contains(" red") {
-                game.red = color.trim().replace(" red", "").parse::<u32>().unwrap();
+        for word in s.trim().split(',') {
+            for color in colors {
+                if word.contains(color) {
+                    let value = word.replace(color, "").trim().parse::<u32>().unwrap();
+                    set.set_value(color, value);
+                }
             }
         }
-        Ok(game)
+
+        Ok(set)
     }
 }
 
 impl Set {
+    fn set_value(&mut self, color: &str, value: u32) {
+        match color.trim() {
+            "green" => self.green = value,
+            "blue" => self.blue = value,
+            _ => self.red = value,
+        }
+    }
+
     fn contains(&self, other: &Set) -> bool {
         self.green >= other.green && self.red >= other.red && self.blue >= other.blue
     }
@@ -56,12 +63,10 @@ impl FromStr for Game {
 
     fn from_str(line: &str) -> Result<Self, Self::Err> {
         let (id, sets) = line.split_once(':').unwrap();
-        let game = Game {
+        Ok(Game {
             id: id.replace("Game", "").trim().parse::<u32>().unwrap(),
             sets: sets.split(';').flat_map(Set::from_str).collect::<Vec<_>>(),
-        };
-
-        Ok(game)
+        })
     }
 }
 
@@ -70,12 +75,16 @@ impl Game {
         self.sets.iter().all(|set| bag.contains(set))
     }
 
-    fn minimum_set(&self) -> Set {
-        let green = self.sets.iter().map(|s| s.green).max().unwrap_or(0);
-        let blue = self.sets.iter().map(|s| s.blue).max().unwrap_or(0);
-        let red = self.sets.iter().map(|s| s.red).max().unwrap_or(0);
+    fn _get_max(&self, f: impl Fn(&Set) -> u32) -> u32 {
+        self.sets.iter().map(f).max().unwrap_or(0)
+    }
 
-        Set { green, blue, red }
+    fn minimum_set(&self) -> Set {
+        Set {
+            green: self._get_max(|s: &Set| s.green),
+            blue: self._get_max(|s: &Set| s.blue),
+            red: self._get_max(|s: &Set| s.red),
+        }
     }
 }
 
