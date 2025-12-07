@@ -59,7 +59,6 @@ fn find_shortest_path(grid: &FxHashMap<Point, char>, start: &Point, end: &Point)
     queue.push_back((0, *start));
 
     while let Some((dist, pos)) = queue.pop_front() {
-        // println!("dist = {dist:?}, pos = {pos:?}");
         if dist > best_dist {
             continue;
         }
@@ -67,7 +66,7 @@ fn find_shortest_path(grid: &FxHashMap<Point, char>, start: &Point, end: &Point)
             continue;
         }
         if pos == *end {
-            best_dist = std::cmp::min(best_dist, dist);
+            best_dist = dist;
             continue;
         }
 
@@ -97,7 +96,6 @@ fn parse(data: &str) -> Vec<Point> {
 
 #[aoc(2024, 18)]
 pub fn main() {
-    // test();
     let data = aoc_input!(2024, 18).unwrap();
     let bytes = parse(&data);
     let start = Point::new(0, 0);
