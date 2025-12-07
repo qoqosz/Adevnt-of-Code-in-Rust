@@ -4,6 +4,7 @@ use rustc_hash::FxHashMap;
 use std::fmt;
 use std::hash::Hasher;
 
+#[derive(Debug)]
 struct Layout {
     grid: FxHashMap<(i32, i32), bool>,
     max_x: i32,
@@ -12,7 +13,8 @@ struct Layout {
 
 impl Layout {
     fn new(grid: FxHashMap<(i32, i32), bool>) -> Self {
-        let (max_x, max_y) = *grid.keys().max().unwrap_or(&(0, 0));
+        let max_x = grid.keys().max_by_key(|k| k.0).unwrap().0;
+        let max_y = grid.keys().max_by_key(|k| k.1).unwrap().1;
         Self { grid, max_x, max_y }
     }
 
@@ -26,7 +28,7 @@ impl Layout {
         self.adj_dir().map(|(dx, dy)| (key.0 + dx, key.1 + dy))
     }
 
-    fn simulate(&mut self) {
+    fn simulate1(&mut self) {
         let mut out = FxHashMap::default();
 
         for (k, v) in self.grid.iter() {
@@ -46,6 +48,22 @@ impl Layout {
         self.grid = out;
     }
 
+    fn simulate2(&mut self) {
+        let mut out = FxHashMap::default();
+
+        for (k, v) in self.grid.iter() {
+            let n_occupied = self.seat_count_distant(k);
+            let new_v = match (v, n_occupied) {
+                (false, 0) => true,
+                (true, 5..) => false,
+                (val, _) => *val,
+            };
+            out.insert(*k, new_v);
+        }
+
+        self.grid = out;
+    }
+
     fn seat_count(&self) -> usize {
         self.grid.values().filter(|v| **v).count()
     }
@@ -54,6 +72,38 @@ impl Layout {
         let mut hasher = rustc_hash::FxHasher::default();
         hasher.write(self.to_string().as_bytes());
         hasher.finish()
+    }
+
+    fn contains(&self, key: &(i32, i32)) -> bool {
+        (0..=self.max_x).contains(&key.0) && (0..=self.max_y).contains(&key.1)
+    }
+
+    fn seat_count_distant(&self, key: &(i32, i32)) -> usize {
+        let mut count = 0;
+        let pos0 = *key;
+
+        for dir in self.adj_dir() {
+            let mut i = 1;
+
+            loop {
+                let pos = (pos0.0 + i * dir.0, pos0.1 + i * dir.1);
+
+                if !self.contains(&pos) {
+                    break;
+                }
+
+                if let Some(sym) = self.grid.get(&pos) {
+                    if *sym {
+                        count += 1;
+                    }
+                    break;
+                }
+
+                i += 1;
+            }
+        }
+
+        count
     }
 }
 
@@ -84,19 +134,25 @@ impl From<&str> for Layout {
                     line.as_bytes()
                         .iter()
                         .enumerate()
-                        .filter(|(_, ch)| **ch == b'L')
-                        .map(move |(x, _)| ((x as i32, y as i32), false))
+                        .filter_map(move |(x, ch)| match *ch {
+                            b'L' => Some(((x as i32, y as i32), false)),
+                            b'#' => Some(((x as i32, y as i32), true)),
+                            _ => None,
+                        })
                 })
                 .collect(),
         )
     }
 }
 
-fn find_balance(layout: &mut Layout) -> usize {
+fn solver<F>(layout: &mut Layout, mut f: F) -> usize
+where
+    F: FnMut(&mut Layout),
+{
     let mut id = layout.hash();
 
     loop {
-        layout.simulate();
+        f(layout);
         let new_id = layout.hash();
 
         if new_id == id {
@@ -110,15 +166,19 @@ fn find_balance(layout: &mut Layout) -> usize {
 pub fn main() {
     let data = aoc_input!(2020, 11).unwrap();
     let mut layout = Layout::from(data.as_str());
-    let seat_count = find_balance(&mut layout);
-    println!("{}", seat_count);
+    let seat_count1 = solver(&mut layout, |l| l.simulate1());
+    println!("{}", seat_count1);
+
+    let mut layout = Layout::from(data.as_str());
+    let seat_count2 = solver(&mut layout, |l| l.simulate2());
+    println!("{}", seat_count2);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    static EXAMPLE: &str = "L.LL.LL.LL
+    static EXAMPLE1: &str = "L.LL.LL.LL
 LLLLLLL.LL
 L.L.L..L..
 LLLL.LL.LL
@@ -129,10 +189,33 @@ LLLLLLLLLL
 L.LLLLLL.L
 L.LLLLL.LL";
 
+    static EXAMPLE2: &str = ".......#.
+...#.....
+.#.......
+.........
+..#L....#
+....#....
+.........
+#........
+...#.....";
+
     #[test]
     fn test_part1() {
-        let mut layout = Layout::from(EXAMPLE);
-        let seat_count = find_balance(&mut layout);
-        println!("{}", seat_count);
+        let mut layout = Layout::from(EXAMPLE1);
+        let seat_count = solver(&mut layout, |l| l.simulate1());
+        assert_eq!(seat_count, 37);
+    }
+
+    #[test]
+    fn test_part2_occupied_seats() {
+        let layout = Layout::from(EXAMPLE2);
+        assert_eq!(layout.seat_count_distant(&(3, 4)), 8);
+    }
+
+    #[test]
+    fn test_part2() {
+        let mut layout = Layout::from(EXAMPLE1);
+        let seat_count = solver(&mut layout, |l| l.simulate2());
+        assert_eq!(seat_count, 26);
     }
 }
