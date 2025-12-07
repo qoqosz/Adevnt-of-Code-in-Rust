@@ -1,9 +1,6 @@
 use aoc::aoc_input;
-use fxhash::{FxBuildHasher, FxHashSet};
-use itertools::iproduct;
 use regex::Regex;
 use std::cmp::max;
-use std::collections::{HashSet, VecDeque};
 
 #[derive(Debug, Clone, Copy, Default)]
 struct Property {
@@ -75,26 +72,29 @@ impl std::ops::Add<Property> for Property {
     }
 }
 
+fn queue(length: i64, total: i64) -> Vec<Vec<i64>> {
+    if length == 1 {
+        return vec![vec![total]];
+    }
+
+    let mut acc = vec![];
+
+    for i in 0..=total {
+        for t in queue(length - 1, total - i) {
+            let tmp: Vec<i64> = t.iter().cloned().chain([i; 1]).collect();
+            acc.push(tmp);
+        }
+    }
+
+    acc
+}
+
 fn search(ingredients: &Vec<Property>, calories: Option<i64>) -> i64 {
     let n = ingredients.len();
     let mut max_score: i64 = 0;
+    let mut q = queue(n as i64, 100);
 
-    let mut start = vec![0i64; n];
-    start[n - 1] = 100;
-
-    let mut queue: VecDeque<Vec<i64>> = VecDeque::with_capacity(n * n);
-    queue.push_front(start);
-
-    let mut visited: FxHashSet<Vec<i64>> =
-        HashSet::with_capacity_and_hasher(n * n * n * n, FxBuildHasher::default());
-
-    while let Some(coeff) = queue.pop_front() {
-        if visited.contains(&coeff) {
-            continue;
-        }
-
-        visited.insert(coeff.clone());
-
+    while let Some(coeff) = q.pop() {
         let property: Property = ingredients
             .iter()
             .zip(coeff.iter())
@@ -104,18 +104,6 @@ fn search(ingredients: &Vec<Property>, calories: Option<i64>) -> i64 {
             Some(ref cals) if *cals != property.calories => {}
             _ => {
                 max_score = std::cmp::max(max_score, property.score());
-            }
-        }
-
-        for (i, j) in iproduct!(0..n, 0..n) {
-            if i == j {
-                continue;
-            }
-            if coeff[i] != 0 {
-                let mut c = coeff.clone();
-                c[i] -= 1;
-                c[j] += 1;
-                queue.push_back(c);
             }
         }
     }
