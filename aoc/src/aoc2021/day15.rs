@@ -1,6 +1,6 @@
 use aoc::graph::parse_graph;
 use aoc::{aoc, aoc_input};
-use petgraph::algo::{Measure, astar};
+use petgraph::algo::{astar, Measure};
 use petgraph::graph::DiGraph;
 use petgraph::visit::EdgeRef;
 use std::cmp::max;
