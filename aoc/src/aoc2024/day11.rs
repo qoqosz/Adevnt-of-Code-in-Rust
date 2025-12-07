@@ -1,6 +1,17 @@
 use aoc::{aoc, aoc_input};
 
 #[memoize::memoize]
+fn split_num(num: usize) -> (usize, usize) {
+    let num_len = (num.ilog10() + 1) as usize;
+    let num_str = num.to_string();
+    let (left, right) = num_str.split_at(num_len / 2);
+    (
+        left.parse::<usize>().unwrap(),
+        right.parse::<usize>().unwrap(),
+    )
+}
+
+#[memoize::memoize]
 fn count_stones(num: usize, n_blinks: usize) -> usize {
     if n_blinks == 0 {
         return 1;
@@ -8,16 +19,9 @@ fn count_stones(num: usize, n_blinks: usize) -> usize {
     if num == 0 {
         return count_stones(1, n_blinks - 1);
     }
+    if (num.ilog10() + 1) % 2 == 0 {
+        let (left, right) = split_num(num);
 
-    let num_len = (num.ilog10() + 1) as usize;
-
-    if num_len % 2 == 0 {
-        let num_str = num.to_string();
-        let (left, right) = num_str.split_at(num_len / 2);
-        let (left, right) = (
-            left.parse::<usize>().unwrap(),
-            right.parse::<usize>().unwrap(),
-        );
         return count_stones(left, n_blinks - 1) + count_stones(right, n_blinks - 1);
     } else {
         return count_stones(num * 2024, n_blinks - 1);
