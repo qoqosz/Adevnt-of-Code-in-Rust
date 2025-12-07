@@ -33,7 +33,7 @@ pub fn main() {
     let n = diffs.len();
     let shuffle_groups = &diffs[..n - 1]
         .iter()
-        .group_by(|x| **x == 3)
+        .chunk_by(|x| **x == 3)
         .into_iter()
         .filter_map(|(key, group)| if !key { Some(group.sum::<i32>()) } else { None })
         .collect_vec();

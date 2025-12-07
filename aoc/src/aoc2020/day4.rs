@@ -1,13 +1,12 @@
 use aoc::{aoc, aoc_input};
-use lazy_static::lazy_static;
 use rustc_hash::{FxHashMap, FxHashSet};
+use std::sync::LazyLock;
 
-lazy_static! {
-    static ref FIELDS: FxHashSet<&'static str> =
-        FxHashSet::from_iter(["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid"]);
-    static ref ECL: FxHashSet<&'static str> =
-        FxHashSet::from_iter(["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]);
-}
+static FIELDS: LazyLock<FxHashSet<&'static str>> = LazyLock::new(|| {
+    FxHashSet::from_iter(["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid"])
+});
+static ECL: LazyLock<FxHashSet<&'static str>> =
+    LazyLock::new(|| FxHashSet::from_iter(["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]));
 
 fn is_valid1(passport: &&FxHashMap<&str, &str>) -> bool {
     if FIELDS.iter().all(|&k| passport.contains_key(k)) {

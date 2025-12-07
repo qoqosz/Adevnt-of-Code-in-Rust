@@ -2,7 +2,7 @@ use aoc::{aoc, aoc_input};
 
 #[aoc(2020, 14)]
 pub fn main() {
-    let data = aoc_input!(2020, 14).unwrap();
+    let _data = aoc_input!(2020, 14).unwrap();
 }
 
 #[cfg(test)]

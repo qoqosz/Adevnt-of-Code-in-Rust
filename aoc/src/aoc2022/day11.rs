@@ -48,7 +48,7 @@ impl From<&str> for Monkey {
         let mut lines = value.lines();
         let line = lines.next().unwrap();
         let (_, id) = line.split_once(' ').unwrap();
-        let id = id.trim_end_matches(':').parse::<usize>().unwrap();
+        let _id = id.trim_end_matches(':').parse::<usize>().unwrap();
         let items = lines.next().unwrap().split_once(": ").unwrap().1;
         let items = items
             .split(", ")
