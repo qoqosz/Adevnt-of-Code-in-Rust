@@ -65,8 +65,9 @@ fn power(boxes: &[Vec<Lens>]) -> usize {
         .enumerate()
         .flat_map(|(i, b)| {
             b.iter()
+                .flat_map(|l| l.focal)
                 .enumerate()
-                .map(move |(j, l)| (i + 1) * (j + 1) * l.focal.unwrap() as usize)
+                .map(move |(j, f)| (i + 1) * (j + 1) * f as usize)
         })
         .sum()
 }

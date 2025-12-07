@@ -1,8 +1,8 @@
 use aoc::{aoc, aoc_input};
 use rustc_hash::FxHashMap;
-use std::{fmt::Display, str::FromStr};
+use std::{fmt::Display, hash::Hash, str::FromStr};
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 struct Platform {
     platform: FxHashMap<(u32, u32), char>,
     n: u32,
@@ -87,27 +87,30 @@ impl Display for Platform {
     }
 }
 
-fn solve_cycle(platform: &mut Platform, n: u32) -> u32 {
-    let mut i = 0;
-    let mut cache: FxHashMap<String, u32> = FxHashMap::default();
-    cache.insert(platform.to_string(), 0);
+impl Hash for Platform {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        state.write(self.to_string().as_bytes());
+        state.finish();
+    }
+}
 
-    // TODO: This could be simplified even more...
-    while i < n {
+fn solve_cycle(platform: &mut Platform, n: u32) -> Option<u32> {
+    let mut cache: FxHashMap<Platform, u32> = FxHashMap::default();
+
+    for i in 1..n {
         platform.cycle();
 
-        let key = platform.to_string();
-        let v = *cache.entry(key).or_insert(i);
-        let diff = i - v;
+        let v = *cache.entry(platform.clone()).or_insert(i);
 
-        if diff != 0 {
-            i += (n - i) / diff * diff;
+        if v != i {
+            let y = (n - v) % (i - v) + v;
+            return cache
+                .iter()
+                .find(|(_, &x)| x == y)
+                .map(|(p, _)| p.total_load());
         }
-
-        i += 1;
     }
-
-    platform.total_load()
+    None
 }
 
 #[aoc(2023, 14)]
@@ -121,7 +124,7 @@ pub fn main() {
     println!("{}", platform.total_load());
 
     // Part II
-    let n = solve_cycle(&mut platform, 1_000_000_000);
+    let n = solve_cycle(&mut platform, 1_000_000_000).unwrap();
     println!("{n}");
 }
 
@@ -150,6 +153,6 @@ O.#..O.#.#
     #[test]
     fn test_part2() {
         let mut platform = Platform::from_str(EXAMPLE).unwrap();
-        assert_eq!(solve_cycle(&mut platform, 1_000_000_000), 64);
+        assert_eq!(solve_cycle(&mut platform, 1_000_000_000), Some(64));
     }
 }
