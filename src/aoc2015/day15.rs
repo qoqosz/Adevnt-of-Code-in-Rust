@@ -1,4 +1,5 @@
 use aoc::aoc_input;
+use fxhash::{FxBuildHasher, FxHashSet};
 use itertools::iproduct;
 use regex::Regex;
 use std::cmp::max;
@@ -76,19 +77,18 @@ impl std::ops::Add<Property> for Property {
 
 fn search(ingredients: &Vec<Property>, calories: Option<i64>) -> i64 {
     let n = ingredients.len();
-
-    let mut start = vec![0i64; n - 1];
-    start.insert(0, 100);
-
-    let mut queue: VecDeque<Vec<i64>> = VecDeque::from(vec![start]);
-    let mut visited: HashSet<Vec<i64>> = HashSet::new();
     let mut max_score: i64 = 0;
 
-    while !queue.is_empty() {
-        let Some(coeff) = queue.pop_front() else {
-            break;
-        };
+    let mut start = vec![0i64; n];
+    start[n - 1] = 100;
 
+    let mut queue: VecDeque<Vec<i64>> = VecDeque::with_capacity(n * n);
+    queue.push_front(start);
+
+    let mut visited: FxHashSet<Vec<i64>> =
+        HashSet::with_capacity_and_hasher(n * n * n * n, FxBuildHasher::default());
+
+    while let Some(coeff) = queue.pop_front() {
         if visited.contains(&coeff) {
             continue;
         }
