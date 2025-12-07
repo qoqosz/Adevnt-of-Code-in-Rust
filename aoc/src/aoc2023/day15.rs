@@ -1,4 +1,21 @@
 use aoc::{aoc, aoc_input};
+use std::hash::{Hash, Hasher};
+
+#[derive(Default)]
+struct LensHasher(u8);
+
+impl Hasher for LensHasher {
+    fn write(&mut self, bytes: &[u8]) {
+        let val = bytes.iter().fold(self.0, |acc, x| {
+            ((acc as usize + *x as usize) * 17 % 256) as u8
+        });
+        *self = LensHasher(val);
+    }
+
+    fn finish(&self) -> u64 {
+        self.0 as u64
+    }
+}
 
 #[derive(Debug, Clone)]
 struct Lens<'a> {
@@ -8,7 +25,15 @@ struct Lens<'a> {
 
 impl<'a> Lens<'a> {
     fn index(&self) -> usize {
-        hash(self.label)
+        let mut hasher = LensHasher::default();
+        self.hash(&mut hasher);
+        hasher.finish() as usize
+    }
+}
+
+impl<'a> Hash for Lens<'a> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        state.write(self.label.as_bytes());
     }
 }
 
@@ -29,12 +54,6 @@ impl<'a> From<&'a str> for Lens<'a> {
 
 fn parse(data: &str) -> Vec<&str> {
     data.trim().split(',').filter(|x| !x.is_empty()).collect()
-}
-
-fn hash(text: &str) -> usize {
-    text.as_bytes()
-        .iter()
-        .fold(0, |acc, x| (acc + *x as usize) * 17 % 256)
 }
 
 fn box_fill<'a>(data: &[&'a str], boxes: &'a mut Vec<Vec<Lens<'a>>>) -> &'a Vec<Vec<Lens<'a>>> {
@@ -78,7 +97,14 @@ pub fn main() {
     let input = parse(&data);
 
     // Part I
-    let res: usize = input.iter().map(|x| hash(x)).sum();
+    let res: u64 = input
+        .iter()
+        .map(|x| {
+            let mut hasher = LensHasher::default();
+            hasher.write(x.as_bytes());
+            hasher.finish()
+        })
+        .sum();
     println!("{res}");
 
     // Part II
@@ -94,15 +120,30 @@ mod tests {
     static EXAMPLE: &str = "rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7";
 
     #[test]
-    fn test_hash() {
-        assert_eq!(hash("HASH"), 52);
-        assert_eq!(hash("rn=1"), 30);
+    fn test_hash1() {
+        let mut hasher = LensHasher::default();
+        hasher.write("HASH".as_bytes());
+        assert_eq!(hasher.finish(), 52);
+    }
+
+    #[test]
+    fn test_hash2() {
+        let mut hasher = LensHasher::default();
+        hasher.write("rn=1".as_bytes());
+        assert_eq!(hasher.finish(), 30);
     }
 
     #[test]
     fn test_part1() {
         let input = parse(EXAMPLE);
-        let res: usize = input.iter().map(|x| hash(x)).sum();
+        let res: u64 = input
+            .iter()
+            .map(|x| {
+                let mut hasher = LensHasher::default();
+                hasher.write(x.as_bytes());
+                hasher.finish()
+            })
+            .sum();
         assert_eq!(res, 1320);
     }
 
