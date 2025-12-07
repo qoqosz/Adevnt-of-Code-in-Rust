@@ -75,13 +75,13 @@ enum Spell {
 
 impl Spell {
     fn apply(&self, state: &State) -> Option<State> {
-        match self {
-            Spell::MagicMissile(mana_cost, damage) => state.magic_missile(*mana_cost, *damage),
-            Spell::Drain(mana_cost, damage, heal) => state.drain(*mana_cost, *damage, *heal),
-            Spell::Shield(mana_cost, shield_effect) => state.shield(*mana_cost, *shield_effect),
-            Spell::Poison(mana_cost, poison_effect) => state.poison(*mana_cost, *poison_effect),
+        match *self {
+            Spell::MagicMissile(mana_cost, damage) => state.magic_missile(mana_cost, damage),
+            Spell::Drain(mana_cost, damage, heal) => state.drain(mana_cost, damage, heal),
+            Spell::Shield(mana_cost, shield_effect) => state.shield(mana_cost, shield_effect),
+            Spell::Poison(mana_cost, poison_effect) => state.poison(mana_cost, poison_effect),
             Spell::Recharge(mana_cost, recharge_effect) => {
-                state.recharge(*mana_cost, *recharge_effect)
+                state.recharge(mana_cost, recharge_effect)
             }
         }
     }
