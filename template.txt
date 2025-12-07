@@ -1,0 +1,25 @@
+use aoc::{aoc, aoc_input};
+
+#[aoc(, )]
+pub fn main() {
+    let data = aoc_input!(, ).unwrap();
+
+    // Part I
+
+    // Part II
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    static EXAMPLE: &str = "";
+
+    #[test]
+    fn test_part1() {
+    }
+
+    #[test]
+    fn test_part2() {
+    }
+}
