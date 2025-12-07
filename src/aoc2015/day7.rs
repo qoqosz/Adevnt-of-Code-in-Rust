@@ -335,13 +335,6 @@ pub struct Interpreter<'a> {
 }
 
 impl<'a> Interpreter<'a> {
-    pub fn new(parser: &'a mut Parser<'a>) -> Interpreter<'a> {
-        Interpreter {
-            globals: HashMap::new(),
-            parser,
-        }
-    }
-
     pub fn with_globals(
         parser: &'a mut Parser<'a>,
         globals: HashMap<String, u16>,
