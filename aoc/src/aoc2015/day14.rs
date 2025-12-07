@@ -25,7 +25,7 @@ impl From<&str> for Reindeer {
 
         let nums: Vec<_> = re
             .find_iter(line)
-            .filter_map(|d| d.as_str().parse::<u32>().ok())
+            .flat_map(|d| d.as_str().parse::<u32>())
             .collect();
 
         Reindeer {

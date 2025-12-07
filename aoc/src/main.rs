@@ -1,5 +1,7 @@
 pub mod aoc2015;
 pub mod aoc2016;
+pub mod aoc2017;
+pub mod aoc2018;
 pub mod aoc2019;
 pub mod aoc2020;
 pub mod aoc2021;

@@ -43,7 +43,7 @@ pub fn main() {
     let data = aoc_input!(2019, 2).unwrap();
     let input = data
         .split(',')
-        .filter_map(|x| x.parse::<usize>().ok())
+        .flat_map(|x| x.parse::<usize>())
         .collect::<Vec<_>>();
 
     // Part I

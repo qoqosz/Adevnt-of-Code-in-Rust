@@ -13,14 +13,14 @@ pub fn main() {
     let data = aoc_input!(2020, 10).unwrap();
     let mut adapters = data
         .lines()
-        .filter_map(|x| x.parse::<i32>().ok())
-        .collect_vec();
+        .flat_map(|x| x.parse::<i32>())
+        .collect::<Vec<_>>();
     adapters.push(0);
     adapters.push(adapters.iter().max().unwrap() + 3);
     adapters.sort();
 
     // Part I
-    let diffs = adapters.windows(2).map(|x| x[1] - x[0]).collect_vec();
+    let diffs = adapters.windows(2).map(|x| x[1] - x[0]).collect::<Vec<_>>();
     let diff_counts = &diffs.iter().counts();
     println!("{}", diff_counts[&1] * diff_counts[&3]);
 
@@ -36,7 +36,7 @@ pub fn main() {
         .chunk_by(|x| **x == 3)
         .into_iter()
         .filter_map(|(key, group)| if !key { Some(group.sum::<i32>()) } else { None })
-        .collect_vec();
+        .collect::<Vec<_>>();
 
     println!(
         "{}",

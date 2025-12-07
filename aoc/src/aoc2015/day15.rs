@@ -37,7 +37,7 @@ impl From<&str> for Property {
         let re: Regex = Regex::new(r"-*\d+").unwrap();
         let nums: Vec<_> = re
             .find_iter(value)
-            .filter_map(|d| d.as_str().parse::<i64>().ok())
+            .flat_map(|d| d.as_str().parse::<i64>())
             .collect();
 
         Property::new(nums[0], nums[1], nums[2], nums[3], nums[4])

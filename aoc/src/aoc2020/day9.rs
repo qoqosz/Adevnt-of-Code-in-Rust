@@ -45,7 +45,7 @@ pub fn main() {
     let data = aoc_input!(2020, 9).unwrap();
     let nums = data
         .lines()
-        .filter_map(|x| x.parse::<i64>().ok())
+        .flat_map(|x| x.parse::<i64>())
         .collect::<Vec<_>>();
 
     // Part I
