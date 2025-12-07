@@ -70,8 +70,7 @@ fn main() {
     let data = aoc_input!(2015, 17).unwrap();
     let containers = Containers::from(
         data.lines()
-            .filter(|x| !x.is_empty())
-            .map(|x| x.parse::<i32>().unwrap())
+            .flat_map(|x| x.parse::<i32>())
             .collect::<Vec<_>>(),
     );
 

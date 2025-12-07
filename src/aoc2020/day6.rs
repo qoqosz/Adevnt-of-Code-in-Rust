@@ -1,12 +1,26 @@
 use aoc::aoc_input;
+use itertools::Itertools;
 use rustc_hash::FxHashSet;
+use std::borrow::Borrow;
 
-fn intersect<'a>(mut iter: impl Iterator<Item = &'a FxHashSet<char>> + Clone) -> FxHashSet<char> {
-    let first: FxHashSet<char> = iter.next().unwrap().clone();
+fn intersect<I>(sets: I) -> FxHashSet<char>
+where
+    I: IntoIterator + Clone,
+    I::Item: Borrow<FxHashSet<char>> + Clone,
+{
+    let first = match sets.clone().into_iter().next() {
+        Some(val) => val.clone(),
+        None => return FxHashSet::default(),
+    };
 
     first
+        .borrow()
         .iter()
-        .filter(move |elem| iter.clone().all(|set| set.contains(elem)))
+        .filter(move |elem| {
+            sets.clone()
+                .into_iter()
+                .all(|set| set.borrow().contains(elem))
+        })
         .cloned()
         .collect()
 }
@@ -29,16 +43,16 @@ fn main() {
         "{}",
         answers
             .iter()
-            .map(|g| g.iter().flatten().collect::<FxHashSet<_>>().len())
+            .map(|group| group.iter().flatten().unique().count())
             .sum::<usize>()
     );
 
     // Part II
     println!(
-        "{:?}",
+        "{}",
         answers
             .iter()
-            .map(|g| intersect(g.iter()).len())
+            .map(|group| intersect(group).len())
             .sum::<usize>()
     );
 }

@@ -5,16 +5,16 @@ fn main() {
     let data = aoc_input!(2020, 2).unwrap();
     let input = data
         .lines()
-        .map(|l| l.splitn(3, ' ').collect_tuple().unwrap())
-        .collect::<Vec<_>>();
+        .flat_map(|l| l.splitn(3, ' ').collect_tuple())
+        .collect_vec();
 
     let (mut p1_count, mut p2_count) = (0, 0);
 
-    for (rng, char, text) in input.iter() {
+    for (rng, char, text) in input {
         let char = char.chars().next().unwrap();
         let (min, max) = rng
             .splitn(2, '-')
-            .map(|x| x.parse::<usize>().unwrap())
+            .flat_map(|x| x.parse::<usize>())
             .collect_tuple()
             .unwrap();
 
