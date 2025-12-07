@@ -53,7 +53,7 @@ impl GuardMap {
         (self.pos.0 + self.dir.0, self.pos.1 + self.dir.1)
     }
 
-    fn rotate(&mut self) {
+    fn rotate_right(&mut self) {
         self.dir = (-self.dir.1, self.dir.0)
     }
 
@@ -62,19 +62,18 @@ impl GuardMap {
 
         if let Some(next_ch) = self.grid.get(&next_pos) {
             match next_ch {
-                '#' => self.rotate(),
+                '#' => self.rotate_right(),
                 '.' | '^' => {
                     self.pos = next_pos;
-                    if !self.visited.insert((next_pos, self.dir)) {
+                    if !self.visited.insert((self.pos, self.dir)) {
                         return GuardState::Loop;
                     };
                 }
                 _ => unreachable!(),
             }
             return GuardState::Continue;
-        } else {
-            return GuardState::Finished;
         }
+        return GuardState::Finished;
     }
 
     fn pos_count(&mut self) -> usize {
@@ -86,11 +85,10 @@ impl GuardMap {
         loop {
             match self.advance() {
                 GuardState::Loop => return true,
-                GuardState::Finished => break,
+                GuardState::Finished => return false,
                 _ => continue,
             }
         }
-        false
     }
 }
 
@@ -99,12 +97,11 @@ fn find_loops(map: &GuardMap) -> usize {
     map.grid
         .iter()
         .filter(|(_, ch)| **ch != '#')
-        .map(|(pos, _)| {
+        .filter_map(|(pos, _)| {
             let mut new_map = map.clone();
             new_map.grid.insert(*pos, '#');
-            new_map.is_loop()
+            new_map.is_loop().then(|| ())
         })
-        .filter(|x| *x)
         .count()
 }
 
