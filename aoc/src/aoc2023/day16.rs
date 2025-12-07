@@ -34,12 +34,12 @@ fn solve(contraption: &FxHashMap<(i32, i32), char>, init: &State) -> usize {
         if let Some(&ch) = contraption.get(&next) {
             match (dx, dy, ch) {
                 // the beam is split into two beams going in each of the two directions
-                (1, _, '|') | (-1, _, '|') => {
+                (-1 | 1, _, '|') => {
                     queue.push_back((next, 0, 1));
                     queue.push_back((next, 0, -1));
                 }
                 // the beam is split into two beams going in each of the two directions
-                (_, 1, '-') | (_, -1, '-') => {
+                (_, -1 | 1, '-') => {
                     queue.push_back((next, 1, 0));
                     queue.push_back((next, -1, 0));
                 }
