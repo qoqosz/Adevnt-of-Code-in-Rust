@@ -1,6 +1,6 @@
 use aoc::aoc_input;
+use regex_lite::Regex;
 use rustc_hash::FxHashMap;
-use regex::Regex;
 
 struct Bag<'a> {
     container: FxHashMap<&'a str, Vec<(usize, &'a str)>>,
@@ -67,7 +67,7 @@ impl<'a> Bag<'a> {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2020, 7).unwrap();
     let mut bag = Bag::from_input(&data);
     bag.set_color("shiny gold");

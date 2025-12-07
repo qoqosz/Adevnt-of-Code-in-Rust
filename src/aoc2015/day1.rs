@@ -24,7 +24,7 @@ fn reach_basement(instructions: &str) -> Option<usize> {
         .map(|i| i + 1)
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 1).unwrap();
 
     // Part I

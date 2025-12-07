@@ -66,7 +66,7 @@ impl<'a> Iterator for ContainersPartitionsIter<'a> {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 17).unwrap();
     let containers = Containers::from(
         data.lines()

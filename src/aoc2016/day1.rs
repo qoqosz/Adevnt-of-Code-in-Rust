@@ -59,7 +59,7 @@ fn find_duplicate(path: &[Point]) -> Option<Point> {
     None
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2016, 1).unwrap();
     let tokens = data.split(',').map(|x| x.trim()).collect::<Vec<_>>();
 

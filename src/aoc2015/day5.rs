@@ -61,7 +61,7 @@ fn ans2(data: &[&str]) -> usize {
     data.iter().filter(|txt| is_nice2(txt)).count()
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 5).unwrap();
     let data = data.lines().filter(|x| !x.is_empty()).collect::<Vec<_>>();
 

@@ -470,7 +470,7 @@ impl Executor {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 7).unwrap();
     let lines: Vec<_> = data.split('\n').filter(|&x| !x.is_empty()).collect();
     let mut executor = Executor::new();

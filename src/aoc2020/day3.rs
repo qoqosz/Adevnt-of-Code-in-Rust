@@ -7,7 +7,7 @@ fn count_trees<'a>(mut map: impl Iterator<Item = &'a str>, shift: usize) -> usiz
         .count()
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2020, 3).unwrap();
     let iter = data.lines().filter(|x| !x.is_empty());
 

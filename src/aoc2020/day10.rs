@@ -8,7 +8,7 @@ fn fib(x: usize) -> usize {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2020, 10).unwrap();
     let mut adapters = data
         .lines()

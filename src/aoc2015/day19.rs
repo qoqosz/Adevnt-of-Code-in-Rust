@@ -62,7 +62,7 @@ fn search(start: &str, end: &str, rules: &[(&str, &str)]) -> usize {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 19).unwrap();
     let lines = data.lines().filter(|x| !x.is_empty()).collect::<Vec<_>>();
     let rules = lines

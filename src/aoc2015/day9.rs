@@ -26,7 +26,7 @@ fn shortest_path(graph: &Graph<&str, i32, Undirected>) -> Option<i32> {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 9).unwrap();
     let mut graph = Graph::<&str, i32, Undirected>::new_undirected();
     let mut map: HashMap<&str, NodeIndex> = HashMap::new();

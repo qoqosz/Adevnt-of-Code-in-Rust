@@ -22,7 +22,7 @@ fn play(text: &str, n: usize) -> usize {
         .len()
 }
 
-fn main() {
+pub fn main() {
     let data = "1321131112";
 
     // Part I

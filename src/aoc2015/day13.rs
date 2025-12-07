@@ -123,7 +123,7 @@ impl Attendees {
     }
 }
 
-fn main() {
+pub fn main() {
     let data = aoc_input!(2015, 13).unwrap();
     let mut attendees = Attendees::new();
 

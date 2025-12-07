@@ -23,7 +23,7 @@ fn find(secret: &[u8], f: &(dyn Fn(&md5::Digest) -> bool + Sync)) -> Option<usiz
         })
 }
 
-fn main() {
+pub fn main() {
     // Problem 1
     let secret_key = "yzbqklnj".as_bytes();
     println!("{}", find(secret_key, &check5).unwrap());
