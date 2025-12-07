@@ -1,8 +1,6 @@
-#[macro_use]
-extern crate lazy_static;
-
 use aoc::aoc_input;
 use aoc::point2d::Point;
+use lazy_static::lazy_static;
 
 lazy_static! {
     static ref PHASES: [Point; 4] = [
@@ -24,22 +22,41 @@ impl Dist for Point {
 }
 
 fn path(instructions: &[&str]) -> Vec<Point> {
-    instructions
-        .iter()
-        .scan((Point::default(), 0), |(pos, phi), token| {
-            let turn = token.chars().next().unwrap();
-            let val = token[1..].parse::<i32>().unwrap();
+    let mut pos = Point::default();
+    let mut out = vec![pos];
+    let mut phi = 0;
 
-            match turn {
-                'R' => *phi += 1,
-                _ => *phi += 3,
-            };
+    for token in instructions {
+        let turn = token.chars().next().unwrap();
+        let val = token[1..].parse::<usize>().unwrap();
 
-            let ds = PHASES[*phi % 4];
-            *pos = *pos + ds * val;
-            Some(*pos)
-        })
-        .collect::<Vec<_>>()
+        match turn {
+            'R' => phi += 1,
+            _ => phi += 3,
+        };
+
+        let ds = PHASES[phi % 4];
+
+        for _ in 1..=val {
+            pos = pos + ds;
+            out.push(pos);
+        }
+    }
+
+    out
+}
+
+fn find_duplicate(path: &[Point]) -> Option<Point> {
+    let n = path.len();
+
+    for i in 0..n {
+        for j in (i + 1)..n {
+            if path[i] == path[j] {
+                return Some(path[i]);
+            }
+        }
+    }
+    None
 }
 
 fn main() {
@@ -52,6 +69,6 @@ fn main() {
     println!("{}", dest.dist());
 
     // Part II
-    // let dup = first_dup(&path).unwrap();
-    // println!("{}", dist(*dup));
+    let dup = find_duplicate(&path).unwrap();
+    println!("{}", dup.dist());
 }
