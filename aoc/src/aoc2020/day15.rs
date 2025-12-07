@@ -7,38 +7,32 @@ enum Occurrence {
     SeenBefore(usize, usize),
 }
 
-fn observe(cache: &mut FxHashMap<usize, Occurrence>, value: usize, i: usize) {
+fn observe(cache: &mut FxHashMap<usize, Occurrence>, value: usize, i: usize) -> &'_ Occurrence {
     cache
         .entry(value)
-        .and_modify(|x| match *x {
-            Occurrence::First(j) => *x = Occurrence::SeenBefore(i, j),
-            Occurrence::SeenBefore(j, _) => *x = Occurrence::SeenBefore(i, j),
+        .and_modify(|x| {
+            *x = match *x {
+                Occurrence::First(j) | Occurrence::SeenBefore(j, _) => Occurrence::SeenBefore(i, j),
+            }
         })
-        .or_insert(Occurrence::First(i));
+        .or_insert(Occurrence::First(i))
 }
 
 fn solve(input: &[usize], n: usize) -> usize {
     let mut cache: FxHashMap<usize, Occurrence> = FxHashMap::default();
-    let warmup = input.len();
-    let mut prev = 0; // cutting corners
+    let (mut speak, warmup) = (0, input.len());
+    let mut prev = &Occurrence::First(0); // cutting corners
 
     for i in 1..(n + 1) {
-        if i <= warmup {
-            prev = input[i - 1];
-            observe(&mut cache, prev, i);
-            continue;
-        }
-
-        match cache.get(&prev) {
-            Some(Occurrence::First(_)) => prev = 0,
-            Some(Occurrence::SeenBefore(m, n)) => prev = m - n,
-            _ => unreachable!(),
-        }
-
-        observe(&mut cache, prev, i);
+        speak = match (i, &prev) {
+            (j, _) if j <= warmup => input[j - 1],
+            (_, Occurrence::First(_)) => 0,
+            (_, Occurrence::SeenBefore(m, n)) => m - n,
+        };
+        prev = observe(&mut cache, speak, i);
     }
 
-    prev
+    speak
 }
 
 #[aoc(2020, 15)]
