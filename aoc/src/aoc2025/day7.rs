@@ -22,9 +22,7 @@ fn simulate(manifold: &Vec<Vec<u8>>) -> (usize, usize) {
                     increment(&mut new_beams, beam + 1, count);
                     n_splits += 1;
                 }
-                _ => {
-                    increment(&mut new_beams, beam, count);
-                }
+                _ => increment(&mut new_beams, beam, count),
             }
         }
 
