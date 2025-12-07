@@ -66,6 +66,10 @@ name = "aoc_core"
 version = "0.1.0"
 dependencies = [
  "inventory",
+ "petgraph",
+ "pico-args",
+ "shellexpand",
+ "ureq",
 ]
 
 [[package]]
