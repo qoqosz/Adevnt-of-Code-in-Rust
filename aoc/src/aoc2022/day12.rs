@@ -11,7 +11,7 @@ pub fn main() {
         .collect::<Vec<_>>();
 
     // Part I
-    let mut graph: GraphMap<(usize, usize), i32> = GraphMap::new();
+    // let mut graph: GraphMap<(usize, usize), i32> = GraphMap::new();
 
     // todo:
     // 1. add all nodes (node type, index + char)
