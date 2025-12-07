@@ -1,13 +1,7 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
-use rustc_hash::FxHashMap;
+use rustc_hash::{FxHashMap, FxHashSet};
 use std::collections::VecDeque;
-
-struct Device {
-    x: u64,
-    y: u64,
-    z: u64,
-}
 
 fn parse(data: &str) -> (FxHashMap<&str, bool>, Vec<(&str, &str, &str, &str)>) {
     let (inits, instructions) = data.trim().split_once("\n\n").unwrap();
@@ -70,7 +64,41 @@ pub fn main() {
     println!("{}", read(&memory, 'z'));
 
     // Part II
-    let x = 1;
-    println!("{x:044b}");
-    println!("x{x:02}");
+    let mut lookup = FxHashSet::default();
+    let mut swapped = FxHashSet::default();
+
+    for &(x, op, y, _) in &instructions {
+        lookup.insert((x, op));
+        lookup.insert((y, op));
+    }
+
+    for (x, op, y, out) in instructions {
+        match op {
+            "AND" => {
+                if x != "x00" && y != "x00" && !lookup.contains(&(out, "OR")) {
+                    swapped.insert(out);
+                }
+            }
+            "OR" => {
+                if out.starts_with('z') && out != "z45" {
+                    swapped.insert(out);
+                }
+                if lookup.contains(&(out, "OR")) {
+                    swapped.insert(out);
+                }
+            }
+            "XOR" => {
+                if x.starts_with('x') || y.starts_with('x') {
+                    if x != "x00" && y != "x00" && !lookup.contains(&(out, "XOR")) {
+                        swapped.insert(out);
+                    }
+                } else if !out.starts_with('z') {
+                    swapped.insert(out);
+                }
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    println!("{}", swapped.iter().sorted_unstable().join(","));
 }
