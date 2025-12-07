@@ -15,7 +15,7 @@ path = "src/bin/download.rs"
 
 [[bin]]
 name = "cur"
-path = "src/aoc2015/day11.rs"
+path = "src/aoc2015/day12.rs"
 
 
 [[bin]]
@@ -26,3 +26,5 @@ path = "src/temp.rs"
 petgraph = "0.6.4"
 md5 = "0.7.0"
 itertools = "0.11.0"
+regex = "1.10.2"
+serde_json = "1.0.107"
