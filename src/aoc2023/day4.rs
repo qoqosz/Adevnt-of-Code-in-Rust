@@ -35,10 +35,7 @@ impl FromStr for Card {
 impl Card {
     // Score for Part I
     fn score(&self) -> u32 {
-        match self.count as u32 {
-            0 => 0,
-            n => 2_u32.pow(n - 1),
-        }
+        (1 << self.count) >> 1
     }
 }
 
@@ -59,17 +56,9 @@ fn recursive_score(id: usize, cards: &[Card], cache: &mut [u32]) -> u32 {
     score
 }
 
-fn parse(data: &str) -> Vec<&str> {
-    data.lines().filter(|x| !x.is_empty()).collect()
-}
-
 pub fn main() {
     let data = aoc_input!(2023, 4).unwrap();
-    let lines = parse(&data);
-    let cards = lines
-        .iter()
-        .flat_map(|line| Card::from_str(line))
-        .collect::<Vec<_>>();
+    let cards = data.lines().flat_map(Card::from_str).collect::<Vec<_>>();
 
     // Part I
     let score: u32 = cards.iter().map(|card| card.score()).sum();
