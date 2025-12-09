@@ -191,24 +191,17 @@ fn prod_x_last_2_junctions(g: &mut Graph) -> u64 {
             return min_pair.u.x * min_pair.v.x;
         }
 
-        let n = components.len();
-        min_pair = Pair::MAX;
-
-        for i in 0..(n - 1) {
-            for j in (i + 1)..n {
-                let (c1, c2) = (&components[i], &components[j]);
-                let pair = c1
-                    .iter()
+        min_pair = components
+            .iter()
+            .tuple_combinations()
+            .flat_map(|(c1, c2)| {
+                c1.iter()
                     .cartesian_product(c2.iter())
                     .map(|(u, v)| Pair::create(u, v))
                     .min()
-                    .unwrap();
-
-                if pair < min_pair {
-                    min_pair = pair;
-                }
-            }
-        }
+            })
+            .min()
+            .unwrap();
 
         g.add_edge(min_pair.u.clone(), min_pair.v.clone());
     }
