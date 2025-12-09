@@ -48,6 +48,7 @@ impl Rectangle {
     }
 
     /// Check if a rectangle intersects with other.
+    /// Uses the AABB (Axis-Aligned Bounding Box) algorithm.
     fn intersects(&self, other: &Self) -> bool {
         other.p.x < self.q.x && other.p.y < self.q.y && other.q.x > self.p.x && other.q.y > self.p.y
     }
@@ -66,7 +67,7 @@ pub fn main() {
 
         a = a.max(area);
 
-        for (p, q) in red_tiles.iter().tuple_windows() {
+        for (p, q) in red_tiles.iter().circular_tuple_windows() {
             if Rectangle::from_corners(p, q).intersects(&rect) {
                 continue 'outer;
             }
