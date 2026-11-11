@@ -99,24 +99,3 @@ pub fn download_aoc_input(
 
     download_file(&url, &cookie)
 }
-
-pub fn get_aoc_input(
-    cache_dir: impl AsRef<str>,
-    session_cookie: Option<&str>,
-    year: impl Unsigned,
-    day: impl Unsigned,
-) -> io::Result<String> {
-    get_from_cache(&cache_dir, year, day).or_else(|_| {
-        create_store(&cache_dir)?;
-
-        if session_cookie.is_none() {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "Empty AoC session cookie",
-            ));
-        }
-        let puzzle_input = download_aoc_input(session_cookie.unwrap(), year, day)?;
-        save_to_cache(cache_dir, year, day, &puzzle_input)?;
-        Ok(puzzle_input)
-    })
-}
