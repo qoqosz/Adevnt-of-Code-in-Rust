@@ -1,12 +1,16 @@
 [package]
 name = "aoc_derive"
 version = "0.1.0"
+authors = ["Łukasz Bednarski"]
+description = "Proc macro utilities"
+repository = "https://github.com/qoqosz/Adevnt-of-Code-in-Rust/"
+readme = "../README.md"
 edition = "2024"
+rust-version = "1.99.0"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-aoc_core = { path = "../aoc_core" }
 quote = "1.0.36"
 syn = { version = "2.0.72", features = ["full"] }

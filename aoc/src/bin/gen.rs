@@ -66,7 +66,8 @@ fn main() -> ExitCode {
     };
 
     if args.day.is_none() {
-        eprintln!("generating all inputs for a given year is not supported")
+        eprintln!("generating all inputs for a given year is not supported");
+        return ExitCode::FAILURE;
     }
 
     let day = args.day.unwrap();

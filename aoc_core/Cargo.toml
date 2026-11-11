@@ -3,15 +3,17 @@ name = "aoc_core"
 version = "0.2.0"
 authors = ["Łukasz Bednarski"]
 description = "Core utilities for Advent of Code solutions in Rust"
+readme = "../README.md"
 edition = "2024"
+rust-version = "1.99.0"
 
 [lib]
 name = "aoc_core"
 path = "src/lib/lib.rs"
 
 [dependencies]
-inventory = "0.3.13"
-ureq = "2.10.0"
+inventory = "0.3.15"
+ureq = "2.12.1"
 pico-args = "0.5.0"
 shellexpand = "3.1.0"
 petgraph = "0.6.5"

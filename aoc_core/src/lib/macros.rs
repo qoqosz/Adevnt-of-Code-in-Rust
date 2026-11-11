@@ -21,11 +21,6 @@ macro_rules! load_input {
 /// This uses local cache to store once downloaded inputs. Session cookie is required to download new files.
 #[macro_export]
 macro_rules! aoc_input {
-    ($d:expr_2021) => {
-        let year = $crate::date::get_current_year();
-        aoc_input!(year, $d)
-    };
-
     ($y:expr_2021, $d:expr_2021) => {{
         $crate::io::get_from_cache($crate::io::AOC_DIR, $y as u16, $d as u16).or_else(|_| {
             let session_cookie =

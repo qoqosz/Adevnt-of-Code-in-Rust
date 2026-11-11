@@ -1,6 +1,6 @@
 use crate::num::Unsigned;
-use petgraph::graph::{Graph, NodeIndex};
 use petgraph::EdgeType;
+use petgraph::graph::{Graph, NodeIndex};
 use std::str::FromStr;
 
 /// Parse a string into a 2D grid graph

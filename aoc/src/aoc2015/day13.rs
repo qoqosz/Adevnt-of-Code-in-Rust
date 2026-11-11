@@ -1,6 +1,6 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
-use petgraph::{prelude::*, Graph};
+use petgraph::{Graph, prelude::*};
 use std::collections::HashMap;
 
 #[derive(Clone)]

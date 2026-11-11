@@ -2,8 +2,8 @@ use aoc::{aoc, aoc_input, heap::MinHeap};
 use glam::IVec2 as Point;
 use rustc_hash::{FxHashMap, FxHashSet};
 use std::collections::{
-    hash_map::Entry::{Occupied, Vacant},
     VecDeque,
+    hash_map::Entry::{Occupied, Vacant},
 };
 
 static DIRS: [Point; 4] = [

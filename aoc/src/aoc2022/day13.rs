@@ -9,7 +9,7 @@ use std::str::FromStr;
 
 type List = Vec<Node>;
 
-#[derive(Debug, Eq, Ord)]
+#[derive(Debug, Eq)]
 enum Node {
     Number(u8),
     List(List),
@@ -25,16 +25,20 @@ impl PartialEq for Node {
     }
 }
 
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match (self, other) {
+            (Node::Number(x), Node::Number(y)) => x.cmp(y),
+            (Node::List(x), Node::List(y)) => x.cmp(y),
+            (Node::Number(x), Node::List(y)) => [Node::Number(*x)].as_slice().cmp(y),
+            (Node::List(x), Node::Number(y)) => x.as_slice().cmp(&[Node::Number(*y)]),
+        }
+    }
+}
+
 impl PartialOrd for Node {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        match (self, other) {
-            (&Node::Number(ref x), &Node::Number(ref y)) => x.partial_cmp(y),
-            (&Node::List(ref x), &Node::List(ref y)) => x.partial_cmp(y),
-            (&Node::Number(ref x), &Node::List(_)) => {
-                Node::List(vec![Node::Number(*x)]).partial_cmp(other)
-            }
-            (&Node::List(ref x), &Node::Number(ref y)) => x.partial_cmp(&vec![Node::Number(*y)]),
-        }
+        Some(self.cmp(other))
     }
 }
 

@@ -5,8 +5,6 @@ members = [
   "aoc_derive"
 ]
 
-package.rust-version = "1.90.0"
-
 resolver = "2"
 
 [profile.dev]

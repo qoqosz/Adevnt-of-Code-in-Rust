@@ -84,8 +84,10 @@ fn download_file(url: &str, session_cookie: &str) -> io::Result<String> {
             return Err(io::Error::new(io::ErrorKind::Other, error));
         }
     };
-    let body = response.into_string().unwrap_or_default();
-    Ok(body)
+    match response.into_string() {
+        Ok(x) => Ok(x),
+        _ => Err(io::Error::new(io::ErrorKind::Other, "Got empty string")),
+    }
 }
 
 /// Download AoC puzzle input for a given year and day.

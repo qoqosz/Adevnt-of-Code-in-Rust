@@ -1,5 +1,5 @@
 use aoc::{aoc, aoc_input};
-use itertools::{iproduct, Itertools};
+use itertools::{Itertools, iproduct};
 use regex_lite::Regex;
 use rustc_hash::{FxHashMap, FxHashSet};
 use std::cmp::{max, min};

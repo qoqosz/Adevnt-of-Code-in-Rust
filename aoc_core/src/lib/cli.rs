@@ -64,7 +64,7 @@ impl TryFrom<pico_args::Arguments> for Args {
             .unwrap_or_else(|_| get_current_year());
 
         if let Some(d) = day {
-            if !(0..=25).contains(&(d as i32)) {
+            if !(1..=25).contains(&(d as i32)) {
                 return Err(ArgsError::InvalidDay);
             }
         }

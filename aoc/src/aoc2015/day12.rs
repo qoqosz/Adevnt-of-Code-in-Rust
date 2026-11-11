@@ -1,6 +1,6 @@
 use aoc::{aoc, aoc_input};
 use regex_lite::Regex;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 fn find_sum(data: &str) -> i64 {
     let re: Regex = Regex::new(r"([-]*[[:digit:]]+)").unwrap();

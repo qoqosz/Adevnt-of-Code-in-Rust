@@ -1,7 +1,7 @@
 use aoc::{aoc, aoc_input};
 use itertools::Itertools;
 use petgraph::visit::{GetAdjacencyMatrix, IntoNeighbors, IntoNodeIdentifiers};
-use petgraph::{prelude::GraphMap, Undirected};
+use petgraph::{Undirected, prelude::GraphMap};
 use rustc_hash::FxHashSet;
 use std::hash::Hash;
 use std::iter::FromIterator;
