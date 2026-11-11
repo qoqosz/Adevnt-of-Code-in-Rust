@@ -1,7 +1,6 @@
 use std::{
     fmt::{Debug, Display},
     ops::{Add, Div, Mul, Sub},
-    u128,
 };
 
 pub trait Unsigned: Display + Debug + Copy + Default {}
