@@ -1,9 +1,17 @@
 use rustc_hash::FxHashMap;
 use std::hash::Hash;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Counter<K> {
     data: FxHashMap<K, usize>,
+}
+
+impl<K> Default for Counter<K> {
+    fn default() -> Self {
+        Self {
+            data: FxHashMap::default(),
+        }
+    }
 }
 
 impl<K> Counter<K>
@@ -35,7 +43,7 @@ where
 
 impl<K> FromIterator<K> for Counter<K>
 where
-    K: Default + Eq + Hash,
+    K: Eq + Hash,
 {
     fn from_iter<T: IntoIterator<Item = K>>(iter: T) -> Self {
         iter.into_iter().map(|elem| (elem, 1)).collect()
@@ -44,7 +52,7 @@ where
 
 impl<K> FromIterator<(K, usize)> for Counter<K>
 where
-    K: Default + Eq + Hash,
+    K: Eq + Hash,
 {
     fn from_iter<T: IntoIterator<Item = (K, usize)>>(iter: T) -> Self {
         iter.into_iter()
